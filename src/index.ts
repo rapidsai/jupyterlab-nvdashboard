@@ -19,7 +19,7 @@ const extension: JupyterFrontEndPlugin<void> = {
   requires: [ILabShell],
   optional: [ICommandPalette],
   activate: (app: JupyterFrontEnd, labShell: ILabShell, palette?: ICommandPalette) => {
-    const iframe = new IFrame();
+    const iframe = new IFrame({ sandbox: ['allow-scripts', 'allow-same-origin']});
     const widget = new MainAreaWidget({ content: iframe });
     iframe.url = '/bokeh';
 
