@@ -1,10 +1,10 @@
 from bokeh.server.server import Server
 from bokeh.plotting import figure, ColumnDataSource
+from tornado import web
 
 import random
-import time
-
 import sys
+import time
 
 
 def lineplot(doc):
@@ -54,10 +54,22 @@ def histogram(doc):
 
 routes = {"/line": lineplot, "/histogram": histogram}
 
+
+class RouteIndex(web.RequestHandler):
+    """ A JSON index of all routes present on the Bokeh Server """
+
+    def get(self):
+        self.write({route: route.strip("/").title() for route in routes})
+
+
 if __name__ == "__main__":
     from tornado.ioloop import IOLoop
 
     server = Server(routes, port=int(sys.argv[1]), allow_websocket_origin=["*"])
     server.start()
+
+    server._tornado.add_handlers(
+        r".*", [(server.prefix + "/" + "index.json", RouteIndex, {})]
+    )
 
     IOLoop.current().start()
