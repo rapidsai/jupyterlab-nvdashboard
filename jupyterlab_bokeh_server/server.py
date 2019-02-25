@@ -2,6 +2,7 @@ from bokeh.server.server import Server
 from bokeh.plotting import figure, ColumnDataSource
 from tornado import web
 
+import psutil
 import random
 import sys
 import time
@@ -52,7 +53,29 @@ def histogram(doc):
     doc.add_periodic_callback(cb, 100)
 
 
-routes = {"/line": lineplot, "/histogram": histogram}
+def cpu(doc):
+    fig = figure(title="CPU Usage", sizing_mode="stretch_both", y_range=[0, 100])
+
+    cpu = psutil.cpu_percent(percpu=True)
+    left = list(range(len(cpu)))
+    right = [l + 0.8 for l in left]
+
+    source = ColumnDataSource({"left": left, "right": right, "cpu": cpu})
+
+    fig.quad(
+        source=source, left="left", right="right", bottom=0, top="cpu", color="blue"
+    )
+
+    doc.title = "CPU Usage"
+    doc.add_root(fig)
+
+    def cb():
+        source.data.update({"cpu": psutil.cpu_percent(percpu=True)})
+
+    doc.add_periodic_callback(cb, 200)
+
+
+routes = {"/line": lineplot, "/histogram": histogram, "/cpu": cpu}
 
 
 class RouteIndex(web.RequestHandler):
