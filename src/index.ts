@@ -4,7 +4,9 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
-import { ICommandPalette, IFrame, MainAreaWidget } from '@jupyterlab/apputils';
+import { ICommandPalette } from '@jupyterlab/apputils';
+
+import { BokehDashboard, BokehDashboardLauncher, IDashboardItem } from './dashboard';
 
 import '../style/index.css';
 
@@ -18,14 +20,28 @@ const extension: JupyterFrontEndPlugin<void> = {
   autoStart: true,
   requires: [ILabShell],
   optional: [ICommandPalette],
-  activate: (app: JupyterFrontEnd, labShell: ILabShell, palette?: ICommandPalette) => {
-    const iframe = new IFrame({ sandbox: ['allow-scripts', 'allow-same-origin']});
-    const widget = new MainAreaWidget({ content: iframe });
-    iframe.url = '/bokeh';
+  activate: (
+    app: JupyterFrontEnd,
+    labShell: ILabShell,
+    palette?: ICommandPalette
+  ) => {
+
+    const sidebar = new BokehDashboardLauncher({
+      launchItem: (item: IDashboardItem) => {
+        app.commands.execute(COMMAND_ID, item);
+      }
+    });
+    sidebar.id = 'bokeh-dashboard-launcher';
+    sidebar.title.iconClass = 'jp-ExtensionIcon jp-SideBar-tabIcon';
+    sidebar.title.caption = 'Dask';
+    labShell.add(sidebar, 'left');
 
     app.commands.addCommand(COMMAND_ID, {
       label: 'Bokeh document',
-      execute: () => {
+      execute: args => {
+        const item = args as IDashboardItem;
+        const widget = new BokehDashboard();
+        widget.item = item;
         labShell.add(widget, 'main');
       }
     });

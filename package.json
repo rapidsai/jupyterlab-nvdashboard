@@ -30,9 +30,14 @@
   },
   "dependencies": {
     "@jupyterlab/application": "^1.0.0-alpha.3",
-    "@jupyterlab/apputils": "^1.0.0-alpha.3"
+    "@jupyterlab/apputils": "^1.0.0-alpha.3",
+    "@jupyterlab/coreutils": "3.0.0-alpha.3",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2"
   },
   "devDependencies": {
+    "@types/react": "~16.4.13",
+    "@types/react-dom": "~16.0.7",
     "rimraf": "^2.6.1",
     "typescript": "~3.3.1"
   },
