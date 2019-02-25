@@ -3,6 +3,7 @@ from bokeh.plotting import figure, ColumnDataSource
 
 import random
 
+import sys
 
 def lineplot(doc):
     fig = figure(title="Line plot!", sizing_mode="stretch_both")
@@ -27,9 +28,8 @@ def lineplot(doc):
 
 routes = {"/": lineplot}
 
-
 if __name__ == "__main__":
-    server = Server(routes, port=5000)
+    server = Server(routes, port=int(sys.argv[1]), allow_websocket_origin=['*'])
     server.start()
 
     from tornado.ioloop import IOLoop
