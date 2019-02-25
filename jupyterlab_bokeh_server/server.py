@@ -4,6 +4,7 @@ from bokeh.plotting import figure, ColumnDataSource
 import random
 import time
 
+import sys
 
 def lineplot(doc):
     fig = figure(title="Line plot!", sizing_mode="stretch_both", x_axis_type="datetime")
@@ -27,11 +28,10 @@ def lineplot(doc):
 
 routes = {"/": lineplot}
 
-
 if __name__ == "__main__":
     from tornado.ioloop import IOLoop
 
-    server = Server(routes, port=5000)
+    server = Server(routes, port=int(sys.argv[1]), allow_websocket_origin=['*'])
     server.start()
 
     IOLoop.current().start()
