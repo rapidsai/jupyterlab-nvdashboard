@@ -59,7 +59,7 @@ There are also two branches in this repository:
 
    And is available in a live notebook here: `TODO binder link`
 
-You can view the [difference between these two branches]().
+You can view the [difference between these two branches](https://github.com/ian-r-rose/jupyterlab-bokeh-server/compare/system-resources).
 This should give a sense for what you need to do to construct your own
 JupyterLab enabled dashboard.
 
