@@ -123,9 +123,10 @@ def resource_timeline(doc):
         x_range=x_range,
         tools=tools,
     )
-    disk_fig.line(source=source, x="time", y="disk-read", color="blue")
-    disk_fig.line(source=source, x="time", y="disk-write", color="red")
+    disk_fig.line(source=source, x="time", y="disk-read", color="blue", legend="Read")
+    disk_fig.line(source=source, x="time", y="disk-write", color="red", legend="Write")
     disk_fig.yaxis.formatter = NumeralTickFormatter(format="0.0b")
+    disk_fig.legend.location = "top_left"
 
     net_fig = figure(
         title="Network I/O Bandwidth",
@@ -134,13 +135,14 @@ def resource_timeline(doc):
         x_range=x_range,
         tools=tools,
     )
-    net_fig.line(source=source, x="time", y="net-read", color="blue")
-    net_fig.line(source=source, x="time", y="net-sent", color="red")
+    net_fig.line(source=source, x="time", y="net-read", color="blue", legend="Recv")
+    net_fig.line(source=source, x="time", y="net-sent", color="red", legend="Send")
     net_fig.yaxis.formatter = NumeralTickFormatter(format="0.0b")
+    net_fig.legend.location = "top_left"
 
     doc.title = "Resource Timeline"
     doc.add_root(
-        column(memory_fig, cpu_fig, disk_fig, net_fig, sizing_mode="stretch_both")
+        column(cpu_fig, memory_fig, disk_fig, net_fig, sizing_mode="stretch_both")
     )
 
     last_disk_read = psutil.disk_io_counters().read_bytes
