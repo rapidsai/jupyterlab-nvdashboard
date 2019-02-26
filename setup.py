@@ -14,7 +14,7 @@ setuptools.setup(
     ],
     entry_points={
         'jupyter_serverproxy_servers': [
-            'bokeh = jupyterlab_bokeh_server:launch_server',
+            'bokeh-dashboard = jupyterlab_bokeh_server:launch_server',
         ]
     },
     package_data={
