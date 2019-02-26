@@ -145,14 +145,14 @@ def resource_timeline(doc):
 
     last_disk_read = psutil.disk_io_counters().read_bytes
     last_disk_write = psutil.disk_io_counters().write_bytes
-    last_net_read = psutil.net_io_counters().bytes_recv
+    last_net_recv = psutil.net_io_counters().bytes_recv
     last_net_sent = psutil.net_io_counters().bytes_sent
-    last_time = time.time() * 1000
+    last_time = time.time()
 
     def cb():
-        nonlocal last_disk_read, last_disk_write, last_net_read, last_net_sent, last_time
+        nonlocal last_disk_read, last_disk_write, last_net_recv, last_net_sent, last_time
 
-        now = time.time() * 1000  # bokeh measures in ms
+        now = time.time()
         cpu = psutil.cpu_percent()
         mem = psutil.virtual_memory().used
 
@@ -166,12 +166,12 @@ def resource_timeline(doc):
 
         source.stream(
             {
-                "time": [now],
+                "time": [now * 1000],  # bokeh measures in ms
                 "cpu": [cpu],
                 "memory": [mem],
                 "disk-read": [(disk_read - last_disk_read) / (now - last_time)],
                 "disk-write": [(disk_write - last_disk_write) / (now - last_time)],
-                "net-read": [(net_read - last_net_read) / (now - last_time)],
+                "net-read": [(net_read - last_net_recv) / (now - last_time)],
                 "net-sent": [(net_sent - last_net_sent) / (now - last_time)],
             },
             1000,
@@ -179,11 +179,11 @@ def resource_timeline(doc):
 
         last_disk_read = disk_read
         last_disk_write = disk_write
-        last_net_read = net_read
+        last_net_recv = net_read
         last_net_sent = net_sent
         last_time = now
 
-    doc.add_periodic_callback(cb, 100)
+    doc.add_periodic_callback(cb, 200)
 
 
 routes = {
