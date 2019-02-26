@@ -49,7 +49,7 @@ There are also two branches in this repository:
 
 -  **master** contains a basic dashboard with two plots, a line plot and
    a histogram, that display randomly varying data
--  **resouces** expands on the toy system above to create a real-world example
+-  **system-resouces** expands on the toy system above to create a real-world example
    that uses the `psutil` module to show CPU, memory, network, and storage
    activity.  This example is installable as follows:
 
