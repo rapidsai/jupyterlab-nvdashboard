@@ -75,7 +75,7 @@ export class BokehDashboardLauncher extends Widget {
     let layout = (this.layout = new PanelLayout());
     this._dashboard = new Widget();
     const header = new Widget();
-    header.node.textContent = 'System Resources';
+    header.node.textContent = 'My Cool Plots';
     header.addClass('bokeh-BokehDashboardLauncher-header')
     layout.addWidget(header);
     layout.addWidget(this._dashboard);
