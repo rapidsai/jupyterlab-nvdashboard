@@ -60,6 +60,7 @@ const extension: JupyterFrontEndPlugin<void> = {
         widget.title.label = item.label;
         widget.item = item;
         labShell.add(widget, 'main');
+        tracker.add(widget);
       }
     });
 
