@@ -33,8 +33,8 @@ const extension: JupyterFrontEndPlugin<void> = {
       }
     });
     sidebar.id = 'bokeh-dashboard-launcher';
-    sidebar.title.iconClass = 'jp-ExtensionIcon jp-SideBar-tabIcon';
-    sidebar.title.caption = 'Dask';
+    sidebar.title.iconClass ='bokeh-ChartIcon jp-SideBar-tabIcon';
+    sidebar.title.caption = 'System Resources';
     labShell.add(sidebar, 'left');
 
     // An instance tracker which is used for state restoration.
