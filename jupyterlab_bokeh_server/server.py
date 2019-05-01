@@ -141,12 +141,93 @@ def resource_timeline(doc):
 
     doc.add_periodic_callback(cb, 200)
 
+nvml_avail = False
+try:
+    from pynvml.nvml import *
+    def gpu_resource_timeline(doc):
 
-routes = {
-    "/cpu": cpu,
-    "/resources": resource_timeline,
-}
+        nvml_init()
+        ngpus = nvmlDeviceGetCount()
+        gpu_handles = [ nvmlDeviceGetHandleByIndex(i) for i in range(ngpus) ]
+        gpu_mem_total = max( [ nvmlDeviceGetMemoryInfo( handle ).total for handle in gpu_handles ] )
 
+        # Shared X Range for all plots
+        x_range = DataRange1d(follow="end", follow_interval=20000, range_padding=0)
+        tools = "reset,xpan,xwheel_zoom"
+
+        item_dict = {"time": []}
+        for i in range(ngpus):
+            item_dict["gpu-"+str(i)] = []
+            item_dict["memory-"+str(i)] = []
+
+        source = ColumnDataSource( item_dict )
+        def _get_color( ind ):
+            color_list = [ "blue", "red", "green", "black", "brown", "cyan", \
+                           "orange", "pink", "purple", "gold" ]
+            return color_list[ ind % len(color_list) ]
+
+        memory_fig = figure(
+            title="Memory",
+            sizing_mode="stretch_both",
+            x_axis_type="datetime",
+            y_range=[0, gpu_mem_total],
+            x_range=x_range,
+            tools=tools,
+        )
+        for i in range(ngpus):
+            memory_fig.line(source=source, x="time", y="memory-"+str(i), color=_get_color(i), legend="Device-"+str(i))
+        memory_fig.yaxis.formatter = NumeralTickFormatter(format="0.0b")
+        memory_fig.legend.location = "top_left"
+
+        gpu_fig = figure(
+            title="GPU",
+            sizing_mode="stretch_both",
+            x_axis_type="datetime",
+            y_range=[0, 100],
+            x_range=x_range,
+            tools=tools,
+        )
+        for i in range(ngpus):
+            gpu_fig.line(source=source, x="time", y="gpu-"+str(i), color=_get_color(i), legend="Device-"+str(i))
+        gpu_fig.legend.location = "top_left"
+
+        doc.title = "Resource Timeline"
+        doc.add_root(
+            column(gpu_fig, memory_fig, sizing_mode="stretch_both")
+        )
+
+        last_time = time.time()
+
+        def cb():
+            nonlocal last_time
+
+            now = time.time()
+
+            src_dict = {"time": [now * 1000]}
+            for i in range(ngpus):
+                gpu = nvmlDeviceGetUtilizationRates( gpu_handles[i] ).gpu
+                mem = nvmlDeviceGetMemoryInfo( gpu_handles[i] ).used
+                src_dict["gpu-"+str(i)] = [gpu]
+                src_dict["memory-"+str(i)] = [mem]
+
+            source.stream(
+                src_dict,
+                1000,
+            )
+
+            last_time = now
+
+        doc.add_periodic_callback(cb, 200)
+    routes = {
+        "/cpu": cpu,
+        "/resources": resource_timeline,
+        "/gpu_resources": gpu_resource_timeline,
+    }
+except:
+    routes = {
+        "/cpu": cpu,
+        "/resources": resource_timeline,
+    }
 
 class RouteIndex(web.RequestHandler):
     """ A JSON index of all routes present on the Bokeh Server """
