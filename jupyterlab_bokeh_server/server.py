@@ -1,5 +1,7 @@
 from bokeh.server.server import Server
 from bokeh.plotting import figure, ColumnDataSource
+from bokeh.models import DataRange1d, NumeralTickFormatter
+from bokeh.layouts import column
 from tornado import web
 
 import psutil
