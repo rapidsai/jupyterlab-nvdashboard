@@ -4,18 +4,19 @@ from bokeh.models import DataRange1d, NumeralTickFormatter
 from bokeh.layouts import column
 from bokeh.models.mappers import LinearColorMapper
 from bokeh.palettes import all_palettes
+
 import time
 
-from pynvml.nvml import *
+import pynvml
 
-nvml_init()
-ngpus = nvmlDeviceGetCount()
-gpu_handles = [ nvmlDeviceGetHandleByIndex(i) for i in range(ngpus) ]
+pynvml.nvmlInit()
+ngpus = pynvml.nvmlDeviceGetCount()
+gpu_handles = [ pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus) ]
 
 def gpu(doc):
     fig = figure(title="GPU Usage", sizing_mode="stretch_both", y_range=[0, 100])
 
-    gpu = [ nvmlDeviceGetUtilizationRates( gpu_handles[i] ).gpu+1 for i in range(ngpus) ]
+    gpu = [ pynvml.nvmlDeviceGetUtilizationRates( gpu_handles[i] ).gpu+1 for i in range(ngpus) ]
     left = list(range(len(gpu)))
     right = [l + 0.8 for l in left]
     source = ColumnDataSource({"left": left, "right": right, "gpu": gpu})
@@ -30,14 +31,14 @@ def gpu(doc):
     doc.add_root(fig)
 
     def cb():
-        source.data.update({"gpu": [ nvmlDeviceGetUtilizationRates( gpu_handles[i] ).gpu+0.1 for i in range(ngpus) ]})
+        source.data.update({"gpu": [ pynvml.nvmlDeviceGetUtilizationRates( gpu_handles[i] ).gpu+0.1 for i in range(ngpus) ]})
 
     doc.add_periodic_callback(cb, 200)
 
 def pci(doc):
 
     tx_fig = figure(title="TX Bytes [KB/s]", sizing_mode="stretch_both", y_range=[0, 1000000])
-    pci_tx = [ nvmlDeviceGetPcieThroughput( gpu_handles[i] , NVML_PCIE_UTIL_TX_BYTES ) for i in range(ngpus) ]
+    pci_tx = [ pynvml.nvmlDeviceGetPcieThroughput( gpu_handles[i] , pynvml.NVML_PCIE_UTIL_TX_BYTES ) for i in range(ngpus) ]
     left = list(range(len(pci_tx)))
     right = [l + 0.8 for l in left]
     source = ColumnDataSource({"left": left, "right": right, "pci-tx": pci_tx})
@@ -48,7 +49,7 @@ def pci(doc):
     )
 
     rx_fig = figure(title="RX Bytes [KB/s]", sizing_mode="stretch_both", y_range=[0, 1000000])
-    pci_rx = [ nvmlDeviceGetPcieThroughput( gpu_handles[i] , NVML_PCIE_UTIL_RX_BYTES ) for i in range(ngpus) ]
+    pci_rx = [ pynvml.nvmlDeviceGetPcieThroughput( gpu_handles[i] , pynvml.NVML_PCIE_UTIL_RX_BYTES ) for i in range(ngpus) ]
     left = list(range(len(pci_rx)))
     right = [l + 0.8 for l in left]
     source = ColumnDataSource({"left": left, "right": right, "pci-rx": pci_rx})
@@ -65,15 +66,15 @@ def pci(doc):
 
     def cb():
         src_dict = {}
-        src_dict["pci-rx"] = [ nvmlDeviceGetPcieThroughput( gpu_handles[i] , NVML_PCIE_UTIL_TX_BYTES ) for i in range(ngpus) ]
-        src_dict["pci-tx"] = [ nvmlDeviceGetPcieThroughput( gpu_handles[i] , NVML_PCIE_UTIL_RX_BYTES ) for i in range(ngpus) ]
+        src_dict["pci-rx"] = [ pynvml.nvmlDeviceGetPcieThroughput( gpu_handles[i] , pynvml.NVML_PCIE_UTIL_TX_BYTES ) for i in range(ngpus) ]
+        src_dict["pci-tx"] = [ pynvml.nvmlDeviceGetPcieThroughput( gpu_handles[i] , pynvml.NVML_PCIE_UTIL_RX_BYTES ) for i in range(ngpus) ]
         source.data.update(src_dict)
 
     doc.add_periodic_callback(cb, 200)
 
 def gpu_resource_timeline(doc):
 
-    memory_list = [ nvmlDeviceGetMemoryInfo( handle ).total / (1024*1024) for handle in gpu_handles ]
+    memory_list = [ pynvml.nvmlDeviceGetMemoryInfo( handle ).total / (1024*1024) for handle in gpu_handles ]
     gpu_mem_max = max( memory_list ) * (1024*1024)
     gpu_mem_sum = sum( memory_list )
 
@@ -144,8 +145,8 @@ def gpu_resource_timeline(doc):
         gpu_tot = 0
         mem_tot = 0
         for i in range(ngpus):
-            gpu = nvmlDeviceGetUtilizationRates( gpu_handles[i] ).gpu
-            mem = nvmlDeviceGetMemoryInfo( gpu_handles[i] ).used
+            gpu = pynvml.nvmlDeviceGetUtilizationRates( gpu_handles[i] ).gpu
+            mem = pynvml.nvmlDeviceGetMemoryInfo( gpu_handles[i] ).used
             gpu_tot += gpu
             mem_tot += mem / (1024*1024)
             src_dict["gpu-"+str(i)] = [gpu]
