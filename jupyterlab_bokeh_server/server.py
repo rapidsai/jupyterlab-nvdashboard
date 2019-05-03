@@ -3,6 +3,7 @@ from bokeh.plotting import figure, ColumnDataSource
 from bokeh.models import DataRange1d, NumeralTickFormatter
 from bokeh.layouts import column
 from bokeh.models.mappers import LinearColorMapper
+from bokeh.palettes import all_palettes
 from tornado import web
 
 import psutil
@@ -17,9 +18,7 @@ def cpu(doc):
     right = [l + 0.8 for l in left]
 
     source = ColumnDataSource({"left": left, "right": right, "cpu": cpu})
-    #colors = ["#000003", "#410967", "#932567", "#DC5039"] #, "#FBA40A", "#FCFEA4"]
-    colors = ['#440154', '#404387', '#29788E', '#22A784', '#79D151']
-    mapper = LinearColorMapper(palette=colors, low=0, high=100)
+    mapper = LinearColorMapper(palette=all_palettes['RdYlBu'][4], low=0, high=100)
 
     fig.quad(
         source=source, left="left", right="right", bottom=0, top="cpu", color={"field": "cpu", "transform": mapper}
@@ -158,9 +157,8 @@ try:
         left = list(range(len(gpu)))
         right = [l + 0.8 for l in left]
         source = ColumnDataSource({"left": left, "right": right, "gpu": gpu})
-        #colors = ["#000003", "#410967", "#932567", "#DC5039"] #, "#FBA40A", "#FCFEA4"]
-        colors = ['#440154', '#404387', '#29788E', '#22A784', '#79D151']
-        mapper = LinearColorMapper(palette=colors, low=0, high=100)
+        #colors = ['#440154', '#404387', '#29788E', '#22A784', '#79D151']
+        mapper = LinearColorMapper(palette=all_palettes['RdYlBu'][4], low=0, high=100)
 
         fig.quad(
             source=source, left="left", right="right", bottom=0, top="gpu", color={"field": "gpu", "transform": mapper}
@@ -176,25 +174,23 @@ try:
 
     def pci(doc):
 
-        tx_fig = figure(title="TX Bytes [KB]", sizing_mode="stretch_both", y_range=[0, 10000])
+        tx_fig = figure(title="TX Bytes [KB/s]", sizing_mode="stretch_both", y_range=[0, 1000000])
         pci_tx = [ nvmlDeviceGetPcieThroughput( gpu_handles[i] , NVML_PCIE_UTIL_TX_BYTES ) for i in range(ngpus) ]
         left = list(range(len(pci_tx)))
         right = [l + 0.8 for l in left]
         source = ColumnDataSource({"left": left, "right": right, "pci-tx": pci_tx})
-        colors = ["#000003", "#410967", "#932567", "#DC5039"] #, "#FBA40A", "#FCFEA4"]
-        mapper = LinearColorMapper(palette=colors, low=0, high=10000)
+        mapper = LinearColorMapper(palette=all_palettes['RdYlBu'][4], low=0, high=1000000)
 
         tx_fig.quad(
             source=source, left="left", right="right", bottom=0, top="pci-tx", color={"field": "pci-tx", "transform": mapper}
         )
 
-        rx_fig = figure(title="RX Bytes [KB]", sizing_mode="stretch_both", y_range=[0, 10000])
+        rx_fig = figure(title="RX Bytes [KB/s]", sizing_mode="stretch_both", y_range=[0, 1000000])
         pci_rx = [ nvmlDeviceGetPcieThroughput( gpu_handles[i] , NVML_PCIE_UTIL_RX_BYTES ) for i in range(ngpus) ]
         left = list(range(len(pci_rx)))
         right = [l + 0.8 for l in left]
         source = ColumnDataSource({"left": left, "right": right, "pci-rx": pci_rx})
-        colors = ["#000003", "#410967", "#932567", "#DC5039"] #, "#FBA40A", "#FCFEA4"]
-        mapper = LinearColorMapper(palette=colors, low=0, high=10000)
+        mapper = LinearColorMapper(palette=all_palettes['RdYlBu'][4], low=0, high=1000000)
 
         rx_fig.quad(
             source=source, left="left", right="right", bottom=0, top="pci-rx", color={"field": "pci-rx", "transform": mapper}
@@ -304,16 +300,16 @@ try:
 
         doc.add_periodic_callback(cb, 200)
     routes = {
-        "/cpu": cpu,
-        "/resources": resource_timeline,
-        "/gpu": gpu,
-        "/gpu_resources": gpu_resource_timeline,
-        "/pci": pci,
+        "/CPU Utilization": cpu,
+        "/Machine Resources": resource_timeline,
+        "/GPU Utilization": gpu,
+        "/GPU Resources": gpu_resource_timeline,
+        "/PCI Throughput": pci,
     }
 except:
     routes = {
-        "/cpu": cpu,
-        "/resources": resource_timeline,
+        "/CPU Utilization": cpu,
+        "/Machine Resources": resource_timeline,
     }
 
 class RouteIndex(web.RequestHandler):
