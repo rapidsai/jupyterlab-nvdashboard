@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="jupyterlab-bokeh-server",
-    version='1.0dev',
+    version='0.1.0',
     url="https://github.com/ian-r-rose/jupyterlab-bokeh-server",
     author="Matt Rocklin and Ian Rose",
     description="projectjupyter@gmail.com",

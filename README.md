@@ -47,16 +47,15 @@ that works well for you without modifying the TypeScript code.
 
 There are also two branches in this repository:
 
--  **master** contains a basic dashboard with two plots, a line plot and
-   a histogram, that display randomly varying data
+1.  **master** contains a basic dashboard with two plots, a line plot and
+   a histogram, that display randomly varying data:
+![basic](./basic.png)
+   And is available in a live notebook here: `TODO binder link`
+
 -  **system-resouces** expands on the toy system above to create a real-world example
    that uses the `psutil` module to show CPU, memory, network, and storage
-   activity.  This example is installable as follows:
-
-   ```
-   TODO
-   ```
-
+   activity:
+![resources](./resources.png)
    And is available in a live notebook here: `TODO binder link`
 
 You can view the [difference between these two branches](https://github.com/ian-r-rose/jupyterlab-bokeh-server/compare/system-resources).
@@ -77,9 +76,21 @@ has demonstrated value for many Dask and Jupyter users in the past.
 
 ## Prerequisites
 
-* JupyterLab 1.0
+* JupyterLab 1.0.0a3
+* bokeh
 
 ## Installation
+
+This extension has a server-side (Python) and a client-side (Typescript) component,
+and we must install both in order for it to work.
+
+To install the server-side component, run the following in your terminal
+
+```bash
+pip install jupyterlab-bokeh-server
+```
+
+To install the client-side component, run
 
 ```bash
 jupyter labextension install jupyterlab-bokeh-server
@@ -87,7 +98,13 @@ jupyter labextension install jupyterlab-bokeh-server
 
 ## Development
 
-For a development install (requires node version 8 or later), do the following in the repository directory:
+To install the server-side part, run the following in your terminal from the repository directory:
+
+```bash
+pip install -e .
+```
+
+In order to install the client-side component (requires node version 8 or later), run the following in the repository directory:
 
 ```bash
 jlpm install
@@ -101,4 +118,3 @@ To rebuild the package and the JupyterLab app:
 jlpm run build
 jupyter lab build
 ```
-
