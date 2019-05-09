@@ -24,7 +24,7 @@ a platform for these dashboards, but require some JavaScript expertise.  For
 Python-only developers, this requirement may prove to be a bottleneck.
 Fortunately the [Bokeh](https://bokeh.pydata.org) plotting library makes it
 easy to produce rich and interactive browser-based visuals from Python,
-effectivly crossing this boundary.
+effectively crossing this boundary.
 
 This repository serves as an example on how to create rich dashboards in Python
 with Bokeh and then smoothly integrate those dashboards into JupyterLab for a
@@ -118,3 +118,16 @@ To rebuild the package and the JupyterLab app:
 jlpm run build
 jupyter lab build
 ```
+
+## Publishing
+
+In order to distribute your bokeh dashboard application,
+you must publish the two subpackages.
+The JupyterLab frontend part should be published to [npm](https://npmjs.org),
+and the server-side part to [PyPI](https://pypi.org)
+or [conda-forge](https://conda-forge.org) (or both).
+
+Instructions for publishing the JupyterLab extension can be found
+[here](https://jupyterlab.readthedocs.io/en/stable/developer/xkcd_extension_tutorial.html#publish-your-extension-to-npmjs-org).
+A nice write-up for how to publish a package to PyPI can be found in the
+[nbconvert documentation](https://nbconvert.readthedocs.io/en/latest/development_release.html).
