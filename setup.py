@@ -7,11 +7,9 @@ setuptools.setup(
     author="Matt Rocklin and Ian Rose",
     description="projectjupyter@gmail.com",
     packages=setuptools.find_packages(),
-	keywords=['Jupyter'],
-	classifiers=['Framework :: Jupyter'],
-    install_requires=[
-        'jupyter-server-proxy'
-    ],
+        keywords=['Jupyter'],
+        classifiers=['Framework :: Jupyter'],
+    install_requires=list(open("requirements.txt").read().strip().split("\n")),
     entry_points={
         'jupyter_serverproxy_servers': [
             'bokeh-dashboard = jupyterlab_bokeh_server:launch_server',

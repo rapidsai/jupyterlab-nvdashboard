@@ -86,9 +86,9 @@
  * Icons
  */
 
-[data-theme-light="true"] .bokeh-ChartIcon {
+[data-jp-theme-light='true'] .jp-BokehChart-icon {
   background-image: url(./chart-light.svg);
 }
-[data-theme-light="false"] .bokeh-ChartIcon {
+[data-jp-theme-light="false"] .jp-BokehChart-icon {
   background-image: url(./chart-dark.svg);
 }

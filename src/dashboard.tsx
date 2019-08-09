@@ -75,7 +75,7 @@ export class BokehDashboardLauncher extends Widget {
     let layout = (this.layout = new PanelLayout());
     this._dashboard = new Widget();
     const header = new Widget();
-    header.node.textContent = 'My Cool Plots';
+    header.node.textContent = 'System Dashboards';
     header.addClass('bokeh-BokehDashboardLauncher-header')
     layout.addWidget(header);
     layout.addWidget(this._dashboard);
@@ -87,7 +87,7 @@ export class BokehDashboardLauncher extends Widget {
       {},
       this._connection
     ).then(response => {
-      response.json().then((data: { [x:string]: string }) => {
+      response.json().then((data: { [x: string]: string }) => {
         this._items = [];
         Object.keys(data).forEach(route => {
           this._items.push({ label: data[route], route });
