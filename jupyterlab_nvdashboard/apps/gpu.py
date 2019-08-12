@@ -35,6 +35,8 @@ def gpu(doc):
         source=source, y="right", right='gpu', height=0.8, color={"field": "gpu", "transform": mapper}
     )
 
+    fig.toolbar_location = None
+
     doc.title = "GPU Utilization [%]"
     doc.add_root(fig)
 
