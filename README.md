@@ -69,13 +69,7 @@ jupyter lab build
 
 ## Publishing
 
-In order to distribute your bokeh dashboard application,
-you must publish the two subpackages.
-The JupyterLab frontend part should be published to [npm](https://npmjs.org),
-and the server-side part to [PyPI](https://pypi.org)
-or [conda-forge](https://conda-forge.org) (or both).
+This application is distributed as two subpackages.
 
-Instructions for publishing the JupyterLab extension can be found
-[here](https://jupyterlab.readthedocs.io/en/stable/developer/xkcd_extension_tutorial.html#publish-your-extension-to-npmjs-org).
-A nice write-up for how to publish a package to PyPI can be found in the
-[nbconvert documentation](https://nbconvert.readthedocs.io/en/latest/development_release.html).
+The JupyterLab frontend part is published to [npm](https://www.npmjs.com/package/jupyterlab-nvdashboard),
+and the server-side part to [PyPI](https://pypi.org/project/jupyterlab-nvdashboard/).
