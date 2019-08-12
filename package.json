@@ -7,12 +7,12 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/my_name/myextension",
+  "homepage": "https://github.com/jacobtomlinson/jupyterlab-nvdashboard",
   "bugs": {
-    "url": "https://github.com/my_name/myextension/issues"
+    "url": "https://github.com/jacobtomlinson/jupyterlab-nvdashboard/issues"
   },
-  "license": "BSD-3-Clause",
-  "author": "Matt Rocklin and Ian Rose",
+  "license": "",
+  "author": "NV Dashbaord contributors",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
@@ -21,7 +21,7 @@
   "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/my_name/myextension.git"
+    "url": "https://github.com/jacobtomlinson/jupyterlab-nvdashboard.git"
   },
   "scripts": {
     "build": "tsc",
