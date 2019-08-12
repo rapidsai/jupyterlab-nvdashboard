@@ -64,15 +64,15 @@ const extension: JupyterFrontEndPlugin<void> = {
       }
     });
 
-    // if (restorer) {
-    //   // Add state restoration for the dashboard items.
-    //   restorer.add(sidebar, sidebar.id);
-    //   restorer.restore(tracker, {
-    //     command: COMMAND_ID,
-    //     args: widget => widget.item,
-    //     name: widget => widget.item && widget.item.route
-    //   });
-    // }
+    if (restorer) {
+      // Add state restoration for the dashboard items.
+      restorer.add(sidebar, sidebar.id);
+      restorer.restore(tracker, {
+        command: COMMAND_ID,
+        args: widget => widget.item || {},
+        name: widget => (widget.item && widget.item.route) || ''
+      });
+    }
 
     labShell.add(sidebar, 'left', { rank: 200 });
 
