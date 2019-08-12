@@ -1,12 +1,15 @@
 from bokeh.plotting import figure, ColumnDataSource
-from bokeh.models import DataRange1d, NumeralTickFormatter
+from bokeh.models import DataRange1d, NumeralTickFormatter, BasicTicker
 from bokeh.layouts import column
 from bokeh.models.mappers import LinearColorMapper
 from bokeh.palettes import all_palettes
 
+import math
 import time
 
 import pynvml
+
+from jupyterlab_nvdashboard.utils import format_bytes
 
 pynvml.nvmlInit()
 ngpus = pynvml.nvmlDeviceGetCount()
@@ -14,27 +17,67 @@ gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
 
 
 def gpu(doc):
-    fig = figure(title="GPU Usage",
-                 sizing_mode="stretch_both", y_range=[0, 100])
+    fig = figure(title="GPU Utilization",
+                 sizing_mode="stretch_both", x_range=[0, 100])
 
-    gpu = [pynvml.nvmlDeviceGetUtilizationRates(
-        gpu_handles[i]).gpu for i in range(ngpus)]
-    left = list(range(len(gpu)))
-    right = [l + 0.8 for l in left]
-    source = ColumnDataSource({"left": left, "right": right, "gpu": gpu})
+    def get_utilization():
+        return [pynvml.nvmlDeviceGetUtilizationRates(
+            gpu_handles[i]).gpu for i in range(ngpus)]
+
+    gpu = get_utilization()
+    y = list(range(len(gpu)))
+    # right = [l + 0.8 for l in left]
+    source = ColumnDataSource({"right": y, "gpu": gpu})
     mapper = LinearColorMapper(
         palette=all_palettes['RdYlBu'][4], low=0, high=100)
 
-    fig.quad(
-        source=source, left="left", right="right", bottom=0, top="gpu", color={"field": "gpu", "transform": mapper}
+    fig.hbar(
+        source=source, y="right", right='gpu', height=0.8, color={"field": "gpu", "transform": mapper}
     )
 
     doc.title = "GPU Utilization [%]"
     doc.add_root(fig)
 
     def cb():
-        source.data.update({"gpu": [pynvml.nvmlDeviceGetUtilizationRates(
-            gpu_handles[i]).gpu for i in range(ngpus)]})
+        source.data.update({"gpu": get_utilization()})
+
+    doc.add_periodic_callback(cb, 200)
+
+
+def gpu_mem(doc):
+
+    def get_mem():
+        return [pynvml.nvmlDeviceGetMemoryInfo(
+            handle).used for handle in gpu_handles]
+
+    def get_total():
+        return pynvml.nvmlDeviceGetMemoryInfo(gpu_handles[0]).total
+
+    fig = figure(title="GPU Memory",
+                 sizing_mode="stretch_both", x_range=[0, get_total()])
+
+    gpu = get_mem()
+
+    y = list(range(len(gpu)))
+    source = ColumnDataSource({"right": y, "gpu": gpu})
+    mapper = LinearColorMapper(
+        palette=all_palettes['RdYlBu'][8], low=0, high=get_total())
+
+    fig.hbar(
+        source=source, y="right", right='gpu', height=0.8, color={"field": "gpu", "transform": mapper}
+    )
+    fig.xaxis[0].formatter = NumeralTickFormatter(format="0.0 b")
+    fig.xaxis.major_label_orientation = -math.pi / 12
+
+    fig.toolbar_location = None
+
+    doc.title = "GPU Memory"
+    doc.add_root(fig)
+
+    def cb():
+        mem = get_mem()
+        source.data.update({"gpu": mem})
+        fig.title.text = "GPU Memory: {}".format(format_bytes(sum(mem)))
 
     doc.add_periodic_callback(cb, 200)
 

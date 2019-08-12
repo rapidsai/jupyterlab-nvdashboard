@@ -8,11 +8,12 @@ from jupyterlab_nvdashboard import apps
 
 
 routes = {
-    "/CPU-Utilization": apps.cpu.cpu,
-    "/Machine-Resources": apps.cpu.resource_timeline,
     "/GPU-Utilization": apps.gpu.gpu,
+    "/GPU-Memory": apps.gpu.gpu_mem,
     "/GPU-Resources": apps.gpu.gpu_resource_timeline,
     "/PCI-Throughput": apps.gpu.pci,
+    # "/CPU-Utilization": apps.cpu.cpu,
+    "/Machine-Resources": apps.cpu.resource_timeline,
 }
 
 
