@@ -14,10 +14,10 @@ import '../style/index.css';
 const COMMAND_ID = 'bokeh-server:launch-document';
 
 /**
- * Initialization data for the jupyterlab-bokeh-server extension.
+ * Initialization data for the jupyterlab-nvdashboard extension.
  */
 const extension: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-bokeh-server',
+  id: 'jupyterlab-nvdashboard',
   autoStart: true,
   requires: [ILabShell],
   optional: [ILayoutRestorer],
@@ -32,14 +32,14 @@ const extension: JupyterFrontEndPlugin<void> = {
         app.commands.execute(COMMAND_ID, item);
       }
     });
-    sidebar.id = 'bokeh-dashboard-launcher';
-    sidebar.title.iconClass = 'jp-BokehChart-icon jp-SideBar-tabIcon';
+    sidebar.id = 'nvdashboard-launcher';
+    sidebar.title.iconClass = 'jp-GPU-icon jp-SideBar-tabIcon';
     sidebar.title.caption = 'System Dashboards';
     labShell.add(sidebar, 'left');
 
     // An instance tracker which is used for state restoration.
     const tracker = new WidgetTracker<BokehDashboard>({
-      namespace: 'bokeh-dashboard-launcher'
+      namespace: 'nvdashboard-launcher'
     });
 
     app.commands.addCommand(COMMAND_ID, {

@@ -4,3 +4,5 @@ node_modules/
 *.egg-info/
 .ipynb_checkpoints
 __pycache__/
+dask-worker-space/
+.pytest_cache/

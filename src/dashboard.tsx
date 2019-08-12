@@ -56,7 +56,7 @@ export class BokehDashboard extends MainAreaWidget<IFrame> {
     }
     // Make sure the inactive panel is hidden
     this._inactivePanel.style.display = 'none';
-    this.content.url = URLExt.join('/bokeh-dashboard', this.item.route);
+    this.content.url = URLExt.join('/nvdashboard', this.item.route);
   }
 
   private _item: IDashboardItem | null = null;
@@ -83,7 +83,7 @@ export class BokehDashboardLauncher extends Widget {
     this._launchItem = options.launchItem;
     this._connection = ServerConnection.makeSettings({});
     ServerConnection.makeRequest(
-      URLExt.join(this._connection.baseUrl, '/bokeh-dashboard/index.json'),
+      URLExt.join(this._connection.baseUrl, '/nvdashboard/index.json'),
       {},
       this._connection
     ).then(response => {
@@ -165,7 +165,7 @@ export namespace BokehDashboardLauncher {
 function DashboardListing(props: IDashboardListingProps) {
   let listing = props.items.map(item => {
     return (
-      <li className="bokeh-DashboardListing-item" key={item.route}>
+      <li className="nvdashboardListing-item" key={item.route}>
         <button
           className="jp-mod-styled jp-mod-accept"
           value={item.label}
@@ -180,7 +180,7 @@ function DashboardListing(props: IDashboardListingProps) {
   // Return the JSX component.
   return (
     <div>
-      <ul className="bokeh-DashboardListing-list">{listing}</ul>
+      <ul className="nvdashboardListing-list">{listing}</ul>
     </div>
   );
 }

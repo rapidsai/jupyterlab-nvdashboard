@@ -1,21 +1,21 @@
 import setuptools
 
 setuptools.setup(
-    name="jupyterlab-bokeh-server",
+    name="jupyterlab-nvdashboard",
     version='0.1.0',
-    url="https://github.com/ian-r-rose/jupyterlab-bokeh-server",
-    author="Matt Rocklin and Ian Rose",
-    description="projectjupyter@gmail.com",
+    url="",
+    author="NV Dashbaord contributors",
+    description="",
     packages=setuptools.find_packages(),
         keywords=['Jupyter'],
         classifiers=['Framework :: Jupyter'],
     install_requires=list(open("requirements.txt").read().strip().split("\n")),
     entry_points={
         'jupyter_serverproxy_servers': [
-            'bokeh-dashboard = jupyterlab_bokeh_server:launch_server',
+            'nvdashboard = jupyterlab_nvdashboard:launch_server',
         ]
     },
     package_data={
-        'jupyterlab_bokeh_server': ['icons/*'],
+        'jupyterlab_nvdashboard': ['icons/*'],
     },
 )

@@ -1,24 +1,24 @@
-from bokeh.server.server import Server
 from bokeh.plotting import figure, ColumnDataSource
 from bokeh.models import DataRange1d, NumeralTickFormatter
 from bokeh.layouts import column
 from bokeh.models.mappers import LinearColorMapper
 from bokeh.palettes import all_palettes
-from tornado import web
 
 import psutil
-import sys
 import time
 
+
 def cpu(doc):
-    fig = figure(title="CPU Utilization [%]", sizing_mode="stretch_both", y_range=[0, 100])
+    fig = figure(
+        title="CPU Utilization [%]", sizing_mode="stretch_both", y_range=[0, 100])
 
     cpu = psutil.cpu_percent(percpu=True)
     left = list(range(len(cpu)))
     right = [l + 0.8 for l in left]
 
     source = ColumnDataSource({"left": left, "right": right, "cpu": cpu})
-    mapper = LinearColorMapper(palette=all_palettes['RdYlBu'][4], low=0, high=100)
+    mapper = LinearColorMapper(
+        palette=all_palettes['RdYlBu'][4], low=0, high=100)
 
     fig.quad(
         source=source, left="left", right="right", bottom=0, top="cpu", color={"field": "cpu", "transform": mapper}
@@ -79,8 +79,10 @@ def resource_timeline(doc):
         x_range=x_range,
         tools=tools,
     )
-    disk_fig.line(source=source, x="time", y="disk-read", color="blue", legend="Read")
-    disk_fig.line(source=source, x="time", y="disk-write", color="red", legend="Write")
+    disk_fig.line(source=source, x="time", y="disk-read",
+                  color="blue", legend="Read")
+    disk_fig.line(source=source, x="time", y="disk-write",
+                  color="red", legend="Write")
     disk_fig.yaxis.formatter = NumeralTickFormatter(format="0.0b")
     disk_fig.legend.location = "top_left"
 
@@ -91,14 +93,17 @@ def resource_timeline(doc):
         x_range=x_range,
         tools=tools,
     )
-    net_fig.line(source=source, x="time", y="net-read", color="blue", legend="Recv")
-    net_fig.line(source=source, x="time", y="net-sent", color="red", legend="Send")
+    net_fig.line(source=source, x="time", y="net-read",
+                 color="blue", legend="Recv")
+    net_fig.line(source=source, x="time", y="net-sent",
+                 color="red", legend="Send")
     net_fig.yaxis.formatter = NumeralTickFormatter(format="0.0b")
     net_fig.legend.location = "top_left"
 
     doc.title = "Resource Timeline"
     doc.add_root(
-        column(cpu_fig, memory_fig, disk_fig, net_fig, sizing_mode="stretch_both")
+        column(cpu_fig, memory_fig, disk_fig,
+               net_fig, sizing_mode="stretch_both")
     )
 
     last_disk_read = psutil.disk_io_counters().read_bytes
@@ -142,37 +147,3 @@ def resource_timeline(doc):
         last_time = now
 
     doc.add_periodic_callback(cb, 200)
-
-try:
-    import nvml_apps
-    routes = {
-        "/CPU-Utilization": cpu,
-        "/Machine-Resources": resource_timeline,
-        "/GPU-Utilization": nvml_apps.gpu,
-        "/GPU-Resources": nvml_apps.gpu_resource_timeline,
-        "/PCI-Throughput": nvml_apps.pci,
-    }
-except:
-    routes = {
-        "/CPU-Utilization": cpu,
-        "/Machine-Resources": resource_timeline,
-    }
-
-class RouteIndex(web.RequestHandler):
-    """ A JSON index of all routes present on the Bokeh Server """
-
-    def get(self):
-        self.write({route: route.strip("/").title() for route in routes})
-
-
-if __name__ == "__main__":
-    from tornado.ioloop import IOLoop
-
-    server = Server(routes, port=int(sys.argv[1]), allow_websocket_origin=["*"])
-    server.start()
-
-    server._tornado.add_handlers(
-        r".*", [(server.prefix + "/" + "index.json", RouteIndex, {})]
-    )
-
-    IOLoop.current().start()

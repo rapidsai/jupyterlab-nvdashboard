@@ -38,7 +38,7 @@ What's here
 This repository contains two sets of code:
 
 -   Python code defining a Bokeh Server application that generates a couple of
-    live plots in the `jupyterlab_bokeh_server/` directory
+    live plots in the `jupyterlab_nvdashboard/` directory
 -   TypeScript code integrating these plots into JupyterLab in the `src/`
     directory
 
@@ -87,13 +87,13 @@ and we must install both in order for it to work.
 To install the server-side component, run the following in your terminal
 
 ```bash
-pip install jupyterlab-bokeh-server
+pip install jupyterlab-nvdashboard
 ```
 
 To install the client-side component, run
 
 ```bash
-jupyter labextension install jupyterlab-bokeh-server
+jupyter labextension install jupyterlab-nvdashboard
 ```
 
 ## Development

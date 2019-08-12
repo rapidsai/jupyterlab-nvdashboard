@@ -1,7 +1,7 @@
 {
-  "name": "jupyterlab-bokeh-server",
+  "name": "jupyterlab-nvdashboard",
   "version": "0.1.0",
-  "description": "A JupyterLab extension for displaying the contents of a Bokeh server",
+  "description": "A JupyterLab extension for displaying GPU usage dashboards",
   "keywords": [
     "jupyter",
     "jupyterlab",
