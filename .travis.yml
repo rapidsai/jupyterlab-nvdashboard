@@ -10,6 +10,7 @@ before_install:
   - conda init bash && source /home/travis/.bashrc
   - conda create -q -n travis python=3.7
   - conda activate travis
+  - conda config --add channels conda-forge
   - conda info -a
 
 matrix:
@@ -18,6 +19,7 @@ matrix:
       python: "3.7"
       env: BUILD_LANG=python
       install:
+        - conda install jupyter-server-proxy bokeh pynvml
         - pip install pytest
         - pip install -e .
       script:
