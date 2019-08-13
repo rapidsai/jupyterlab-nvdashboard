@@ -7,7 +7,7 @@ before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda init bash
+  - conda init bash && source /home/travis/.bashrc
   - conda create -q -n travis python=3.7
   - conda activate travis
   - conda info -a
