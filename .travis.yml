@@ -24,7 +24,7 @@ matrix:
       env: BUILD_LANG=node_js
       install:
         - npm install mocha
-        - conda install jupyter-lab
+        - conda install jupyter-lab -y
       script:
         - jlpm build
         - jlpm test
