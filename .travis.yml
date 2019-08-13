@@ -4,7 +4,7 @@ matrix:
     - language: python
       python: "3.7"
       env: BUILD_LANG=python
-      install: pip install pytest
+      install: pip install pytest && pip install -e .
       script: pytest jupyterlab_nvdashboard
     - language: node_js
       node_js: "10"
