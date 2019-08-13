@@ -4,5 +4,6 @@ include setup.py
 include README.md
 include requirements.txt
 include MANIFEST.in
+include package.json
 
 recursive-exclude * __pycache__

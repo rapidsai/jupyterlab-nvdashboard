@@ -1,7 +1,7 @@
 def format_bytes(n):
     """ Format bytes as text
 
-    Copied from dask to void dependency.
+    Copied from dask to avoid dependency.
 
     """
     if n > 1e15:

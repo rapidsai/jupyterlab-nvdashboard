@@ -1,0 +1,29 @@
+sudo: false
+matrix:
+  include:
+    - language: python
+      python: "3.7"
+      env: BUILD_LANG=python
+      install: pip install pytest
+      script: pytest jupyterlab_nvdashboard
+    - language: node_js
+      node_js: "10"
+      env: BUILD_LANG=node_js
+      install: npm install mocha
+      script: npm test
+
+deploy:
+  - provider: pypi
+    user: $PYPI_USER
+    password: $PYPI_PASSWORD
+    skip_cleanup: true
+    on:
+      tags: true
+      condition: "$BUILD_LANG = python"
+  - provider: npm
+    email: $NPM_EMAIL
+    api_key: $NPM_API_KEY
+    skip_cleanup: true
+    on:
+      tags: true
+      condition: "$BUILD_LANG = node_js"
