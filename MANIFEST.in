@@ -1,0 +1,8 @@
+recursive-include jupyterlab_nvdashboard *.py
+
+include setup.py
+include README.md
+include requirements.txt
+include MANIFEST.in
+
+recursive-exclude * __pycache__

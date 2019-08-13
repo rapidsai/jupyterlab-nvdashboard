@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="jupyterlab-nvdashboard",
-    version='0.1.0',
+    version='0.1.3',
     url="https://github.com/jacobtomlinson/jupyterlab-nvdashboard",
     author="NV Dashbaord contributors",
     description="A JupyterLab extension for displaying dashboards of GPU usage.",
