@@ -52,6 +52,9 @@ const extension: JupyterFrontEndPlugin<void> = {
           return !!(w && w.item && w.item.route === item.route);
         });
         if (w) {
+          if (!w.isAttached) {
+            labShell.add(w, 'main');
+          }
           labShell.activateById(w.id);
           return;
         }
