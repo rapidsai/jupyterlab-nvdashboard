@@ -6,3 +6,4 @@ node_modules/
 __pycache__/
 dask-worker-space/
 .pytest_cache/
+dist/
