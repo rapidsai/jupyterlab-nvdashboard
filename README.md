@@ -1,6 +1,8 @@
 JupyterLab GPU Dashboards
 ===========================
 
+[![Build Status](https://travis-ci.com/jacobtomlinson/jupyterlab-nvdashboard.svg?branch=master)](https://travis-ci.com/jacobtomlinson/jupyterlab-nvdashboard)
+
 A JupyterLab extension for displaying dashboards of GPU usage.
 
 ![demo](./demo.gif)
@@ -73,3 +75,10 @@ This application is distributed as two subpackages.
 
 The JupyterLab frontend part is published to [npm](https://www.npmjs.com/package/jupyterlab-nvdashboard),
 and the server-side part to [PyPI](https://pypi.org/project/jupyterlab-nvdashboard/).
+
+Releases are done with the `npm` tool, git and travis.
+
+```console
+$ npm version [major|minor|patch]  # updates package.json and created git commit and tag
+$ git push --tags  # pushes tags to GitHub which triggers Travis CI to build and deploy
+```
