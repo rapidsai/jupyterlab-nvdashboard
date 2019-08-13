@@ -1,7 +1,10 @@
 JupyterLab GPU Dashboards
 ===========================
 
-[![Build Status](https://travis-ci.com/jacobtomlinson/jupyterlab-nvdashboard.svg?branch=master)](https://travis-ci.com/jacobtomlinson/jupyterlab-nvdashboard)
+[![Travis (.com)](https://img.shields.io/travis/com/jacobtomlinson/jupyterlab-nvdashboard?logo=travis-ci&logoColor=white)](https://travis-ci.com/jacobtomlinson/jupyterlab-nvdashboard)
+[![PyPI](https://img.shields.io/pypi/v/jupyterlab-nvdashboard)](https://pypi.org/project/jupyterlab-nvdashboard/)
+[![npm](https://img.shields.io/npm/v/jupyterlab-nvdashboard)](https://www.npmjs.com/package/jupyterlab-nvdashboard)
+
 
 A JupyterLab extension for displaying dashboards of GPU usage.
 
