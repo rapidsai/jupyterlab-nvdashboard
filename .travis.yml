@@ -1,16 +1,33 @@
 sudo: false
+
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes conda
+  - conda create --yes -n travis python=3.7
+  - conda activate travis
+
 matrix:
   include:
     - language: python
       python: "3.7"
       env: BUILD_LANG=python
-      install: pip install pytest && pip install -e .
-      script: pytest jupyterlab_nvdashboard
+      install:
+        - pip install pytest
+        - pip install -e .
+      script:
+        - pytest jupyterlab_nvdashboard
     - language: node_js
       node_js: "10"
       env: BUILD_LANG=node_js
-      install: npm install mocha
-      script: npm test
+      install:
+        - npm install mocha
+        - conda install jupyter-lab
+      script:
+        - jlpm build
+        - jlpm test
 
 deploy:
   - provider: pypi
