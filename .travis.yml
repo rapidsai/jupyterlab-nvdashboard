@@ -30,6 +30,7 @@ matrix:
       install:
         - npm install mocha
         - conda install jupyterlab
+        - jlpm install
       script:
         - jlpm build
         - jlpm test
