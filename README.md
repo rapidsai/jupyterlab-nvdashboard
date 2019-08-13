@@ -76,7 +76,7 @@ This application is distributed as two subpackages.
 The JupyterLab frontend part is published to [npm](https://www.npmjs.com/package/jupyterlab-nvdashboard),
 and the server-side part to [PyPI](https://pypi.org/project/jupyterlab-nvdashboard/).
 
-Releases are done with the `npm` tool, git and travis.
+Releases for both packages are done with the `npm version` tool, git and Travis CI.
 
 ```console
 $ npm version [major|minor|patch]  # updates package.json and creates git commit and tag
