@@ -95,7 +95,7 @@ def pci(doc):
 
     max_rxtx_tp = 8000
     tx_fig = figure(
-        title="TX Bytes [/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
+        title="TX Bytes [MB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
     )
     pci_tx = [
         pynvml.nvmlDeviceGetPcieThroughput(
@@ -121,7 +121,7 @@ def pci(doc):
     )
 
     rx_fig = figure(
-        title="RX Bytes [/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
+        title="RX Bytes [MB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
     )
     pci_rx = [
         pynvml.nvmlDeviceGetPcieThroughput(
