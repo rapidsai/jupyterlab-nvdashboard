@@ -93,7 +93,20 @@ def gpu_mem(doc):
 
 def pci(doc):
 
-    max_rxtx_tp = 8000
+    pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
+    pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
+    if pci_gen == 1:
+        max_rxtx_tp = (pci_width * 250.0) / 2.0
+    elif pci_gen == 2:
+        max_rxtx_tp = (pci_width * 500.0) / 2.0
+    elif pci_gen == 3:
+        max_rxtx_tp = (pci_width * 985.0) / 2.0
+    elif pci_gen == 4:
+        max_rxtx_tp = (pci_width * 2048.0) / 2.0
+    elif pci_gen == 5:
+        max_rxtx_tp = (pci_width * 4032.0) / 2.0
+    else:
+        max_rxtx_tp = (pci_width * 8192.0) / 2.0
     tx_fig = figure(
         title="TX Bytes [MB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
     )
