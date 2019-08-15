@@ -93,28 +93,27 @@ def gpu_mem(doc):
 
 def pci(doc):
 
+    # Use device-0 to get "upper bound"
     pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
     pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
-    if pci_gen == 1:
-        max_rxtx_tp = (pci_width * 250.0) / 2.0
-    elif pci_gen == 2:
-        max_rxtx_tp = (pci_width * 500.0) / 2.0
-    elif pci_gen == 3:
-        max_rxtx_tp = (pci_width * 985.0) / 2.0
-    elif pci_gen == 4:
-        max_rxtx_tp = (pci_width * 2048.0) / 2.0
-    elif pci_gen == 5:
-        max_rxtx_tp = (pci_width * 4032.0) / 2.0
-    else:
-        max_rxtx_tp = (pci_width * 8192.0) / 2.0
+    pci_bw = {
+        # PCIe-Generation: (BW-per-lane / Width / 2-directions)
+        1: (250.0 / 1024.0 / 2.0),
+        2: (500.0 / 1024.0 / 2.0),
+        3: (985.0 / 1024.0 / 2.0),
+        4: (2048.0 / 1024.0 / 2.0),
+        5: (4032.0 / 1024.0 / 2.0),
+        6: (8192.0 / 1024.0 / 2.0),
+    }
+    max_rxtx_tp = pci_width * pci_bw[pci_gen]
     tx_fig = figure(
-        title="TX Bytes [MB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
+        title="TX Bytes [GB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
     )
     pci_tx = [
         pynvml.nvmlDeviceGetPcieThroughput(
             gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
         )
-        / 1024
+        / (1024.0 * 1024.0) # Convert KB/s -> GB/s
         for i in range(ngpus)
     ]
     left = list(range(len(pci_tx)))
@@ -134,13 +133,13 @@ def pci(doc):
     )
 
     rx_fig = figure(
-        title="RX Bytes [MB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
+        title="RX Bytes [GB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
     )
     pci_rx = [
         pynvml.nvmlDeviceGetPcieThroughput(
             gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
         )
-        / 1024
+        / (1024.0 * 1024.0) # Convert KB/s -> GB/s
         for i in range(ngpus)
     ]
     left = list(range(len(pci_rx)))
@@ -168,14 +167,14 @@ def pci(doc):
             pynvml.nvmlDeviceGetPcieThroughput(
                 gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
             )
-            / 1024
+            / (1024.0 * 1024.0) # Convert KB/s -> GB/s
             for i in range(ngpus)
         ]
         src_dict["pci-rx"] = [
             pynvml.nvmlDeviceGetPcieThroughput(
                 gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
             )
-            / 1024
+            / (1024.0 * 1024.0) # Convert KB/s -> GB/s
             for i in range(ngpus)
         ]
         source.data.update(src_dict)
