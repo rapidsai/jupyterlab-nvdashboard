@@ -97,15 +97,16 @@ def pci(doc):
     pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
     pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
     pci_bw = {
-        # PCIe-Generation: (BW-per-lane / Width / 2-directions)
-        # [TODO: The specific numbers need to be validated]
-        1: (250.0 / 1024.0 / 2.0),
-        2: (500.0 / 1024.0 / 2.0),
-        3: (985.0 / 1024.0 / 2.0),
-        4: (2048.0 / 1024.0 / 2.0),
-        5: (4032.0 / 1024.0 / 2.0),
-        6: (8192.0 / 1024.0 / 2.0),
+        # Keys = PCIe-Generation, Values = Max PCIe Lane BW (per direction)
+        # [Note: Using specs at https://en.wikipedia.org/wiki/PCI_Express]
+        1: (250.0 / 1024.0),
+        2: (500.0 / 1024.0),
+        3: (985.0 / 1024.0),
+        4: (1969.0 / 1024.0),
+        5: (3938.0 / 1024.0),
+        6: (7877.0 / 1024.0),
     }
+    # Max PCIe Throughput = (BW-per-lane / Width)
     max_rxtx_tp = pci_width * pci_bw[pci_gen]
 
     pci_tx = [
@@ -266,7 +267,7 @@ def gpu_resource_timeline(doc):
     tot_fig.legend.location = "top_left"
 
     pci_fig = figure(
-        title="Total PCI Throughput [/s]",
+        title="Total PCI Throughput [B/s]",
         sizing_mode="stretch_both",
         x_axis_type="datetime",
         x_range=x_range,
