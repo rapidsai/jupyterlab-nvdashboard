@@ -98,6 +98,7 @@ def pci(doc):
     pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
     pci_bw = {
         # PCIe-Generation: (BW-per-lane / Width / 2-directions)
+        # [TODO: The specific numbers need to be validated]
         1: (250.0 / 1024.0 / 2.0),
         2: (500.0 / 1024.0 / 2.0),
         3: (985.0 / 1024.0 / 2.0),
@@ -106,23 +107,35 @@ def pci(doc):
         6: (8192.0 / 1024.0 / 2.0),
     }
     max_rxtx_tp = pci_width * pci_bw[pci_gen]
-    tx_fig = figure(
-        title="TX Bytes [GB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
-    )
+
     pci_tx = [
         pynvml.nvmlDeviceGetPcieThroughput(
             gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
         )
-        / (1024.0 * 1024.0) # Convert KB/s -> GB/s
+        / (1024.0 * 1024.0)  # Convert KB/s -> GB/s
         for i in range(ngpus)
     ]
-    left = list(range(len(pci_tx)))
+
+    pci_rx = [
+        pynvml.nvmlDeviceGetPcieThroughput(
+            gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
+        )
+        / (1024.0 * 1024.0)  # Convert KB/s -> GB/s
+        for i in range(ngpus)
+    ]
+
+    left = list(range(ngpus))
     right = [l + 0.8 for l in left]
-    source = ColumnDataSource({"left": left, "right": right, "pci-tx": pci_tx})
+    source = ColumnDataSource(
+        {"left": left, "right": right, "pci-tx": pci_tx, "pci-rx": pci_rx}
+    )
     mapper = LinearColorMapper(
         palette=all_palettes["RdYlBu"][4], low=0, high=max_rxtx_tp
     )
 
+    tx_fig = figure(
+        title="TX Bytes [GB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
+    )
     tx_fig.quad(
         source=source,
         left="left",
@@ -131,24 +144,11 @@ def pci(doc):
         top="pci-tx",
         color={"field": "pci-tx", "transform": mapper},
     )
+    tx_fig.toolbar_location = None
 
     rx_fig = figure(
         title="RX Bytes [GB/s]", sizing_mode="stretch_both", y_range=[0, max_rxtx_tp]
     )
-    pci_rx = [
-        pynvml.nvmlDeviceGetPcieThroughput(
-            gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
-        )
-        / (1024.0 * 1024.0) # Convert KB/s -> GB/s
-        for i in range(ngpus)
-    ]
-    left = list(range(len(pci_rx)))
-    right = [l + 0.8 for l in left]
-    source = ColumnDataSource({"left": left, "right": right, "pci-rx": pci_rx})
-    mapper = LinearColorMapper(
-        palette=all_palettes["RdYlBu"][4], low=0, high=max_rxtx_tp
-    )
-
     rx_fig.quad(
         source=source,
         left="left",
@@ -157,6 +157,7 @@ def pci(doc):
         top="pci-rx",
         color={"field": "pci-rx", "transform": mapper},
     )
+    rx_fig.toolbar_location = None
 
     doc.title = "PCI Throughput"
     doc.add_root(column(tx_fig, rx_fig, sizing_mode="stretch_both"))
@@ -167,14 +168,14 @@ def pci(doc):
             pynvml.nvmlDeviceGetPcieThroughput(
                 gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
             )
-            / (1024.0 * 1024.0) # Convert KB/s -> GB/s
+            / (1024.0 * 1024.0)  # Convert KB/s -> GB/s
             for i in range(ngpus)
         ]
         src_dict["pci-rx"] = [
             pynvml.nvmlDeviceGetPcieThroughput(
                 gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
             )
-            / (1024.0 * 1024.0) # Convert KB/s -> GB/s
+            / (1024.0 * 1024.0)  # Convert KB/s -> GB/s
             for i in range(ngpus)
         ]
         source.data.update(src_dict)
