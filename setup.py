@@ -6,6 +6,7 @@ setuptools.setup(
     url="https://github.com/ian-r-rose/jupyterlab-bokeh-server",
     author="Matt Rocklin and Ian Rose",
     description="projectjupyter@gmail.com",
+    license="BSD",
     packages=setuptools.find_packages(),
 	keywords=['Jupyter'],
 	classifiers=['Framework :: Jupyter'],
