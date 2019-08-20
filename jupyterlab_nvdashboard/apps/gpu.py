@@ -113,14 +113,16 @@ def pci(doc):
     pci_tx = [
         pynvml.nvmlDeviceGetPcieThroughput(
             gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
-        ) * 1024.0
+        )
+        * 1024.0
         for i in range(ngpus)
     ]
 
     pci_rx = [
         pynvml.nvmlDeviceGetPcieThroughput(
             gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
-        ) * 1024.0
+        )
+        * 1024.0
         for i in range(ngpus)
     ]
 
@@ -169,13 +171,15 @@ def pci(doc):
         src_dict["pci-tx"] = [
             pynvml.nvmlDeviceGetPcieThroughput(
                 gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
-            ) * 1024.0
+            )
+            * 1024.0
             for i in range(ngpus)
         ]
         src_dict["pci-rx"] = [
             pynvml.nvmlDeviceGetPcieThroughput(
                 gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
-            ) * 1024.0
+            )
+            * 1024.0
             for i in range(ngpus)
         ]
         source.data.update(src_dict)
@@ -307,10 +311,12 @@ def nvlink(doc):
             for i in range(ngpus)
         ]
         src_dict["count-tx"] = [
-            max(a - b, 0.) * 5.0 for (a, b) in zip(nvlink_state["tx"], nvlink_state["tx-ref"])
+            max(a - b, 0.0) * 5.0
+            for (a, b) in zip(nvlink_state["tx"], nvlink_state["tx-ref"])
         ]
         src_dict["count-rx"] = [
-            max(a - b, 0.) * 5.0 for (a, b) in zip(nvlink_state["rx"], nvlink_state["rx-ref"])
+            max(a - b, 0.0) * 5.0
+            for (a, b) in zip(nvlink_state["rx"], nvlink_state["rx-ref"])
         ]
 
         source.data.update(src_dict)
@@ -371,9 +377,7 @@ def nvlink_timeline(doc):
     rx_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
 
     doc.title = "NVLink Throughput Timeline"
-    doc.add_root(
-        column(tx_fig, rx_fig, sizing_mode="stretch_both")
-    )
+    doc.add_root(column(tx_fig, rx_fig, sizing_mode="stretch_both"))
 
     counter = 1
     nlinks = pynvml.NVML_NVLINK_MAX_LINKS
@@ -436,11 +440,13 @@ def nvlink_timeline(doc):
             for i in range(ngpus)
         ]
         tx_diff = [
-            max(a - b, 0.) * 5.0 for (a, b) in zip(nvlink_state["tx"], nvlink_state["tx-ref"])
+            max(a - b, 0.0) * 5.0
+            for (a, b) in zip(nvlink_state["tx"], nvlink_state["tx-ref"])
         ]
 
         rx_diff = [
-            max(a - b, 0.) * 5.0 for (a, b) in zip(nvlink_state["rx"], nvlink_state["rx-ref"])
+            max(a - b, 0.0) * 5.0
+            for (a, b) in zip(nvlink_state["rx"], nvlink_state["rx-ref"])
         ]
 
         for i in range(ngpus):
