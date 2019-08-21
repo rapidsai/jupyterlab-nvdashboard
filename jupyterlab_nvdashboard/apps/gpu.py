@@ -11,6 +11,9 @@ import pynvml
 
 from jupyterlab_nvdashboard.utils import format_bytes
 
+KB = 1e3
+MB = KB * KB
+GB = MB * KB
 pynvml.nvmlInit()
 ngpus = pynvml.nvmlDeviceGetCount()
 gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
@@ -96,7 +99,6 @@ def pci(doc):
     # Use device-0 to get "upper bound"
     pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
     pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
-    MB = 1024.0 * 1024.0
     pci_bw = {
         # Keys = PCIe-Generation, Values = Max PCIe Lane BW (per direction)
         # [Note: Using specs at https://en.wikipedia.org/wiki/PCI_Express]
@@ -114,7 +116,7 @@ def pci(doc):
         pynvml.nvmlDeviceGetPcieThroughput(
             gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
         )
-        * 1024.0
+        * KB
         for i in range(ngpus)
     ]
 
@@ -122,7 +124,7 @@ def pci(doc):
         pynvml.nvmlDeviceGetPcieThroughput(
             gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
         )
-        * 1024.0
+        * KB
         for i in range(ngpus)
     ]
 
@@ -172,14 +174,14 @@ def pci(doc):
             pynvml.nvmlDeviceGetPcieThroughput(
                 gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
             )
-            * 1024.0
+            * KB
             for i in range(ngpus)
         ]
         src_dict["pci-rx"] = [
             pynvml.nvmlDeviceGetPcieThroughput(
                 gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
             )
-            * 1024.0
+            * KB
             for i in range(ngpus)
         ]
         source.data.update(src_dict)
@@ -195,7 +197,6 @@ def nvlink(doc):
     counter = 1
     nlinks = pynvml.NVML_NVLINK_MAX_LINKS
     nvlink_ver = pynvml.nvmlDeviceGetNvLinkVersion(gpu_handles[0], 0)
-    GB = 1024.0 * 1024.0 * 1024.0
     nvlink_link_bw = {
         # Keys = NVLink Version, Values = Max Link BW (per direction)
         # [Note: Using specs at https://en.wikichip.org/wiki/nvidia/nvlink]
