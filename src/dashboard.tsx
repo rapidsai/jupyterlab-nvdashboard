@@ -25,7 +25,6 @@ export class BokehDashboard extends MainAreaWidget<IFrame> {
       content: new IFrame({ sandbox: ['allow-scripts', 'allow-same-origin'] })
     });
     this._inactivePanel = Private.createInactivePanel();
-    this._connection = ServerConnection.makeSettings({});
     this.content.node.appendChild(this._inactivePanel);
     this.update();
   }
@@ -57,7 +56,7 @@ export class BokehDashboard extends MainAreaWidget<IFrame> {
     }
     // Make sure the inactive panel is hidden
     this._inactivePanel.style.display = 'none';
-    this.content.url = URLExt.join(this._connection.baseUrl, '/nvdashboard', this.item.route);
+    this.content.url = URLExt.join(ServerConnection.makeSettings({}).baseUrl, '/nvdashboard', this.item.route);
   }
 
   private _item: IDashboardItem | null = null;
