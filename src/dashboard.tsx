@@ -56,7 +56,7 @@ export class BokehDashboard extends MainAreaWidget<IFrame> {
     }
     // Make sure the inactive panel is hidden
     this._inactivePanel.style.display = 'none';
-    this.content.url = URLExt.join('/nvdashboard', this.item.route);
+    this.content.url = URLExt.join(ServerConnection.makeSettings({}).baseUrl, '/nvdashboard', this.item.route);
   }
 
   private _item: IDashboardItem | null = null;
