@@ -17,7 +17,7 @@ with open(path.join(this_directory, 'package.json'), encoding='utf-8') as f:
 setuptools.setup(
     name="jupyterlab-nvdashboard",
     version=version,
-    url="https://github.com/jacobtomlinson/jupyterlab-nvdashboard",
+    url="https://github.com/rapidsai/jupyterlab-nvdashboard",
     author="NV Dashbaord contributors",
     description="A JupyterLab extension for displaying dashboards of GPU usage.",
     long_description=long_description,

@@ -7,9 +7,9 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/jacobtomlinson/jupyterlab-nvdashboard",
+  "homepage": "https://github.com/rapidsai/jupyterlab-nvdashboard",
   "bugs": {
-    "url": "https://github.com/jacobtomlinson/jupyterlab-nvdashboard/issues"
+    "url": "https://github.com/rapidsai/jupyterlab-nvdashboard/issues"
   },
   "license": "",
   "author": "NV Dashbaord contributors",
@@ -21,7 +21,7 @@
   "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jacobtomlinson/jupyterlab-nvdashboard.git"
+    "url": "https://github.com/rapidsai/jupyterlab-nvdashboard.git"
   },
   "scripts": {
     "build": "tsc",
