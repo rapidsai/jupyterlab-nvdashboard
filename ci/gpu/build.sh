@@ -60,6 +60,5 @@ else
 
     logger "Node jlpm test for jupyterlab_nvdashboard..."
     jlpm install
-    jlpm build
     jlpm test
 fi
