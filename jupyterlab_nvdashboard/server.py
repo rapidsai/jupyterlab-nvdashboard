@@ -27,8 +27,7 @@ class RouteIndex(web.RequestHandler):
                     for route in routes})
 
 
-if __name__ == "__main__":
-
+def go():
     server = Server(routes, port=int(
         sys.argv[1]), allow_websocket_origin=["*"])
     server.start()
@@ -38,3 +37,7 @@ if __name__ == "__main__":
     )
 
     IOLoop.current().start()
+
+
+if __name__ == "__main__":
+    go()

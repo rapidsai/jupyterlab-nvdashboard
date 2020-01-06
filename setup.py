@@ -30,7 +30,10 @@ setuptools.setup(
     entry_points={
         'jupyter_serverproxy_servers': [
             'nvdashboard = jupyterlab_nvdashboard:launch_server',
-        ]
+        ],
+        'console_scripts': [
+            'nvdashboard = jupyterlab_nvdashboard.server:go',
+        ],
     },
     package_data={
         'jupyterlab_nvdashboard': ['icons/*'],
