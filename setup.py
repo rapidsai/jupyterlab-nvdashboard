@@ -1,6 +1,6 @@
 import setuptools
 import json
-
+import os
 
 from os import path
 this_directory = path.abspath(path.dirname(__file__))
@@ -9,9 +9,12 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-# get version from package.json (to avoid duplicating)
-with open(path.join(this_directory, 'package.json'), encoding='utf-8') as f:
-    version = json.load(f)['version']
+if 'GIT_DESCRIBE_TAG' in os.environ:
+    version = os.environ['GIT_DESCRIBE_TAG'] + os.environ.get('VERSION_SUFFIX', '')
+else:
+    # get version from package.json (to avoid duplicating)
+    with open(path.join(this_directory, 'package.json'), encoding='utf-8') as f:
+        version = json.load(f)['version']
 
 
 setuptools.setup(
