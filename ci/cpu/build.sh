@@ -46,11 +46,15 @@ conda list
 conda config --set ssl_verify False
 
 ################################################################################
-# BUILD - Conda package & npm package
+# BUILD - Conda, pip, & npm package
 ################################################################################
 
 logger "Build conda pkg for jupyterlab-nvdashboard..."
 conda build conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
+
+logger "Build pip pkg for jupyterlab-nvdashboard..."
+rm -rf dist/
+python setup.py sdist bdist_wheel
 
 logger "Build npm pkg for jupyterlab-nvdashboard..."
 conda install -y nodejs=10 jupyterlab
