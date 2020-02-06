@@ -7,6 +7,9 @@ from tornado import web
 from jupyterlab_nvdashboard import apps
 
 
+DEFAULT_PORT = 8000
+
+
 routes = {
     "/GPU-Utilization": apps.gpu.gpu,
     "/GPU-Memory": apps.gpu.gpu_mem,
@@ -23,14 +26,15 @@ class RouteIndex(web.RequestHandler):
     """ A JSON index of all routes present on the Bokeh Server """
 
     def get(self):
-        self.write({route: route.strip("/").replace('-', ' ')
-                    for route in routes})
+        self.write({route: route.strip("/").replace("-", " ") for route in routes})
 
 
-if __name__ == "__main__":
-
-    server = Server(routes, port=int(
-        sys.argv[1]), allow_websocket_origin=["*"])
+def go():
+    if len(sys.argv) > 1:
+        port = int(sys.argv[1])
+    else:
+        port = DEFAULT_PORT
+    server = Server(routes, port=port, allow_websocket_origin=["*"])
     server.start()
 
     server._tornado.add_handlers(
@@ -38,3 +42,7 @@ if __name__ == "__main__":
     )
 
     IOLoop.current().start()
+
+
+if __name__ == "__main__":
+    go()

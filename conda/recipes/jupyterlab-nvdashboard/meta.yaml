@@ -1,0 +1,42 @@
+{% set version = environ.get('GIT_DESCRIBE_TAG', '0.0.0.dev').lstrip('v') + environ.get('VERSION_SUFFIX', '') %}
+{% set minor_version =  version.split('.')[0] + '.' + version.split('.')[1] %}
+{% set git_revision_count=environ.get('GIT_DESCRIBE_NUMBER', 0) %}
+{% set py_version=environ.get('CONDA_PY', 36) %}
+
+package:
+  name: jupyterlab-nvdashboard
+  version: {{ version }}
+
+source:
+  path: ../../..
+
+build:
+  number: {{ git_revision_count }}
+  script: python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
+  noarch: python
+
+requirements:
+  build:
+    - python >=3
+    - setuptools
+    - jupyter-server-proxy
+    - bokeh
+    - pynvml
+    - psutil
+  run:
+    - python >=3
+    - jupyter-server-proxy
+    - bokeh
+    - pynvml
+    - psutil
+
+
+test:
+  imports:
+    - jupyterlab_nvdashboard
+
+about:
+  home: https://rapids.ai
+  license: BSD-3
+  summary: 'A JupyterLab extension for displaying dashboards of GPU usage.'
+  dev_url: https://github.com/rapidsai/jupyterlab-nvdashboard
