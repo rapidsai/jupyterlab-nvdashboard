@@ -7,3 +7,4 @@ pyarrow
 scikit-learn     
 tensorflow-gpu==2.1.0
 xgboost
+jupyterlab-nvdashboard 
