@@ -1,0 +1,11 @@
+name: py37
+channels:
+- defaults
+- rapidsai
+- nvidia
+- conda-forge
+- anaconda
+dependencies: 
+- python= 3.7
+- cudatoolkit=10.1
+- rapids=0.11

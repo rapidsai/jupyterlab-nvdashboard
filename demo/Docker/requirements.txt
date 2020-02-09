@@ -1,0 +1,9 @@
+jupyter 
+jupyterlab 
+numba
+pandas 
+py4j 
+pyarrow   
+scikit-learn     
+tensorflow-gpu==2.1.0
+xgboost
