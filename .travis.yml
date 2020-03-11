@@ -19,7 +19,7 @@ matrix:
       python: "3.7"
       env: BUILD_LANG=python
       install:
-        - conda install jupyter-server-proxy bokeh pynvml
+        - conda install jupyter-server-proxy 'bokeh<2' pynvml
         - pip install pytest
         - pip install -e .
       script:
