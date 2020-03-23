@@ -20,13 +20,13 @@ requirements:
     - python >=3
     - setuptools
     - jupyter-server-proxy
-    - bokeh
+    - bokeh <2
     - pynvml
     - psutil
   run:
     - python >=3
     - jupyter-server-proxy
-    - bokeh
+    - bokeh <2
     - pynvml
     - psutil
 
