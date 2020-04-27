@@ -22,7 +22,7 @@ if [ -z "$NPM_TOKEN" ]; then
   return 0
 fi
 
-anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} --label main --force "`conda build conda/recipes/jupyterlab-nvdashboard --output`"
+anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} --label main --skip-existing "`conda build conda/recipes/jupyterlab-nvdashboard --output`"
 
 echo "Upload pypi"
 twine upload --skip-existing -u ${TWINE_USERNAME:-rapidsai} dist/*
