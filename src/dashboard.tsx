@@ -4,11 +4,11 @@ import { URLExt } from '@jupyterlab/coreutils';
 
 import { ServerConnection } from '@jupyterlab/services';
 
-import { JSONExt, JSONObject } from '@phosphor/coreutils';
+import { JSONExt, JSONObject } from '@lumino/coreutils';
 
-import { Message } from '@phosphor/messaging';
+import { Message } from '@lumino/messaging';
 
-import { Widget, PanelLayout } from '@phosphor/widgets';
+import { Widget, PanelLayout } from '@lumino/widgets';
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
