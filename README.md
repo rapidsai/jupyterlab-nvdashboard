@@ -36,6 +36,8 @@ without modifying the TypeScript code.
 This extension has a server-side (Python) and a client-side (Typescript) component,
 and we must install both in order for it to work.
 
+> **Note: Currently nvdashboard does not support Windows**
+
 To install the server-side component, run the following in your terminal
 
 ```bash
