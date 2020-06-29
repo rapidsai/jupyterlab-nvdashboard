@@ -1,4 +1,4 @@
 jupyter-server-proxy
-bokeh<2
+bokeh>2.1
 pynvml
 psutil
