@@ -25,7 +25,7 @@ setuptools.setup(
     description="A JupyterLab extension for displaying dashboards of GPU usage.",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    license="BSD",
+    license="BSD-3-Clause",
     packages=setuptools.find_packages(),
         keywords=['Jupyter'],
         classifiers=['Framework :: Jupyter'],
