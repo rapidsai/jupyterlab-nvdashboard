@@ -1,8 +1,7 @@
 #!/bin/bash
 # Copyright (c) 2018, NVIDIA CORPORATION.
 
-# Restrict uploads to master branch
-if [[ "${GIT_BRANCH}" != "master" ]]; then
+if [[ "${BUILD_MODE}" != "branch" ]]; then
   echo "Skipping upload"
   return 0
 fi
@@ -27,8 +26,8 @@ anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} --label main 
 echo "Upload pypi"
 twine upload --skip-existing -u ${TWINE_USERNAME:-rapidsai} dist/*
 
-echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-if [[ "$BUILD_MODE" == "branch" && "${SOURCE_BRANCH}" != 'master' ]]; then
+if [[ "${BUILD_MODE}" != "branch" ]]; then
+  echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
   echo "Nightly build, publishing to npm with nightly tag"
   npm publish --tag=nightly
 else
