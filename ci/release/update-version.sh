@@ -41,5 +41,5 @@ fi
 
 echo "Preparing '$RELEASE_TYPE' release [$CURRENT_TAG -> $NEXT_FULL_TAG]"
 
-jlpm config set version-tag-prefix ""
-jlpm version --no-git-tag-version --non-interactive --${RELEASE_TYPE} --new-version=${NEXT_FULL_TAG}
+jq -e --arg tag "$NEXT_FULL_TAG" '.version=$tag' package.json > package.json.tmp
+mv package.json.tmp package.json

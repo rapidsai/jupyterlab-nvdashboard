@@ -17,18 +17,18 @@ build:
 
 requirements:
   build:
-    - python >=3
+    - python >=3.5
     - setuptools
-    - jupyter-server-proxy
-    - bokeh <2
     - pynvml
     - psutil
   run:
-    - python >=3
+    - python >=3.5
+    - jupyterlab >=2.0
     - jupyter-server-proxy
-    - bokeh <2
+    - bokeh >2.1
     - pynvml
     - psutil
+    - nodejs
 
 
 test:
