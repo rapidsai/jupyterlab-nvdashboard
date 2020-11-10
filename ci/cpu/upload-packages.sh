@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2018, NVIDIA CORPORATION.
+# Copyright (c) 2020, NVIDIA CORPORATION.
 
 # Restrict uploads to master branch
 if [[ "${GIT_BRANCH}" != "master" ]]; then
@@ -22,7 +22,7 @@ if [ -z "$NPM_TOKEN" ]; then
   return 0
 fi
 
-anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} --label main --skip-existing "`conda build conda/recipes/jupyterlab-nvdashboard --output`"
+anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} --label main --skip-existing "`gpuci_conda_retry build conda/recipes/jupyterlab-nvdashboard --output`"
 
 echo "Upload pypi"
 twine upload --skip-existing -u ${TWINE_USERNAME:-rapidsai} dist/*

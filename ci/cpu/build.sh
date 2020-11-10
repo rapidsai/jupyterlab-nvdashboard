@@ -1,15 +1,15 @@
 #!/bin/bash
-# Copyright (c) 2018, NVIDIA CORPORATION.
+# Copyright (c) 2020, NVIDIA CORPORATION.
 set -e
 
 # Logger function for build status output
-function logger() {
+function gpuci_logger() {
   echo -e "\n>>>> $@\n"
 }
 
 # Set path and build parallel level
-export PATH=/conda/bin:/usr/local/cuda/bin:$PATH
-export PARALLEL_LEVEL=4
+export PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH
+export PARALLEL_LEVEL=-4
 
 # Set home to the job's workspace
 export HOME=$WORKSPACE
@@ -26,21 +26,28 @@ if [[ "$BUILD_MODE" = "branch" && "$SOURCE_BRANCH" = branch-* ]] ; then
   export VERSION_SUFFIX=`date +%y%m%d`
 fi
 
+# Setup 'gpuci_conda_retry' for build retries (results in 2 total attempts)
+export GPUCI_CONDA_RETRY_MAX=1
+export GPUCI_CONDA_RETRY_SLEEP=30
+
 ################################################################################
 # SETUP - Check environment
 ################################################################################
 
-logger "Get env..."
+gpuci_logger "Get env"
 env
 
-logger "Activate conda env..."
-source activate gdf
+gpuci_logger "Activate conda env"
+. /opt/conda/etc/profile.d/conda.sh
+conda activate rapids
 
-logger "Check versions..."
+gpuci_logger "Check versions"
 python --version
-gcc --version
-g++ --version
-conda list
+$CC --version
+$CXX --version
+conda info
+conda config --show-sources
+conda list --show-channel-urls
 
 # FIX Added to deal with Anancoda SSL verification issues during conda builds
 conda config --set ssl_verify False
@@ -49,14 +56,14 @@ conda config --set ssl_verify False
 # BUILD - Conda, pip, & npm package
 ################################################################################
 
-logger "Build conda pkg for jupyterlab-nvdashboard..."
-conda build conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
+gpuci_logger "Build conda pkg for jupyterlab-nvdashboard"
+gpuci_conda_retry build conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
 
-logger "Build pip pkg for jupyterlab-nvdashboard..."
+gpuci_logger "Build pip pkg for jupyterlab-nvdashboard"
 rm -rf dist/
 python setup.py sdist bdist_wheel
 
-logger "Build npm pkg for jupyterlab-nvdashboard..."
+gpuci_logger "Build npm pkg for jupyterlab-nvdashboard"
 conda install -y nodejs=10 jupyterlab
 jlpm install
 jlpm build
@@ -65,5 +72,5 @@ jlpm build
 # UPLOAD - Packages
 ################################################################################
 
-logger "Upload packages..."
+gpuci_logger "Upload packages"
 source ci/cpu/upload-packages.sh
