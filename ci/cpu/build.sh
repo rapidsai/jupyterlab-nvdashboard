@@ -73,4 +73,4 @@ jlpm build
 ################################################################################
 
 gpuci_logger "Upload packages"
-source ci/cpu/upload-packages.sh
+source ci/cpu/upload.sh
