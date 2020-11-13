@@ -42,7 +42,7 @@ gpuci_logger "Activate conda env"
 conda activate rapids
 
 gpuci_logger "Install conda dependencies"
-conda install -y nodejs=10 jupyterlab
+gpuci_conda_retry install -y nodejs=10 jupyterlab
 
 ################################################################################
 # TEST

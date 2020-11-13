@@ -48,14 +48,20 @@ fi
 ################################################################################
 
 gpuci_logger "Get conda file output locations"
-export JUPYTERLAB_NVDASHBOARD_FILE=`gpuci_conda_retry build conda/recipes/jupyterlab-nvdashboard --output`
+export JUPYTERLAB_NVDASHBOARD_FILE=`conda build conda/recipes/jupyterlab-nvdashboard --output`
 
 ################################################################################
 # UPLOAD - Conda packages
 ################################################################################
 
 gpuci_logger "Starting conda uploads"
-anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} --label main --skip-existing ${JUPYTERLAB_NVDASHBOARD_FILE}
+
+if [ "$UPLOAD_LIBCUDF" == "1" ]; then
+  test -e ${JUPYTERLAB_NVDASHBOARD_FILE}
+  echo "Upload libcudf"
+  echo ${JUPYTERLAB_NVDASHBOARD_FILE}
+  gpuci_retry anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} --label main --skip-existing ${JUPYTERLAB_NVDASHBOARD_FILE}
+fi 
 
 echo "Upload pypi"
 twine upload --skip-existing -u ${TWINE_USERNAME:-rapidsai} dist/*
