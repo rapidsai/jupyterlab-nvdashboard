@@ -11,4 +11,4 @@ serverfile = os.path.join(os.path.dirname(__file__), "server.py")
 
 
 def launch_server():
-    return {"command": [sys.executable, serverfile, '{port}']}
+    return {"command": [sys.executable, serverfile, "{port}"], "timeout": 20}
