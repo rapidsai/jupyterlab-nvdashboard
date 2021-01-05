@@ -51,6 +51,9 @@ conda config --set ssl_verify False
 # BUILD - Conda, pip, & npm package
 ################################################################################
 
+
+gpuci_conda_retry install -y nodejs=10 jupyterlab jupyter-packaging
+
 gpuci_logger "Build conda pkg for jupyterlab-nvdashboard"
 gpuci_conda_retry build conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
 
@@ -59,7 +62,6 @@ rm -rf dist/
 python setup.py sdist bdist_wheel
 
 gpuci_logger "Build npm pkg for jupyterlab-nvdashboard"
-gpuci_conda_retry install -y nodejs=10 jupyterlab jupyter_packaging
 jlpm install
 jlpm build
 
