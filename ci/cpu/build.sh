@@ -59,7 +59,7 @@ rm -rf dist/
 python setup.py sdist bdist_wheel
 
 gpuci_logger "Build npm pkg for jupyterlab-nvdashboard"
-gpuci_conda_retry install -y nodejs=10 jupyterlab
+gpuci_conda_retry install -y nodejs=10 jupyterlab jupyter_packaging
 jlpm install
 jlpm build
 
