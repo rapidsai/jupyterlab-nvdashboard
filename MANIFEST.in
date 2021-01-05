@@ -6,6 +6,7 @@ include jupyter-config/jupyterlab_nvdashboard.json
 include package.json
 include install.json
 include ts*.json
+include requirements.txt
 
 graft jupyterlab_nvdashboard/labextension
 

@@ -14,6 +14,8 @@ jupyterlab_nvdashboard/labextension
 __pycache__/
 *.py[cod]
 *$py.class
+dask-worker-space/
+.pytest_cache/
 
 # C extensions
 *.so
