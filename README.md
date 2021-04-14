@@ -78,19 +78,6 @@ jupyter lab build
 This application is distributed as two subpackages.
 
 The JupyterLab frontend part is published to [npm](https://www.npmjs.com/package/jupyterlab-nvdashboard),
-and the server-side part to [PyPI](https://pypi.org/project/jupyterlab-nvdashboard/).
+and the server-side part to both [PyPI](https://pypi.org/project/jupyterlab-nvdashboard/) and [Anaconda](https://anaconda.org/rapidsai/jupyterlab-nvdashboard) ([nightlies](https://anaconda.org/rapidsai-nightly/jupyterlab-nvdashboard)).
 
-Releases for both packages are done with the `jlpm` tool, `git` and Travis CI.
-
-_Note: Package versions are not prefixed with the letter `v`. You will need to disable this._
-
-```console
-$ jlpm config set version-tag-prefix ""
-```
-
-Making a release
-
-```console
-$ jlpm version [--major|--minor|--patch]  # updates package.json and creates git commit and tag
-$ git push && git push --tags  # pushes tags to GitHub which triggers Travis CI to build and deploy
-```
+Releases for both packages are handled by [gpuCI](https://gpuci.gpuopenanalytics.com/job/rapidsai/job/gpuci/job/jupyterlab-nvdashboard/). Nightly builds are triggered when a push to a versioned branch occurs (i.e. `branch-0.5`). Stable builds are triggered when a push to the `main` branch occurs.
