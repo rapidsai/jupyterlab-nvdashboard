@@ -54,6 +54,8 @@ twine upload --skip-existing -u ${TWINE_USERNAME:-rapidsai} dist/*
 echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
 if [[ "$BUILD_MODE" == "branch" && "${SOURCE_BRANCH}" != 'main' ]]; then
   echo "Nightly build, publishing to npm with nightly tag"
+  # Updates package.json version before publishing since previous publications can't be overwritten
+  npm version --no-git-tag-version $(git describe --tags)
   npm publish --tag=nightly
 else
   npm publish
