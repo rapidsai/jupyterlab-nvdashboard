@@ -60,6 +60,7 @@ python setup.py sdist bdist_wheel
 
 gpuci_logger "Build npm pkg for jupyterlab-nvdashboard"
 gpuci_conda_retry install -y nodejs=10 jupyterlab
+npm i -g npm@latest
 jlpm install
 jlpm build
 
