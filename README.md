@@ -81,3 +81,5 @@ jupyter lab build --minimize=False
 ```bash
 pip uninstall jupyterlab_nvdashboard
 ```
+
+Releases for both packages are handled by [gpuCI](https://gpuci.gpuopenanalytics.com/job/rapidsai/job/gpuci/job/jupyterlab-nvdashboard/). Nightly builds are triggered when a push to a versioned branch occurs (i.e. `branch-0.5`). Stable builds are triggered when a push to the `main` branch occurs.
