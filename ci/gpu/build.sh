@@ -51,11 +51,18 @@ else
     nvidia-smi
 
     cd $WORKSPACE
+    python -m pip install .
+
     gpuci_logger "Python py.test for jupyterlab_nvdashboard"
-    python -m pip install -e .
     py.test --cache-clear --junitxml=${WORKSPACE}/junit-nvstrings.xml -v jupyterlab_nvdashboard
 
     gpuci_logger "Node jlpm test for jupyterlab_nvdashboard"
     jlpm install
+    jlpm run eslint:check
     jlpm test
+
+    gpuci_logger "Jupyter extension installation test for jupyterlab_nvdashboard"
+    jupyter serverextension list 2>&1 | grep -ie "jupyterlab_nvdashboard.*OK"
+    jupyter labextension list 2>&1 | grep -ie "jupyterlab-nvdashboard.*OK"
+    python -m jupyterlab.browser_check
 fi

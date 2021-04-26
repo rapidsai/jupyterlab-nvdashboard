@@ -20,7 +20,7 @@ if 'GIT_DESCRIBE_TAG' in os.environ:
     version = os.environ['GIT_DESCRIBE_TAG'] + os.environ.get('VERSION_SUFFIX', '')
 else:
     # get version from package.json (to avoid duplicating)
-    with open(path.join(this_directory, 'package.json'), encoding='utf-8') as f:
+    with open(os.path.join(HERE, 'package.json'), encoding='utf-8') as f:
         version = json.load(f)['version']
 
 lab_path = os.path.join(HERE, name, "labextension")
