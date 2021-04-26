@@ -19,7 +19,8 @@ export HOME=$WORKSPACE
 
 # Parse git describe
 cd $WORKSPACE
-export GIT_DESCRIBE_TAG=`git describe --tags`
+export GIT_DESCRIBE_TAG=`git describe --abbrev=0 --tags`
+export GIT_DESCRIBE_NUMBER=`git rev-list ${GIT_DESCRIBE_TAG}..HEAD --count`
 export MINOR_VERSION=`echo $GIT_DESCRIBE_TAG | grep -o -E '([0-9]+\.[0-9]+)'`
 
 ################################################################################

@@ -17,7 +17,10 @@ name="jupyterlab_nvdashboard"
 
 # Get our version
 if 'GIT_DESCRIBE_TAG' in os.environ:
-    version = os.environ['GIT_DESCRIBE_TAG'] + os.environ.get('VERSION_SUFFIX', '')
+    describe_tag = os.environ['GIT_DESCRIBE_TAG']
+    version = describe_tag.lstrip('v') + os.environ.get('VERSION_SUFFIX', '')
+    if describe_tag[-1] == 'a':
+        version += os.environ['GIT_DESCRIBE_NUMBER']
 else:
     # get version from package.json (to avoid duplicating)
     with open(os.path.join(HERE, 'package.json'), encoding='utf-8') as f:
