@@ -63,7 +63,7 @@ else
     jlpm test
 
     gpuci_logger "Jupyter extension installation test for jupyterlab_nvdashboard"
-    jupyter serverextension list 2>&1 | grep -ie "jupyterlab_nvdashboard.*OK"
+    # jupyter serverextension list 2>&1 | grep -ie "jupyterlab_nvdashboard.*OK" # can this check be removed?
     jupyter labextension list 2>&1 | grep -ie "jupyterlab-nvdashboard.*OK"
     python -m jupyterlab.browser_check
 fi
