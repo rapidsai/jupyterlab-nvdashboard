@@ -35,6 +35,9 @@ requirements:
 test:
   imports:
     - jupyterlab_nvdashboard
+  commands:
+    - test -f ${PREFIX}/share/jupyter/labextensions/jupyterlab-nvdashboard/package.json                              # [unix]
+    - if exist %PREFIX%\\share\\jupyter\\labextensions\\jupyterlab-nvdashboard\\package.json (exit 0) else (exit 1)  # [win]
 
 about:
   home: https://rapids.ai
