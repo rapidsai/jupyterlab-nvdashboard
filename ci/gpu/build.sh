@@ -37,10 +37,6 @@ gpuci_logger "Activate conda env"
 . /opt/conda/etc/profile.d/conda.sh
 conda activate rapids
 
-gpuci_logger "Install conda dependencies"
-gpuci_conda_retry install -y -c conda-forge nodejs>=12 jupyterlab jupyter-packaging
-
-
 ################################################################################
 # TEST
 ################################################################################

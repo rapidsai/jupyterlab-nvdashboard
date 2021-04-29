@@ -51,9 +51,6 @@ conda config --set ssl_verify False
 # BUILD - Conda & pip package
 ################################################################################
 
-
-gpuci_conda_retry install -y -c conda-forge nodejs>=12 jupyterlab=3 jupyter-packaging
-
 gpuci_logger "Build conda pkg for jupyterlab-nvdashboard"
 gpuci_conda_retry build conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
 
