@@ -1,5 +1,5 @@
 def format_bytes(n):
-    """ Format bytes as text
+    """Format bytes as text
 
     Copied from dask to avoid dependency.
 

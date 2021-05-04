@@ -2,3 +2,4 @@ jupyter-server-proxy
 bokeh>2.1
 pynvml
 psutil
+jupyterlab>=3.0.0rc13,==3.*

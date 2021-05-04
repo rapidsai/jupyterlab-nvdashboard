@@ -19,7 +19,8 @@ export HOME=$WORKSPACE
 
 # Parse git describe
 cd $WORKSPACE
-export GIT_DESCRIBE_TAG=`git describe --tags`
+export GIT_DESCRIBE_TAG=`git describe --abbrev=0 --tags`
+export GIT_DESCRIBE_NUMBER=`git rev-list ${GIT_DESCRIBE_TAG}..HEAD --count`
 export MINOR_VERSION=`echo $GIT_DESCRIBE_TAG | grep -o -E '([0-9]+\.[0-9]+)'`
 
 ################################################################################
@@ -36,10 +37,6 @@ gpuci_logger "Activate conda env"
 . /opt/conda/etc/profile.d/conda.sh
 conda activate rapids
 
-gpuci_logger "Install conda dependencies"
-gpuci_conda_retry install -y nodejs=10 jupyterlab
-
-
 ################################################################################
 # TEST
 ################################################################################
@@ -51,11 +48,16 @@ else
     nvidia-smi
 
     cd $WORKSPACE
+    python -m pip install .
+
     gpuci_logger "Python py.test for jupyterlab_nvdashboard"
-    python -m pip install -e .
     py.test --cache-clear --junitxml=${WORKSPACE}/junit-nvstrings.xml -v jupyterlab_nvdashboard
 
     gpuci_logger "Node jlpm test for jupyterlab_nvdashboard"
     jlpm install
+    jlpm run eslint:check
     jlpm test
+
+    gpuci_logger "Jupyter extension installation test for jupyterlab_nvdashboard"
+    jupyter labextension list 2>&1 | grep -ie "jupyterlab-nvdashboard.*OK"
 fi
