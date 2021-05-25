@@ -56,7 +56,11 @@ export class BokehDashboard extends MainAreaWidget<IFrame> {
     }
     // Make sure the inactive panel is hidden
     this._inactivePanel.style.display = 'none';
-    this.content.url = URLExt.join(ServerConnection.makeSettings({}).baseUrl, '/nvdashboard', this.item.route);
+    this.content.url = URLExt.join(
+      ServerConnection.makeSettings({}).baseUrl,
+      '/nvdashboard',
+      this.item.route
+    );
   }
 
   private _item: IDashboardItem | null = null;
@@ -72,11 +76,11 @@ export class BokehDashboardLauncher extends Widget {
    */
   constructor(options: BokehDashboardLauncher.IOptions) {
     super();
-    let layout = (this.layout = new PanelLayout());
+    const layout = (this.layout = new PanelLayout());
     this._dashboard = new Widget();
     const header = new Widget();
     header.node.textContent = 'GPU Dashboards';
-    header.addClass('bokeh-BokehDashboardLauncher-header')
+    header.addClass('bokeh-BokehDashboardLauncher-header');
     layout.addWidget(header);
     layout.addWidget(this._dashboard);
     this.addClass('bokeh-BokehDashboardLauncher');
@@ -163,7 +167,7 @@ export namespace BokehDashboardLauncher {
  * A React component for a launcher button listing.
  */
 function DashboardListing(props: IDashboardListingProps) {
-  let listing = props.items.map(item => {
+  const listing = props.items.map(item => {
     return (
       <li className="nvdashboardListing-item" key={item.route}>
         <button

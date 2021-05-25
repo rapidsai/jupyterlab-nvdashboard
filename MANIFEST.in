@@ -1,10 +1,24 @@
-recursive-include jupyterlab_nvdashboard *.py
-
-include setup.py
+include LICENSE
 include README.md
-include LICENSE.txt
-include requirements.txt
-include MANIFEST.in
-include package.json
+include pyproject.toml
+include jupyter-config/jupyterlab_nvdashboard.json
 
-recursive-exclude * __pycache__
+include package.json
+include install.json
+include ts*.json
+include requirements.txt
+
+graft jupyterlab_nvdashboard/labextension
+
+# Javascript files
+graft src
+graft style
+prune **/node_modules
+prune lib
+
+# Patterns to exclude from any directory
+global-exclude *~
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude .git
+global-exclude .ipynb_checkpoints

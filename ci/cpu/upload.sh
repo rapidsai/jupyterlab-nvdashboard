@@ -27,11 +27,6 @@ if [ -z "$TWINE_PASSWORD" ]; then
   return 0
 fi
 
-if [ -z "$NPM_TOKEN" ]; then
-  echo "NPM_TOKEN not set"
-  return 0
-fi
-
 ################################################################################
 # SETUP - Get conda file output locations
 ################################################################################
@@ -45,18 +40,8 @@ export JUPYTERLAB_NVDASHBOARD_FILE=`conda build conda/recipes/jupyterlab-nvdashb
 
 gpuci_logger "Starting conda uploads"
 
-gpuci_retry anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} ${LABEL_OPTION} --skip-existing ${JUPYTERLAB_NVDASHBOARD_FILE}
+gpuci_retry anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} ${LABEL_OPTION} --skip-existing ${JUPYTERLAB_NVDASHBOARD_FILE} --no-progress
 
 
 echo "Upload pypi"
 twine upload --skip-existing -u ${TWINE_USERNAME:-rapidsai} dist/*
-
-echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-if [[ "$BUILD_MODE" == "branch" && "${SOURCE_BRANCH}" != 'main' ]]; then
-  echo "Nightly build, publishing to npm with nightly tag"
-  # Updates package.json version before publishing since previous publications can't be overwritten
-  npm version --no-git-tag-version $(git describe --tags)
-  npm publish --tag=nightly
-else
-  npm publish
-fi

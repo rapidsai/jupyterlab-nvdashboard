@@ -7,7 +7,11 @@ import {
 
 import { WidgetTracker } from '@jupyterlab/apputils';
 
-import { BokehDashboard, BokehDashboardLauncher, IDashboardItem } from './dashboard';
+import {
+  BokehDashboard,
+  BokehDashboardLauncher,
+  IDashboardItem
+} from './dashboard';
 
 import '../style/index.css';
 
@@ -26,7 +30,6 @@ const extension: JupyterFrontEndPlugin<void> = {
     labShell: ILabShell,
     restorer: ILayoutRestorer | null
   ) => {
-
     const sidebar = new BokehDashboardLauncher({
       launchItem: (item: IDashboardItem) => {
         app.commands.execute(COMMAND_ID, item);
@@ -79,7 +82,6 @@ const extension: JupyterFrontEndPlugin<void> = {
     }
 
     labShell.add(sidebar, 'left', { rank: 200 });
-
   }
 };
 

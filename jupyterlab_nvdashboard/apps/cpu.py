@@ -10,18 +10,23 @@ import time
 
 def cpu(doc):
     fig = figure(
-        title="CPU Utilization [%]", sizing_mode="stretch_both", y_range=[0, 100])
+        title="CPU Utilization [%]", sizing_mode="stretch_both", y_range=[0, 100]
+    )
 
     cpu = psutil.cpu_percent(percpu=True)
     left = list(range(len(cpu)))
     right = [l + 0.8 for l in left]
 
     source = ColumnDataSource({"left": left, "right": right, "cpu": cpu})
-    mapper = LinearColorMapper(
-        palette=all_palettes['RdYlBu'][4], low=0, high=100)
+    mapper = LinearColorMapper(palette=all_palettes["RdYlBu"][4], low=0, high=100)
 
     fig.quad(
-        source=source, left="left", right="right", bottom=0, top="cpu", color={"field": "cpu", "transform": mapper}
+        source=source,
+        left="left",
+        right="right",
+        bottom=0,
+        top="cpu",
+        color={"field": "cpu", "transform": mapper},
     )
 
     doc.title = "CPU Usage"
@@ -79,10 +84,8 @@ def resource_timeline(doc):
         x_range=x_range,
         tools=tools,
     )
-    disk_fig.line(source=source, x="time", y="disk-read",
-                  color="blue", legend="Read")
-    disk_fig.line(source=source, x="time", y="disk-write",
-                  color="red", legend="Write")
+    disk_fig.line(source=source, x="time", y="disk-read", color="blue", legend="Read")
+    disk_fig.line(source=source, x="time", y="disk-write", color="red", legend="Write")
     disk_fig.yaxis.formatter = NumeralTickFormatter(format="0.0b")
     disk_fig.legend.location = "top_left"
 
@@ -93,17 +96,14 @@ def resource_timeline(doc):
         x_range=x_range,
         tools=tools,
     )
-    net_fig.line(source=source, x="time", y="net-read",
-                 color="blue", legend="Recv")
-    net_fig.line(source=source, x="time", y="net-sent",
-                 color="red", legend="Send")
+    net_fig.line(source=source, x="time", y="net-read", color="blue", legend="Recv")
+    net_fig.line(source=source, x="time", y="net-sent", color="red", legend="Send")
     net_fig.yaxis.formatter = NumeralTickFormatter(format="0.0b")
     net_fig.legend.location = "top_left"
 
     doc.title = "Resource Timeline"
     doc.add_root(
-        column(cpu_fig, memory_fig, disk_fig,
-               net_fig, sizing_mode="stretch_both")
+        column(cpu_fig, memory_fig, disk_fig, net_fig, sizing_mode="stretch_both")
     )
 
     last_disk_read = psutil.disk_io_counters().read_bytes
