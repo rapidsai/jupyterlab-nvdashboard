@@ -14,6 +14,10 @@ build:
   number: {{ git_revision_count }}
   script: python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
   noarch: python
+  script_env:
+    - CC
+    - CXX
+    - CUDAHOSTCXX
 
 requirements:
   host:
