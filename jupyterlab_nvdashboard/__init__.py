@@ -10,7 +10,7 @@ serverfile = os.path.join(os.path.dirname(__file__), "server.py")
 
 
 def launch_server():
-    return {"command": [sys.executable, serverfile, "{port}"], "timeout": 20}
+    return {"command": [sys.executable, serverfile, "{port}"], "timeout": 20, "launcher_entry": {"enabled": False}}
 
 
 def _jupyter_labextension_paths():
