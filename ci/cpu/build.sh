@@ -52,7 +52,7 @@ conda config --set ssl_verify False
 ################################################################################
 
 gpuci_logger "Build conda pkg for jupyterlab-nvdashboard"
-gpuci_conda_retry build conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
+gpuci_conda_retry build conda/recipes/jupyterlab-nvdashboard --python=$PYTHON_VER
 
 gpuci_logger "Build pip pkg for jupyterlab-nvdashboard"
 rm -rf dist/
