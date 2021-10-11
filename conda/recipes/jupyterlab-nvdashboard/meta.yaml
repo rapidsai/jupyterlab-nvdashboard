@@ -48,3 +48,4 @@ about:
   license: BSD-3
   summary: 'A JupyterLab extension for displaying dashboards of GPU usage.'
   dev_url: https://github.com/rapidsai/jupyterlab-nvdashboard
+
