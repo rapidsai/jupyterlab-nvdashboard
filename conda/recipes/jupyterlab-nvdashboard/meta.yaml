@@ -25,7 +25,7 @@ requirements:
     - setuptools
     - pynvml
     - psutil
-    - nodejs
+    - nodejs !=16.10.0
     - jupyter-packaging >=0.7.0,<0.8
   run:
     - python >=3.7
@@ -48,4 +48,3 @@ about:
   license: BSD-3
   summary: 'A JupyterLab extension for displaying dashboards of GPU usage.'
   dev_url: https://github.com/rapidsai/jupyterlab-nvdashboard
-
