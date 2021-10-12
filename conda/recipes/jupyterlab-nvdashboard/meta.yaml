@@ -25,7 +25,7 @@ requirements:
     - setuptools
     - pynvml
     - psutil
-    - nodejs
+    - nodejs !=16.10.0
     - jupyter-packaging >=0.7.0,<0.8
   run:
     - python >=3.7
