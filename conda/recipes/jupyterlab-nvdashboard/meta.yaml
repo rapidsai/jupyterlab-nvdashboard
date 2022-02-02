@@ -18,6 +18,7 @@ build:
     - CC
     - CXX
     - CUDAHOSTCXX
+    - NODE_OPTIONS=--openssl-legacy-provider
 
 requirements:
   host:
