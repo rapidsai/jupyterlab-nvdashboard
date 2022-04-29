@@ -23,7 +23,10 @@ except pynvml.nvml.NVMLError_LibraryNotFound as error:
 else:
     ngpus = pynvml.nvmlDeviceGetCount()
     gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
-
+    try:
+        nvlink_ver = pynvml.nvmlDeviceGetNvLinkVersion(gpu_handles[0], 0)
+    except (IndexError, pynvml.nvml.NVMLError_NotSupported):
+        nvlink_ver = None
 
 def gpu(doc):
     fig = figure(title="GPU Utilization", sizing_mode="stretch_both", x_range=[0, 100])
@@ -202,7 +205,6 @@ def nvlink(doc):
     # Use device-0/link-0 to get "upper bound"
     counter = 1
     nlinks = pynvml.NVML_NVLINK_MAX_LINKS
-    nvlink_ver = pynvml.nvmlDeviceGetNvLinkVersion(gpu_handles[0], 0)
     nvlink_link_bw = {
         # Keys = NVLink Version, Values = Max Link BW (per direction)
         # [Note: Using specs at https://en.wikichip.org/wiki/nvidia/nvlink]

@@ -20,8 +20,9 @@ if apps.gpu.ngpus > 0:
     routes["/GPU-Memory"] = apps.gpu.gpu_mem
     routes["/GPU-Resources"] = apps.gpu.gpu_resource_timeline
     routes["/PCIe-Throughput"] = apps.gpu.pci
-    routes["/NVLink-Throughput"] = apps.gpu.nvlink
-    routes["/NVLink-Timeline"] = apps.gpu.nvlink_timeline
+    if apps.gpu.nvlink_ver is not None:
+        routes["/NVLink-Throughput"] = apps.gpu.nvlink
+        routes["/NVLink-Timeline"] = apps.gpu.nvlink_timeline
 
 class RouteIndex(web.RequestHandler):
     """ A JSON index of all routes present on the Bokeh Server """
