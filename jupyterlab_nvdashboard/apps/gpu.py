@@ -14,9 +14,15 @@ from jupyterlab_nvdashboard.utils import format_bytes
 KB = 1e3
 MB = KB * KB
 GB = MB * KB
-pynvml.nvmlInit()
-ngpus = pynvml.nvmlDeviceGetCount()
-gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
+
+try:
+    pynvml.nvmlInit()
+except pynvml.nvml.NVMLError_LibraryNotFound as error:
+    ngpus = 0
+    gpu_handles = []
+else:
+    ngpus = pynvml.nvmlDeviceGetCount()
+    gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
 
 
 def gpu(doc):
