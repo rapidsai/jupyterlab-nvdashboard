@@ -37,7 +37,7 @@ const extension: JupyterFrontEndPlugin<void> = {
     });
     sidebar.id = 'nvdashboard-launcher';
     sidebar.title.iconClass = 'jp-GPU-icon jp-SideBar-tabIcon';
-    sidebar.title.caption = 'System Dashboards';
+    sidebar.title.caption = 'GPU Dashboards';
     labShell.add(sidebar, 'left');
 
     // An instance tracker which is used for state restoration.
