@@ -11,16 +11,17 @@ DEFAULT_PORT = 8000
 
 
 routes = {
-    "/GPU-Utilization": apps.gpu.gpu,
-    "/GPU-Memory": apps.gpu.gpu_mem,
-    "/GPU-Resources": apps.gpu.gpu_resource_timeline,
-    "/PCIe-Throughput": apps.gpu.pci,
-    "/NVLink-Throughput": apps.gpu.nvlink,
-    "/NVLink-Timeline": apps.gpu.nvlink_timeline,
     # "/CPU-Utilization": apps.cpu.cpu,
     "/Machine-Resources": apps.cpu.resource_timeline,
 }
 
+if apps.gpu.ngpus > 0:
+    routes["/GPU-Utilization"] = apps.gpu.gpu
+    routes["/GPU-Memory"] = apps.gpu.gpu_mem
+    routes["/GPU-Resources"] = apps.gpu.gpu_resource_timeline
+    routes["/PCIe-Throughput"] = apps.gpu.pci
+    routes["/NVLink-Throughput"] = apps.gpu.nvlink
+    routes["/NVLink-Timeline"] = apps.gpu.nvlink_timeline
 
 class RouteIndex(web.RequestHandler):
     """ A JSON index of all routes present on the Bokeh Server """
