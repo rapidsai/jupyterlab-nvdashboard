@@ -19,7 +19,8 @@ if apps.gpu.ngpus > 0:
     routes["/GPU-Utilization"] = apps.gpu.gpu
     routes["/GPU-Memory"] = apps.gpu.gpu_mem
     routes["/GPU-Resources"] = apps.gpu.gpu_resource_timeline
-    routes["/PCIe-Throughput"] = apps.gpu.pci
+    if apps.gpu.pci_gen is not None:
+        routes["/PCIe-Throughput"] = apps.gpu.pci
     if apps.gpu.nvlink_ver is not None:
         routes["/NVLink-Throughput"] = apps.gpu.nvlink
         routes["/NVLink-Timeline"] = apps.gpu.nvlink_timeline

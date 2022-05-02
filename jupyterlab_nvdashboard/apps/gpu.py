@@ -27,6 +27,10 @@ else:
         nvlink_ver = pynvml.nvmlDeviceGetNvLinkVersion(gpu_handles[0], 0)
     except (IndexError, pynvml.nvml.NVMLError_NotSupported):
         nvlink_ver = None
+    try:
+        pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
+    except (IndexError, pynvml.nvml.NVMLError_NotSupported):
+        pci_gen = None
 
 def gpu(doc):
     fig = figure(title="GPU Utilization", sizing_mode="stretch_both", x_range=[0, 100])
@@ -106,7 +110,6 @@ def gpu_mem(doc):
 def pci(doc):
 
     # Use device-0 to get "upper bound"
-    pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
     pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
     pci_bw = {
         # Keys = PCIe-Generation, Values = Max PCIe Lane BW (per direction)
