@@ -14,10 +14,23 @@ from jupyterlab_nvdashboard.utils import format_bytes
 KB = 1e3
 MB = KB * KB
 GB = MB * KB
-pynvml.nvmlInit()
-ngpus = pynvml.nvmlDeviceGetCount()
-gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
 
+try:
+    pynvml.nvmlInit()
+except pynvml.nvml.NVMLError_LibraryNotFound as error:
+    ngpus = 0
+    gpu_handles = []
+else:
+    ngpus = pynvml.nvmlDeviceGetCount()
+    gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
+    try:
+        nvlink_ver = pynvml.nvmlDeviceGetNvLinkVersion(gpu_handles[0], 0)
+    except (IndexError, pynvml.nvml.NVMLError_NotSupported):
+        nvlink_ver = None
+    try:
+        pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
+    except (IndexError, pynvml.nvml.NVMLError_NotSupported):
+        pci_gen = None
 
 def gpu(doc):
     fig = figure(title="GPU Utilization", sizing_mode="stretch_both", x_range=[0, 100])
@@ -97,7 +110,6 @@ def gpu_mem(doc):
 def pci(doc):
 
     # Use device-0 to get "upper bound"
-    pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
     pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
     pci_bw = {
         # Keys = PCIe-Generation, Values = Max PCIe Lane BW (per direction)
@@ -196,7 +208,6 @@ def nvlink(doc):
     # Use device-0/link-0 to get "upper bound"
     counter = 1
     nlinks = pynvml.NVML_NVLINK_MAX_LINKS
-    nvlink_ver = pynvml.nvmlDeviceGetNvLinkVersion(gpu_handles[0], 0)
     nvlink_link_bw = {
         # Keys = NVLink Version, Values = Max Link BW (per direction)
         # [Note: Using specs at https://en.wikichip.org/wiki/nvidia/nvlink]
@@ -541,21 +552,24 @@ def gpu_resource_timeline(doc):
     )
     tot_fig.legend.location = "top_left"
 
-    pci_fig = figure(
-        title="Total PCI Throughput [B/s]",
-        sizing_mode="stretch_both",
-        x_axis_type="datetime",
-        x_range=x_range,
-        tools=tools,
-    )
-    pci_fig.line(source=source, x="time", y="tx-total", color="blue", legend="TX")
-    pci_fig.line(source=source, x="time", y="rx-total", color="red", legend="RX")
-    pci_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-    pci_fig.legend.location = "top_left"
+    figures = [gpu_fig, memory_fig, tot_fig]
+    if pci_gen is not None:
+        pci_fig = figure(
+            title="Total PCI Throughput [B/s]",
+            sizing_mode="stretch_both",
+            x_axis_type="datetime",
+            x_range=x_range,
+            tools=tools,
+        )
+        pci_fig.line(source=source, x="time", y="tx-total", color="blue", legend="TX")
+        pci_fig.line(source=source, x="time", y="rx-total", color="red", legend="RX")
+        pci_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
+        pci_fig.legend.location = "top_left"
+        figures.append(pci_fig)
 
     doc.title = "Resource Timeline"
     doc.add_root(
-        column(gpu_fig, memory_fig, tot_fig, pci_fig, sizing_mode="stretch_both")
+        column(*figures, sizing_mode="stretch_both")
     )
 
     last_time = time.time()
@@ -571,22 +585,23 @@ def gpu_resource_timeline(doc):
         for i in range(ngpus):
             gpu = pynvml.nvmlDeviceGetUtilizationRates(gpu_handles[i]).gpu
             mem = pynvml.nvmlDeviceGetMemoryInfo(gpu_handles[i]).used
-            tx = (
-                pynvml.nvmlDeviceGetPcieThroughput(
-                    gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
-                )
-                * 1024
-            )
-            rx = (
-                pynvml.nvmlDeviceGetPcieThroughput(
-                    gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
-                )
-                * 1024
-            )
             gpu_tot += gpu
             mem_tot += mem / (1024 * 1024)
-            rx_tot += rx
-            tx_tot += tx
+            if pci_gen is not None:
+                tx = (
+                    pynvml.nvmlDeviceGetPcieThroughput(
+                        gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
+                    )
+                    * 1024
+                )
+                rx = (
+                    pynvml.nvmlDeviceGetPcieThroughput(
+                        gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
+                    )
+                    * 1024
+                )
+                rx_tot += rx
+                tx_tot += tx
             src_dict["gpu-" + str(i)] = [gpu]
             src_dict["memory-" + str(i)] = [mem]
         src_dict["gpu-total"] = [gpu_tot / ngpus]
