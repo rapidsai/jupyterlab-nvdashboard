@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 set -e
 
 # Set path and build parallel level
@@ -47,12 +47,15 @@ conda list --show-channel-urls
 # FIX Added to deal with Anancoda SSL verification issues during conda builds
 conda config --set ssl_verify False
 
+# FIXME: Remove
+gpuci_mamba_retry install -c conda-forge boa
+
 ################################################################################
 # BUILD - Conda & pip package
 ################################################################################
 
 gpuci_logger "Build conda pkg for jupyterlab-nvdashboard"
-gpuci_conda_retry build conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
+gpuci_conda_retry mambabuild conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
 
 gpuci_logger "Build pip pkg for jupyterlab-nvdashboard"
 rm -rf dist/
