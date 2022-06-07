@@ -15,9 +15,6 @@ build:
   script: python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
   noarch: python
   script_env:
-    - CC
-    - CXX
-    - CUDAHOSTCXX
     - NODE_OPTIONS=--openssl-legacy-provider
 
 requirements:
