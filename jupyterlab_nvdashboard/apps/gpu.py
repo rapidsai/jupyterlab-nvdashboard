@@ -220,21 +220,22 @@ def _get_nvlink_throughput():
     }
 
 
-def nvlink(doc):
+def _get_max_bandwidth():
+    links = [
+        getattr(pynvml, f"NVML_FI_DEV_NVLINK_SPEED_MBPS_L{i}")
+        for i in range(pynvml.NVML_NVLINK_MAX_LINKS)
+    ]
 
-    # Use device-0/link-0 to get "upper bound"
-    # Note: NVML_NVLINKS_MAX_LINKS is bidirectional, divide by 2 for
-    # separate RX and TX.
-    nlinks = pynvml.NVML_NVLINK_MAX_LINKS / 2
-    nvlink_link_bw = {
-        # Keys = NVLink Version, Values = Max Link BW (per direction)
-        # [Note: Using specs at https://en.wikichip.org/wiki/nvidia/nvlink]
-        1: 20.0 * GB,  # GB/s
-        2: 25.0 * GB,  # GB/s
-        3: 50.0 * GB,  # GB/s
-    }
-    # Max NVLink Throughput = BW-per-link * nlinks
-    max_bw = nlinks * nvlink_link_bw.get(nvlink_ver, 25.0 * GB)
+    bandwidth = [
+        pynvml.nvmlDeviceGetFieldValues(handle, links)
+        for handle in gpu_handles
+    ]
+
+    return max(sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth)
+
+
+def nvlink(doc):
+    max_bw = _get_max_bandwidth()
 
     tx_fig = figure(
         title="TX NVLink [B/s]", sizing_mode="stretch_both", y_range=[0, max_bw]
