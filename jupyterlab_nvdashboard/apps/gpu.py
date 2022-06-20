@@ -245,7 +245,11 @@ def _get_max_bandwidth():
         for handle in gpu_handles
     ]
 
-    return max(sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth)
+    # Maximum bandwidth is bidirectional, divide by two for separate RX and TX
+    return max(
+        sum(i.value.ullVal for i in bw) * 1024**2
+        for bw in bandwidth
+    ) / 2
 
 
 def nvlink(doc):
