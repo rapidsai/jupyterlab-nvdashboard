@@ -206,17 +206,31 @@ def _get_nvlink_throughput():
         pynvml.nvmlDeviceGetFieldValues(
             handle,
             [
-                pynvml.NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_RX,
-                pynvml.NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_TX
+                (pynvml.NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_RX, scope_id)
+                for scope_id in range(pynvml.NVML_NVLINK_MAX_LINKS)
+            ] +
+            [
+                (pynvml.NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_RX, scope_id)
+                for scope_id in range(pynvml.NVML_NVLINK_MAX_LINKS)
             ]
         )
         for handle in gpu_handles
     ]
 
     # Output is given in KiB, thus multiply by 1024 for result in bytes
+    # First `pynvml.NVML_NVLINK_MAX_LINKS` contain RX throughput, last
+    # `pynvml.NVML_NVLINK_MAX_LINKS` contain TX
     return {
-        "rx": [t[0].value.ullVal * 1024 for t in throughput],
-        "tx": [t[1].value.ullVal * 1024 for t in throughput],
+        "rx": [
+            sum(t[i].value.ullVal * 1024
+                for i in range(pynvml.NVML_NVLINK_MAX_LINKS))
+            for t in throughput
+        ],
+        "tx": [
+            sum(t[pynvml.NVML_NVLINK_MAX_LINKS + i].value.ullVal * 1024
+                for i in range(pynvml.NVML_NVLINK_MAX_LINKS))
+            for t in throughput
+        ],
     }
 
 
@@ -359,7 +373,6 @@ def nvlink_timeline(doc):
     doc.add_root(column(tx_fig, rx_fig, sizing_mode="stretch_both"))
 
     counter = 1
-    nlinks = pynvml.NVML_NVLINK_MAX_LINKS
     nvlink_state = _get_nvlink_throughput()
     nvlink_state["tx-ref"] = nvlink_state["tx"].copy()
     nvlink_state["rx-ref"] = nvlink_state["rx"].copy()
