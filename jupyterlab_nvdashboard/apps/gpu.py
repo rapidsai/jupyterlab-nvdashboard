@@ -210,7 +210,7 @@ def _get_nvlink_throughput():
                 for scope_id in range(pynvml.NVML_NVLINK_MAX_LINKS)
             ] +
             [
-                (pynvml.NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_RX, scope_id)
+                (pynvml.NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_TX, scope_id)
                 for scope_id in range(pynvml.NVML_NVLINK_MAX_LINKS)
             ]
         )
