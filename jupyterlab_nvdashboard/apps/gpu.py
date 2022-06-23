@@ -201,48 +201,65 @@ def pci(doc):
     doc.add_periodic_callback(cb, 200)
 
 
-def nvlink(doc):
+def _get_nvlink_throughput():
+    throughput = [
+        pynvml.nvmlDeviceGetFieldValues(
+            handle,
+            [
+                (pynvml.NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_RX, scope_id)
+                for scope_id in range(pynvml.NVML_NVLINK_MAX_LINKS)
+            ] +
+            [
+                (pynvml.NVML_FI_DEV_NVLINK_THROUGHPUT_DATA_TX, scope_id)
+                for scope_id in range(pynvml.NVML_NVLINK_MAX_LINKS)
+            ]
+        )
+        for handle in gpu_handles
+    ]
 
-    import subprocess as sp
-
-    # Use device-0/link-0 to get "upper bound"
-    counter = 1
-    nlinks = pynvml.NVML_NVLINK_MAX_LINKS
-    nvlink_link_bw = {
-        # Keys = NVLink Version, Values = Max Link BW (per direction)
-        # [Note: Using specs at https://en.wikichip.org/wiki/nvidia/nvlink]
-        1: 20.0 * GB,  # GB/s
-        2: 25.0 * GB,  # GB/s
+    # Output is given in KiB, thus multiply by 1024 for result in bytes
+    # First `pynvml.NVML_NVLINK_MAX_LINKS` contain RX throughput, last
+    # `pynvml.NVML_NVLINK_MAX_LINKS` contain TX
+    return {
+        "rx": [
+            sum(t[i].value.ullVal * 1024
+                for i in range(pynvml.NVML_NVLINK_MAX_LINKS))
+            for t in throughput
+        ],
+        "tx": [
+            sum(t[pynvml.NVML_NVLINK_MAX_LINKS + i].value.ullVal * 1024
+                for i in range(pynvml.NVML_NVLINK_MAX_LINKS))
+            for t in throughput
+        ],
     }
-    # Max NVLink Throughput = BW-per-link * nlinks
-    max_bw = nlinks * nvlink_link_bw.get(nvlink_ver, 25.0 * GB)
 
-    # nvmlDeviceSetNvLinkUtilizationControl seems limited, using smi:
-    sp.call(
-        [
-            "nvidia-smi",
-            "nvlink",
-            "--setcontrol",
-            str(counter) + "bz",  # Get output in bytes
-        ]
-    )
+
+def _get_max_bandwidth():
+    links = [
+        getattr(pynvml, f"NVML_FI_DEV_NVLINK_SPEED_MBPS_L{i}")
+        for i in range(pynvml.NVML_NVLINK_MAX_LINKS)
+    ]
+
+    bandwidth = [
+        pynvml.nvmlDeviceGetFieldValues(handle, links)
+        for handle in gpu_handles
+    ]
+
+    # Maximum bandwidth is bidirectional, divide by two for separate RX and TX
+    return max(
+        sum(i.value.ullVal for i in bw) * 1024**2
+        for bw in bandwidth
+    ) / 2
+
+
+def nvlink(doc):
+    max_bw = _get_max_bandwidth()
 
     tx_fig = figure(
         title="TX NVLink [B/s]", sizing_mode="stretch_both", y_range=[0, max_bw]
     )
     tx_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-    nvlink_state = {}
-    nvlink_state["tx"] = [
-        sum(
-            [
-                pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                    gpu_handles[i], j, counter
-                )["tx"]
-                for j in range(nlinks)
-            ]
-        )
-        for i in range(ngpus)
-    ]
+    nvlink_state = _get_nvlink_throughput()
     nvlink_state["tx-ref"] = nvlink_state["tx"].copy()
     left = list(range(ngpus))
     right = [l + 0.8 for l in left]
@@ -270,17 +287,6 @@ def nvlink(doc):
         title="RX NVLink [B/s]", sizing_mode="stretch_both", y_range=[0, max_bw]
     )
     rx_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
-    nvlink_state["rx"] = [
-        sum(
-            [
-                pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                    gpu_handles[i], j, counter
-                )["rx"]
-                for j in range(nlinks)
-            ]
-        )
-        for i in range(ngpus)
-    ]
     nvlink_state["rx-ref"] = nvlink_state["rx"].copy()
 
     rx_fig.quad(
@@ -300,28 +306,7 @@ def nvlink(doc):
         nvlink_state["tx-ref"] = nvlink_state["tx"].copy()
         nvlink_state["rx-ref"] = nvlink_state["rx"].copy()
         src_dict = {}
-        nvlink_state["tx"] = [
-            sum(
-                [
-                    pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                        gpu_handles[i], j, counter
-                    )["tx"]
-                    for j in range(nlinks)
-                ]
-            )
-            for i in range(ngpus)
-        ]
-        nvlink_state["rx"] = [
-            sum(
-                [
-                    pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                        gpu_handles[i], j, counter
-                    )["rx"]
-                    for j in range(nlinks)
-                ]
-            )
-            for i in range(ngpus)
-        ]
+        nvlink_state.update(_get_nvlink_throughput())
         src_dict["count-tx"] = [
             max(a - b, 0.0) * 5.0
             for (a, b) in zip(nvlink_state["tx"], nvlink_state["tx-ref"])
@@ -392,30 +377,7 @@ def nvlink_timeline(doc):
     doc.add_root(column(tx_fig, rx_fig, sizing_mode="stretch_both"))
 
     counter = 1
-    nlinks = pynvml.NVML_NVLINK_MAX_LINKS
-    nvlink_state = {}
-    nvlink_state["tx"] = [
-        sum(
-            [
-                pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                    gpu_handles[i], j, counter
-                )["tx"]
-                for j in range(nlinks)
-            ]
-        )
-        for i in range(ngpus)
-    ]
-    nvlink_state["rx"] = [
-        sum(
-            [
-                pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                    gpu_handles[i], j, counter
-                )["rx"]
-                for j in range(nlinks)
-            ]
-        )
-        for i in range(ngpus)
-    ]
+    nvlink_state = _get_nvlink_throughput()
     nvlink_state["tx-ref"] = nvlink_state["tx"].copy()
     nvlink_state["rx-ref"] = nvlink_state["rx"].copy()
 
@@ -429,28 +391,7 @@ def nvlink_timeline(doc):
 
         nvlink_state["tx-ref"] = nvlink_state["tx"].copy()
         nvlink_state["rx-ref"] = nvlink_state["rx"].copy()
-        nvlink_state["tx"] = [
-            sum(
-                [
-                    pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                        gpu_handles[i], j, counter
-                    )["tx"]
-                    for j in range(nlinks)
-                ]
-            )
-            for i in range(ngpus)
-        ]
-        nvlink_state["rx"] = [
-            sum(
-                [
-                    pynvml.nvmlDeviceGetNvLinkUtilizationCounter(
-                        gpu_handles[i], j, counter
-                    )["rx"]
-                    for j in range(nlinks)
-                ]
-            )
-            for i in range(ngpus)
-        ]
+        nvlink_state.update(_get_nvlink_throughput())
         tx_diff = [
             max(a - b, 0.0) * 5.0
             for (a, b) in zip(nvlink_state["tx"], nvlink_state["tx-ref"])
