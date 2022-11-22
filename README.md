@@ -1,6 +1,6 @@
 # JupyterLab NVDashboard
 
-![GPU Dashboard](img/GPUDashboard.gif)
+![GPU Dashboard](demo.gif)
 
 ![Github Actions Status](https://github.com/rapidsai/jupyterlab-nvdashboard/workflows/Build/badge.svg)
 
