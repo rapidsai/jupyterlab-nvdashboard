@@ -1,8 +1,15 @@
-# jupyterlab_nvdashboard
+# JupyterLab NVDashboard
+
+![GPU Dashboard](img/GPUDashboard.gif)
 
 ![Github Actions Status](https://github.com/rapidsai/jupyterlab-nvdashboard/workflows/Build/badge.svg)
 
-A JupyterLab extension for displaying GPU usage dashboards
+NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It enables JupyterLab users to visualize system hardware metrics within the same interactive environment they use for development. Supported metrics include:
+
+- GPU-compute utilization
+- GPU-memory consumption
+- PCIe throughput
+- NVLink throughput
 
 
 This extension is composed of a Python package named `jupyterlab_nvdashboard`
