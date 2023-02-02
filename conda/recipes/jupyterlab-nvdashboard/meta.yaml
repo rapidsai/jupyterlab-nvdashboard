@@ -1,7 +1,7 @@
-{% set version = environ.get('GIT_DESCRIBE_TAG', '0.0.0.dev').lstrip('v') + environ.get('VERSION_SUFFIX', '') %}
+{% set version = environ.get('GIT_DESCRIBE_TAG', '0.0.0.dev').lstrip('v') %}
 {% set minor_version =  version.split('.')[0] + '.' + version.split('.')[1] %}
-{% set git_revision_count=environ.get('GIT_DESCRIBE_NUMBER', 0) %}
 {% set py_version=environ.get('CONDA_PY', 37) %}
+{% set date_string = environ['RAPIDS_DATE_STRING'] %}
 
 package:
   name: jupyterlab-nvdashboard
@@ -11,7 +11,8 @@ source:
   path: ../../..
 
 build:
-  number: {{ git_revision_count }}
+  number: {{ GIT_DESCRIBE_NUMBER }}
+  string: py_{{ date_string }}_h{{ PKG_HASH }}_{{ GIT_DESCRIBE_HASH }}_{{ GIT_DESCRIBE_NUMBER }}
   script: python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
   noarch: python
   script_env:
