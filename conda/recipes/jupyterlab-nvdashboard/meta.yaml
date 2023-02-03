@@ -12,7 +12,7 @@ source:
 
 build:
   number: {{ GIT_DESCRIBE_NUMBER }}
-  string: py_{{ date_string }}_h{{ PKG_HASH }}_{{ GIT_DESCRIBE_HASH }}_{{ GIT_DESCRIBE_NUMBER }}
+  string: py_{{ date_string }}_{{ GIT_DESCRIBE_HASH }}_{{ GIT_DESCRIBE_NUMBER }}
   script: python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
   noarch: python
   script_env:
