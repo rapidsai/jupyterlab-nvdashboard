@@ -22,7 +22,7 @@ cd $WORKSPACE
 export GIT_DESCRIBE_TAG=`git describe --abbrev=0 --tags`
 export GIT_DESCRIBE_NUMBER=`git rev-list ${GIT_DESCRIBE_TAG}..HEAD --count`
 export MINOR_VERSION=`echo $GIT_DESCRIBE_TAG | grep -o -E '([0-9]+\.[0-9]+)'`
-export RAPIDS_DATE_STRING=$(git show --no-patch --date=format:'%y%m%d' --format='%cd')
+export RAPIDS_DATE_STRING=$(date +%y%m%d)
 
 ################################################################################
 # SETUP - Check environment

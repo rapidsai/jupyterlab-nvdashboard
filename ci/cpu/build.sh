@@ -15,7 +15,7 @@ cd "$WORKSPACE"
 # Get latest tag and number of commits since tag
 export GIT_DESCRIBE_TAG=`git describe --abbrev=0 --tags`
 export GIT_DESCRIBE_NUMBER=`git rev-list ${GIT_DESCRIBE_TAG}..HEAD --count`
-export RAPIDS_DATE_STRING=$(git show --no-patch --date=format:'%y%m%d' --format='%cd')
+export RAPIDS_DATE_STRING=$(date +%y%m%d)
 
 # Setup 'gpuci_conda_retry' for build retries (results in 2 total attempts)
 export GPUCI_CONDA_RETRY_MAX=1
