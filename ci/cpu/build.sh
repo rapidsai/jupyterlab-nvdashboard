@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 set -e
 
 # Set path and build parallel level
@@ -15,11 +15,7 @@ cd "$WORKSPACE"
 # Get latest tag and number of commits since tag
 export GIT_DESCRIBE_TAG=`git describe --abbrev=0 --tags`
 export GIT_DESCRIBE_NUMBER=`git rev-list ${GIT_DESCRIBE_TAG}..HEAD --count`
-
-# If nightly build, append current YYMMDD to version
-if [[ "$BUILD_MODE" = "branch" && "$SOURCE_BRANCH" = branch-* ]] ; then
-  export VERSION_SUFFIX=`date +%y%m%d`
-fi
+export RAPIDS_DATE_STRING=$(date +%y%m%d)
 
 # Setup 'gpuci_conda_retry' for build retries (results in 2 total attempts)
 export GPUCI_CONDA_RETRY_MAX=1
@@ -47,12 +43,15 @@ conda list --show-channel-urls
 # FIX Added to deal with Anancoda SSL verification issues during conda builds
 conda config --set ssl_verify False
 
+# FIXME: Remove
+gpuci_mamba_retry install -c conda-forge boa
+
 ################################################################################
 # BUILD - Conda & pip package
 ################################################################################
 
 gpuci_logger "Build conda pkg for jupyterlab-nvdashboard"
-gpuci_conda_retry build conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
+gpuci_conda_retry mambabuild conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
 
 gpuci_logger "Build pip pkg for jupyterlab-nvdashboard"
 rm -rf dist/
