@@ -486,10 +486,10 @@ def gpu_resource_timeline(doc):
         tools=tools,
     )
     tot_fig.line(
-        source=source, x="time", y="gpu-total", color="blue", legend="Total-GPU"
+        source=source, x="time", y="gpu-total", color="blue", legend_label="Total-GPU"
     )
     tot_fig.line(
-        source=source, x="time", y="memory-total", color="red", legend="Total-Memory"
+        source=source, x="time", y="memory-total", color="red", legend_label="Total-Memory"
     )
     tot_fig.legend.location = "top_left"
 
@@ -502,8 +502,8 @@ def gpu_resource_timeline(doc):
             x_range=x_range,
             tools=tools,
         )
-        pci_fig.line(source=source, x="time", y="tx-total", color="blue", legend="TX")
-        pci_fig.line(source=source, x="time", y="rx-total", color="red", legend="RX")
+        pci_fig.line(source=source, x="time", y="tx-total", color="blue", legend_label="TX")
+        pci_fig.line(source=source, x="time", y="rx-total", color="red", legend_label="RX")
         pci_fig.yaxis.formatter = NumeralTickFormatter(format="0.0 b")
         pci_fig.legend.location = "top_left"
         figures.append(pci_fig)
