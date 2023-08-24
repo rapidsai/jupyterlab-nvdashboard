@@ -64,7 +64,7 @@ const extension: JupyterFrontEndPlugin<void> = {
 
         const widget = new BokehDashboard();
         widget.title.label = item.label;
-        widget.title.icon = 'jp-GPU-icon';
+        // widget.title.icon = 'jp-GPU-icon';
         widget.item = item;
         labShell.add(widget, 'main');
         tracker.add(widget);

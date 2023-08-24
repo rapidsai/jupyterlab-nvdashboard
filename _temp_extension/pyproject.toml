@@ -1,14 +1,11 @@
 [build-system]
-requires = [
-    "hatchling>=1.5.0",
-    "jupyterlab>=4.0.0,<5",
-    "hatch-nodejs-version",
-]
+requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version"]
 build-backend = "hatchling.build"
 
 [project]
 name = "jupyterlab_nvdashboard"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.8"
 classifiers = [
     "Framework :: Jupyter",
@@ -24,36 +21,19 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-dependencies = []
-dynamic = [
-    "version",
-    "description",
-    "authors",
-    "urls",
-    "keywords",
+dependencies = [
 ]
-
-[project.license]
-file = "LICENSE"
+dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 [tool.hatch.version]
 source = "nodejs"
 
 [tool.hatch.metadata.hooks.nodejs]
-fields = [
-    "description",
-    "authors",
-    "urls",
-]
+fields = ["description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
-artifacts = [
-    "jupyterlab_nvdashboard/labextension",
-]
-exclude = [
-    ".github",
-    "binder",
-]
+artifacts = ["jupyterlab_nvdashboard/labextension"]
+exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
 "jupyterlab_nvdashboard/labextension" = "share/jupyter/labextensions/jupyterlab-nvdashboard"
@@ -63,29 +43,21 @@ exclude = [
 path = "jupyterlab_nvdashboard/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
-dependencies = [
-    "hatch-jupyter-builder>=0.5",
-]
+dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
     "jupyterlab_nvdashboard/labextension/static/style.js",
     "jupyterlab_nvdashboard/labextension/package.json",
 ]
-skip-if-exists = [
-    "jupyterlab_nvdashboard/labextension/static/style.js",
-]
+skip-if-exists = ["jupyterlab_nvdashboard/labextension/static/style.js"]
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
-npm = [
-    "jlpm",
-]
+npm = ["jlpm"]
 
 [tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
 build_cmd = "install:extension"
-npm = [
-    "jlpm",
-]
+npm = ["jlpm"]
 source_dir = "src"
 build_dir = "jupyterlab_nvdashboard/labextension"
 
@@ -96,13 +68,9 @@ version_cmd = "hatch version"
 before-build-npm = [
     "python -m pip install 'jupyterlab>=4.0.0,<5'",
     "jlpm",
-    "jlpm build:prod",
+    "jlpm build:prod"
 ]
-before-build-python = [
-    "jlpm clean:all",
-]
+before-build-python = ["jlpm clean:all"]
 
 [tool.check-wheel-contents]
-ignore = [
-    "W002",
-]
+ignore = ["W002"]

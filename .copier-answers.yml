@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.2.0
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: <author_email>
+author_name: NV Dashbaord contributors
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: jupyterlab-nvdashboard
+project_short_description: A JupyterLab extension for displaying GPU usage dashboards
+python_name: jupyterlab_nvdashboard
+repository: https://github.com/rapidsai/jupyterlab-nvdashboard.git
+test: false
+
