@@ -84,8 +84,8 @@ def resource_timeline(doc):
         x_range=x_range,
         tools=tools,
     )
-    disk_fig.line(source=source, x="time", y="disk-read", color="blue", legend="Read")
-    disk_fig.line(source=source, x="time", y="disk-write", color="red", legend="Write")
+    disk_fig.line(source=source, x="time", y="disk-read", color="blue", legend_label="Read")
+    disk_fig.line(source=source, x="time", y="disk-write", color="red", legend_label="Write")
     disk_fig.yaxis.formatter = NumeralTickFormatter(format="0.0b")
     disk_fig.legend.location = "top_left"
 
@@ -96,8 +96,8 @@ def resource_timeline(doc):
         x_range=x_range,
         tools=tools,
     )
-    net_fig.line(source=source, x="time", y="net-read", color="blue", legend="Recv")
-    net_fig.line(source=source, x="time", y="net-sent", color="red", legend="Send")
+    net_fig.line(source=source, x="time", y="net-read", color="blue", legend_label="Recv")
+    net_fig.line(source=source, x="time", y="net-sent", color="red", legend_label="Send")
     net_fig.yaxis.formatter = NumeralTickFormatter(format="0.0b")
     net_fig.legend.location = "top_left"
 
