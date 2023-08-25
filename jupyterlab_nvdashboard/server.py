@@ -1,5 +1,5 @@
 import sys
-
+import os
 from bokeh.server.server import Server
 from tornado.ioloop import IOLoop
 from tornado import web
@@ -37,6 +37,8 @@ def go():
         port = int(sys.argv[1])
     else:
         port = DEFAULT_PORT
+
+    os.environ['BOKEH_RESOURCES'] = 'cdn'
     server = Server(routes, port=port, allow_websocket_origin=["*"])
     server.start()
 
