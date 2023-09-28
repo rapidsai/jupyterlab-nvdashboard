@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { requestAPI } from '../handler';
 import { ReactWidget } from '@jupyterlab/ui-components';
-import { BarChart, Bar, Cell, YAxis, XAxis, Tooltip } from 'recharts';
-import { scaleThreshold } from 'd3-scale';
+import {
+  BarChart,
+  Bar,
+  Cell,
+  YAxis,
+  XAxis,
+  Tooltip,
+  CartesianGrid
+} from 'recharts';
+import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
+import { barColorLinearRange } from '../assets/constants';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
 const GpuUtilizationChart = (): JSX.Element => {
@@ -35,9 +44,9 @@ const GpuUtilizationChart = (): JSX.Element => {
     utilization: utilization
   }));
 
-  const colorScale = scaleThreshold<number, string>()
-    .domain([25, 50, 75])
-    .range(['#A7D95A', '#76B900', '#4D8500', '#FF5733']);
+  const colorScale = scaleLinear<string>()
+    .domain([0, 100])
+    .range(barColorLinearRange);
 
   return (
     <div className="gradient-background">
@@ -50,16 +59,20 @@ const GpuUtilizationChart = (): JSX.Element => {
             height={height * 0.95}
             data={data}
           >
+            <CartesianGrid horizontal={false} />
+
             <XAxis
               type="number"
               domain={[0, 100]}
               tickFormatter={value => `${value}%`}
-              tick={{ fill: 'var(--jp-ui-font-color0)' }}
+              tick={{ fill: 'var(--nv-custom-tick-color)' }}
+              className="nv-axis-custom"
             />
             <YAxis
               type="category"
               dataKey="name"
-              tick={{ fill: 'var(--jp-ui-font-color0)' }}
+              tick={{ fill: 'var(--nv-custom-tick-color)' }}
+              className="nv-axis-custom"
             />
             <Tooltip
               cursor={{ fill: 'transparent' }}

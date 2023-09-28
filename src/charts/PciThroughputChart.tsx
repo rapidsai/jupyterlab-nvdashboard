@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { requestAPI } from '../handler';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { BarChart, Bar, Cell, YAxis, XAxis, Tooltip } from 'recharts';
-import { scaleThreshold } from 'd3-scale';
+import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { formatBytes } from '../components/formatUtils';
+import { barColorLinearRange } from '../assets/constants';
 interface IPciChartProps {
   pci_tx: number[];
   pci_rx: number[];
@@ -45,9 +46,9 @@ const PciThroughputChart = (): JSX.Element => {
     maxTP: pciStats?.max_rxtx_tp || 0
   }));
 
-  const colorScale = scaleThreshold<number, string>()
-    .domain([0, 0.25, 0.5, 0.75])
-    .range(['#A7D95A', '#76B900', '#4D8500', '#FF5733']);
+  const colorScale = scaleLinear<string>()
+    .domain([0, 1])
+    .range(barColorLinearRange);
 
   return (
     <div className="gradient-background">
@@ -67,12 +68,12 @@ const PciThroughputChart = (): JSX.Element => {
                 type="number"
                 domain={[0, pciStats?.max_rxtx_tp || 0]}
                 tickFormatter={formatBytes}
-                tick={{ fill: 'var(--jp-ui-font-color0)' }}
+                className="nv-axis-custom"
               />
               <XAxis
                 type="category"
                 dataKey="name"
-                tick={{ fill: 'var(--jp-ui-font-color0)' }}
+                className="nv-axis-custom"
               />
               <Tooltip
                 cursor={{ fill: 'transparent' }}
@@ -102,12 +103,12 @@ const PciThroughputChart = (): JSX.Element => {
                 type="number"
                 domain={[0, pciStats?.max_rxtx_tp || 0]}
                 tickFormatter={formatBytes}
-                tick={{ fill: 'var(--jp-ui-font-color0)' }}
+                className="nv-axis-custom"
               />
               <XAxis
                 type="category"
                 dataKey="name"
-                tick={{ fill: 'var(--jp-ui-font-color0)' }}
+                className="nv-axis-custom"
               />
               <Tooltip
                 cursor={{ fill: 'transparent' }}

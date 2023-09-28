@@ -5,6 +5,9 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { requestAPI } from '../handler';
 import { CustomLineChart } from '../components/customLineChart';
 import { formatDate, formatBytes } from '../components/formatUtils';
+import { scaleLinear } from 'd3-scale';
+import { gpuColorCategoricalRange } from '../assets/constants';
+import { pauseIcon, playIcon } from '../assets/icons';
 
 interface IChartProps {
   time: number;
@@ -20,6 +23,7 @@ const GpuResourceChart = () => {
   const [gpuData, setGpuData] = useState<IChartProps[]>([]);
   const [tempData, setTempData] = useState<IChartProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
+  const ngpus = gpuData[0]?.gpu_utilization_individual.length || 0;
 
   useEffect(() => {
     async function fetchGpuUsage() {
@@ -47,16 +51,12 @@ const GpuResourceChart = () => {
     setIsPaused(!isPaused);
   };
 
+  const colorScale = scaleLinear<string>()
+    .domain([0, ngpus])
+    .range(gpuColorCategoricalRange);
+
   return (
     <div className="gradient-background">
-      <div style={{ width: '100%', height: '20px' }}>
-        <Button
-          onClick={handlePauseClick}
-          className="gpu-dashboard-toolbar-button"
-        >
-          {isPaused ? 'Resume' : 'Pause'}
-        </Button>
-      </div>
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
           <div style={{ width, height }}>
@@ -77,11 +77,10 @@ const GpuResourceChart = () => {
                       key={index}
                       dataKey={`gpu_utilization_individual[${index}]`}
                       name={`GPU ${index}`}
-                      stroke={`hsl(${
-                        (index * 180) /
-                        gpuData[0].gpu_utilization_individual.length
-                      }, 100%, 50%)`}
+                      stroke={colorScale(index)}
                       type="monotone"
+                      activeDot={{ fill: 'transparent' }}
+                      dot={{ fill: 'transparent' }}
                       isAnimationActive={false}
                     />
                   )
@@ -89,7 +88,7 @@ const GpuResourceChart = () => {
             </CustomLineChart>
             <CustomLineChart
               data={gpuData}
-              title={'GPU Usage (per Device) [%]'}
+              title={'GPU Usage (per Device) [B]'}
               xFormatter={formatDate}
               yFormatter={formatBytes}
               width={width}
@@ -103,10 +102,10 @@ const GpuResourceChart = () => {
                       key={index}
                       dataKey={`gpu_memory_individual[${index}]]`}
                       name={`GPU ${index}`}
-                      stroke={`hsl(${
-                        (index * 180) / gpuData[0].gpu_memory_individual.length
-                      }, 100%, 50%)`}
+                      stroke={colorScale(index)}
                       type="monotone"
+                      activeDot={{ fill: 'transparent' }}
+                      dot={{ fill: 'transparent' }}
                       isAnimationActive={false}
                     />
                   )
@@ -116,7 +115,8 @@ const GpuResourceChart = () => {
               data={gpuData}
               title={'Total Utilization [%]'}
               xFormatter={formatDate}
-              yFormatter={formatBytes}
+              yFormatter={value => `${value}%`}
+              yDomain={[0, 100]}
               width={width}
               height={height / 5}
               syncId="gpu-resource-sync"
@@ -124,14 +124,20 @@ const GpuResourceChart = () => {
               <Line
                 dataKey={'gpu_utilization_total'}
                 name={'GPU Utilization Total'}
-                stroke={'hsl(0, 100%, 50%)'}
+                stroke={colorScale(0)}
                 type="monotone"
+                strokeWidth={2}
+                activeDot={{ fill: 'transparent' }}
+                dot={{ fill: 'transparent' }}
                 isAnimationActive={false}
               />
               <Line
                 dataKey={'gpu_memory_total'}
                 name={'GPU Usage Total'}
-                stroke={'hsl(90, 100%, 50%)'}
+                stroke={colorScale(ngpus)}
+                strokeWidth={2}
+                activeDot={{ fill: 'transparent' }}
+                dot={{ fill: 'transparent' }}
                 type="monotone"
                 isAnimationActive={false}
               />
@@ -148,34 +154,60 @@ const GpuResourceChart = () => {
               <Line
                 dataKey={'rx_total'}
                 name={'RX'}
-                stroke={'hsl(0, 100%, 50%)'}
+                stroke={colorScale(0)}
                 type="monotone"
+                strokeWidth={2}
+                activeDot={{ fill: 'transparent' }}
+                dot={{ fill: 'transparent' }}
                 isAnimationActive={false}
               />
               <Line
                 dataKey={'tx_total'}
                 name={'TX'}
-                stroke={'hsl(90, 100%, 50%)'}
+                stroke={colorScale(ngpus)}
                 type="monotone"
+                strokeWidth={2}
+                activeDot={{ fill: 'transparent' }}
+                dot={{ fill: 'transparent' }}
                 isAnimationActive={false}
               />
             </CustomLineChart>
-            <LineChart
-              data={gpuData}
-              width={width * 0.95}
-              syncId="gpu-resource-sync"
-              height={50}
-              compact={true}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                width: width,
+                height: 50
+              }}
             >
-              <XAxis dataKey="time" height={0} />
-              <YAxis height={0} />
-              <Brush
-                dataKey={'time'}
-                tickFormatter={formatDate}
-                startIndex={Math.max(gpuData.length - 10, 0)}
-                fill="none"
-              />
-            </LineChart>
+              <LineChart
+                data={gpuData}
+                width={width * 0.95}
+                syncId="gpu-resource-sync"
+                height={50}
+                compact={true}
+              >
+                <XAxis dataKey="time" height={0} />
+                <YAxis height={0} />
+
+                <Brush
+                  dataKey={'time'}
+                  tickFormatter={formatDate}
+                  startIndex={Math.max(gpuData.length - 10, 0)}
+                  fill="none"
+                />
+              </LineChart>
+              <Button
+                onClick={handlePauseClick}
+                className="gpu-dashboard-button gpu-dashboard-toolbar-button"
+              >
+                {isPaused ? (
+                  <playIcon.react className="nv-icon-custom-time-series" />
+                ) : (
+                  <pauseIcon.react className="nv-icon-custom-time-series" />
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </AutoSizer>

@@ -5,6 +5,9 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { requestAPI } from '../handler';
 import { CustomLineChart } from '../components/customLineChart';
 import { formatDate, formatBytes } from '../components/formatUtils';
+import { scaleLinear } from 'd3-scale';
+import { gpuColorCategoricalRange } from '../assets/constants';
+import { pauseIcon, playIcon } from '../assets/icons';
 
 interface IChartProps {
   time: number;
@@ -65,16 +68,10 @@ const MachineResourceChart = () => {
     setIsPaused(!isPaused);
   };
 
+  const colorScale = scaleLinear<string>().range(gpuColorCategoricalRange);
+
   return (
     <div className="gradient-background">
-      <div style={{ width: '100%', height: '20px' }}>
-        <Button
-          onClick={handlePauseClick}
-          className="gpu-dashboard-toolbar-button"
-        >
-          {isPaused ? 'Resume' : 'Pause'}
-        </Button>
-      </div>
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
           <div style={{ width, height }}>
@@ -91,7 +88,7 @@ const MachineResourceChart = () => {
               <Line
                 dataKey={'cpu_utilization'}
                 name={'CPU Utilization'}
-                stroke={'hsl(0, 100%, 50%)'}
+                stroke={colorScale(0)}
                 type="monotone"
                 isAnimationActive={false}
               />
@@ -108,7 +105,7 @@ const MachineResourceChart = () => {
               <Line
                 dataKey={'memory_usage'}
                 name={'Memory Usage'}
-                stroke={'hsl(0, 100%, 50%)'}
+                stroke={colorScale(1)}
                 type="monotone"
                 isAnimationActive={false}
               />
@@ -125,14 +122,14 @@ const MachineResourceChart = () => {
               <Line
                 dataKey={'disk_read_current'}
                 name={'Disk Read'}
-                stroke={'hsl(0, 100%, 50%)'}
+                stroke={colorScale(0)}
                 type="monotone"
                 isAnimationActive={false}
               />
               <Line
                 dataKey={'disk_write_current'}
                 name={'Disk Write'}
-                stroke={'hsl(90, 100%, 50%)'}
+                stroke={colorScale(1)}
                 type="monotone"
                 isAnimationActive={false}
               />
@@ -149,34 +146,53 @@ const MachineResourceChart = () => {
               <Line
                 dataKey={'network_read_current'}
                 name={'Network Read'}
-                stroke={'hsl(0, 100%, 50%)'}
+                stroke={colorScale(0)}
                 type="monotone"
                 isAnimationActive={false}
               />
               <Line
                 dataKey={'network_write_current'}
                 name={'Network Write'}
-                stroke={'hsl(90, 100%, 50%)'}
+                stroke={colorScale(1)}
                 type="monotone"
                 isAnimationActive={false}
               />
             </CustomLineChart>
-            <LineChart
-              data={cpuData}
-              width={width * 0.95}
-              syncId="cpu-resource-sync"
-              height={50}
-              compact={true}
+            <div
+              style={{
+                width: width,
+                height: 50,
+                display: 'flex',
+                alignItems: 'center'
+              }}
             >
-              <XAxis dataKey="time" height={0} />
-              <YAxis height={0} />
-              <Brush
-                dataKey={'time'}
-                tickFormatter={formatDate}
-                startIndex={Math.max(cpuData.length - 10, 0)}
-                fill="none"
-              />
-            </LineChart>
+              <LineChart
+                data={cpuData}
+                width={width * 0.95}
+                syncId="cpu-resource-sync"
+                height={50}
+                compact={true}
+              >
+                <XAxis dataKey="time" height={0} />
+                <YAxis height={0} />
+                <Brush
+                  dataKey={'time'}
+                  tickFormatter={formatDate}
+                  startIndex={Math.max(cpuData.length - 10, 0)}
+                  fill="none"
+                />
+              </LineChart>
+              <Button
+                onClick={handlePauseClick}
+                className="gpu-dashboard-button gpu-dashboard-toolbar-button"
+              >
+                {isPaused ? (
+                  <playIcon.react className="nv-icon-custom-time-series" />
+                ) : (
+                  <pauseIcon.react className="nv-icon-custom-time-series" />
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </AutoSizer>

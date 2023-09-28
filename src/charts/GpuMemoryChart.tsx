@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { requestAPI } from '../handler';
 import { ReactWidget } from '@jupyterlab/ui-components';
-import { BarChart, Bar, Cell, YAxis, XAxis, Tooltip } from 'recharts';
-import { scaleThreshold } from 'd3-scale';
+import {
+  BarChart,
+  Bar,
+  Cell,
+  YAxis,
+  XAxis,
+  Tooltip,
+  CartesianGrid
+} from 'recharts';
+import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
+import { barColorLinearRange } from '../assets/constants';
 import { format } from 'd3-format';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
@@ -43,9 +52,7 @@ const GpuMemoryChart = (): JSX.Element => {
 
   // Create a formatter for displaying bytes
 
-  const colorScale = scaleThreshold<number, string>()
-    .domain([0.25, 0.5, 0.75])
-    .range(['#A7D95A', '#76B900', '#4D8500', '#FF5733']);
+  const colorScale = scaleLinear<string>().range(barColorLinearRange);
 
   const usageSum = data.reduce((sum, data) => sum + data.memory, 0);
   const formatBytes = (value: number): string => {
@@ -66,24 +73,21 @@ const GpuMemoryChart = (): JSX.Element => {
             height={height * 0.95}
             data={data}
           >
+            <CartesianGrid horizontal={false} />
             <XAxis
               type="number"
               domain={[0, Math.max(...gpuTotalMemory)]}
               tickFormatter={formatBytes}
-              tick={{ fill: 'var(--jp-ui-font-color0)' }}
+              className="nv-axis-custom"
             />
-            <YAxis
-              type="category"
-              dataKey="name"
-              tick={{ fill: 'var(--jp-ui-font-color0)' }}
-            />
+            <YAxis type="category" dataKey="name" className="nv-axis-custom" />
             <Tooltip
               cursor={{ fill: 'transparent' }}
               content={(data: any) =>
                 renderCustomTooltip(data, { valueFormatter: formatBytes })
               }
             />
-            <Bar dataKey="memory">
+            <Bar dataKey="memory" barSize={50} isAnimationActive={false}>
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}

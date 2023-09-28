@@ -5,6 +5,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { CustomLineChart } from '../components/customLineChart';
 import { Line, XAxis, YAxis, Brush, LineChart } from 'recharts';
 import { formatDate, formatBytes } from '../components/formatUtils';
+import { pauseIcon, playIcon } from '../assets/icons';
 
 interface INvLinkChartProps {
   time: number;
@@ -47,14 +48,6 @@ const NvLinkTimelineChart = (): JSX.Element => {
 
   return (
     <div className="gradient-background">
-      <div style={{ width: '100%', height: '20px' }}>
-        <Button
-          onClick={handlePauseClick}
-          className="gpu-dashboard-toolbar-button"
-        >
-          {isPaused ? 'Resume' : 'Pause'}
-        </Button>
-      </div>
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
           <div style={{ width, height }}>
@@ -108,22 +101,41 @@ const NvLinkTimelineChart = (): JSX.Element => {
                   )
                 )}
             </CustomLineChart>
-            <LineChart
-              data={nvlinkStats}
-              width={width * 0.95}
-              syncId="gpu-resource-sync"
-              height={50}
-              compact={true}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                width: width,
+                height: 50
+              }}
             >
-              <XAxis dataKey="time" height={0} />
-              <YAxis height={0} />
-              <Brush
-                dataKey={'time'}
-                tickFormatter={formatDate}
-                startIndex={Math.max(nvlinkStats.length - 10, 0)}
-                fill="none"
-              />
-            </LineChart>
+              <LineChart
+                data={nvlinkStats}
+                width={width * 0.95}
+                syncId="gpu-resource-sync"
+                height={50}
+                compact={true}
+              >
+                <XAxis dataKey="time" height={0} />
+                <YAxis height={0} />
+                <Brush
+                  dataKey={'time'}
+                  tickFormatter={formatDate}
+                  startIndex={Math.max(nvlinkStats.length - 10, 0)}
+                  fill="none"
+                />
+              </LineChart>
+              <Button
+                onClick={handlePauseClick}
+                className="gpu-dashboard-button gpu-dashboard-toolbar-button"
+              >
+                {isPaused ? (
+                  <playIcon.react className="nv-icon-custom-time-series" />
+                ) : (
+                  <pauseIcon.react className="nv-icon-custom-time-series" />
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </AutoSizer>

@@ -1,5 +1,13 @@
 import React from 'react';
-import { XAxis, YAxis, Tooltip, Legend, Brush, LineChart } from 'recharts';
+import {
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  Brush,
+  LineChart,
+  CartesianGrid
+} from 'recharts';
 import { renderCustomTooltip } from '../components/tooltipUtils';
 
 export const CustomLineChart = ({
@@ -24,17 +32,18 @@ export const CustomLineChart = ({
   children?: React.ReactNode;
 }) => (
   <>
-    <strong className="chart-title multi-chart-title">{title}</strong>
+    <strong className="multi-chart-title">{title}</strong>
     <LineChart data={data} width={width * 0.95} height={height} syncId={syncId}>
+      <CartesianGrid horizontal={false} />
       <XAxis
         dataKey="time"
         tickFormatter={xFormatter}
-        tick={{ fill: 'var(--jp-ui-font-color0)' }}
+        className="nv-axis-custom"
       />
       <YAxis
         domain={yDomain}
         tickFormatter={yFormatter}
-        tick={{ fill: 'var(--jp-ui-font-color0)' }}
+        className="nv-axis-custom"
       />
       <Tooltip
         content={(data: any) =>
@@ -52,5 +61,6 @@ export const CustomLineChart = ({
         className="hidden-brush-for-sync"
       />
     </LineChart>
+    <hr className="gpu-dashboard-divider" />
   </>
 );

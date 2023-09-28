@@ -1,6 +1,6 @@
 import React from 'react';
 import { ILabShell, JupyterFrontEnd } from '@jupyterlab/application';
-import { ReactWidget, Button } from '@jupyterlab/ui-components';
+import { ReactWidget, Button, LabIcon } from '@jupyterlab/ui-components';
 import {
   GpuResourceChartWidget,
   GpuMemoryChartWidget,
@@ -11,7 +11,7 @@ import {
   NvLinkTimelineChartWidget
 } from './charts';
 import { MainAreaWidget, WidgetTracker } from '@jupyterlab/apputils';
-import { gpuIcon } from './assets/icons';
+import { gpuIcon, hBarIcon, vBarIcon, lineIcon } from './assets/icons';
 
 interface IControlProps {
   app: JupyterFrontEnd;
@@ -108,6 +108,15 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
     openWidget(widgetFunction, id, title);
   };
 
+  const IconTitle = (Icon: LabIcon.IReact, title: string): React.ReactNode => {
+    return (
+      <span style={{ display: 'flex' }}>
+        <Icon className="nv-icon-custom" />
+        <span style={{ marginLeft: '10px' }}>{title}</span>
+      </span>
+    );
+  };
+
   return (
     <div className="gpu-dashboard-container">
       <div className="gpu-dashboard-header">GPU Dashboards </div>
@@ -116,7 +125,7 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
         className="gpu-dashboard-button"
         onClick={() => openWidgetById('gpu-memory-widget', 'GPU Memory')}
       >
-        GPU Memory
+        {IconTitle(hBarIcon.react, 'GPU Memory')}
       </Button>
       <Button
         className="gpu-dashboard-button"
@@ -124,13 +133,13 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
           openWidgetById('gpu-utilization-widget', 'GPU Utilization')
         }
       >
-        GPU Utilization
+        {IconTitle(hBarIcon.react, 'GPU Utilization')}
       </Button>
       <Button
         className="gpu-dashboard-button"
         onClick={() => openWidgetById('gpu-resource-widget', 'GPU Resources')}
       >
-        GPU Resources (time series)
+        {IconTitle(lineIcon.react, 'GPU Resources')}
       </Button>
       <Button
         className="gpu-dashboard-button"
@@ -138,7 +147,7 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
           openWidgetById('machine-resource-widget', 'Machine Resources')
         }
       >
-        Machine Resources (time series)
+        {IconTitle(lineIcon.react, 'Machine Resources')}
       </Button>
       <Button
         className="gpu-dashboard-button"
@@ -146,7 +155,7 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
           openWidgetById('pci-throughput-widget', 'PCIe Throughput')
         }
       >
-        PCIe Throughput
+        {IconTitle(vBarIcon.react, 'PCIe Throughput')}
       </Button>
       <Button
         className="gpu-dashboard-button"
@@ -154,18 +163,18 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
           openWidgetById('nvlink-throughput-widget', 'NVLink Throughput')
         }
       >
-        NVLink Throughput
+        {IconTitle(vBarIcon.react, 'NVLink Throughput')}
       </Button>
       <Button
         className="gpu-dashboard-button"
         onClick={() =>
           openWidgetById(
             'nvlink-throughput-timeseries-widget',
-            'NVLink Throughput (time series)'
+            'NVLink Throughput'
           )
         }
       >
-        NVLink Throughput (time series)
+        {IconTitle(lineIcon.react, 'NVLink Throughput')}
       </Button>
     </div>
   );
