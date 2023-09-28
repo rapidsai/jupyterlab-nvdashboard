@@ -1,6 +1,6 @@
 from jupyter_server.utils import url_path_join
 from . import apps
-URL_PATH = "jupyterlab_nvdashboard"
+URL_PATH = "nvdashboard"
 
 
 def setup_handlers(web_app):
