@@ -1,93 +1,93 @@
-:root {
-    --bokeh-launch-button-height: 28px;
-  }
+/*
+    See the JupyterLab Developer Guide for useful CSS Patterns:
 
-  /**
-   * Rules related to the overall sidebar panel.
-   */
-  .bokeh-BokehDashboardLauncher {
-    background: var(--jp-layout-color1);
-    color: var(--jp-ui-font-color1);
-    font-size: var(--jp-ui-font-size1);
-    overflow: auto;
-  }
+    https://jupyterlab.readthedocs.io/en/stable/developer/css.html
+*/
+.gpu-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Stretch buttons across the div */
+  padding: 10px;
+  background-color: var(--jp-layout-color1);
+}
 
-  .bokeh-BokehDashboardLauncher-header {
-    font-size: var(--jp-ui-font-size0);
-    padding: 8px 12px;
-    font-weight: 600;
-    border-bottom: var(--jp-border-width) solid var(--jp-border-color2);
-    letter-spacing: 1px;
-    margin: 0px;
-    text-transform: uppercase;
-  }
+.gradient-background {
+  background: linear-gradient(
+    to bottom,
+    var(--jp-layout-color0),
+    var(--jp-layout-color1)
+  );
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
+}
 
-  /**
-   * Rules related to the dashboard launcher.
-   */
-  .nvdashboardListing-list {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 8px;
-    padding: 0;
-    list-style-type: none;
-  }
+.gpu-dashboard-header {
+  font-size: 16px; /* Adjust font size */
+  font-weight: bold;
+  margin-bottom: 10px;
+  align-self: flex-start; /* Left align the header */
+}
 
-  .nvdashboardListing-item {
-    margin: 4px 0px 4px 0px;
-    width: 100%;
-  }
+.gpu-dashboard-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+}
 
-  .nvdashboardListing-item button {
-    font-size: var(--jp-ui-font-size1);
-    line-height: 24px;
-    padding: 0px 8px;
-    width: 100%;
-  }
+.gpu-dashboard-button {
+  margin: 5px 0;
+  padding: 10px 20px;
+  background-color: #76b900;
+  color: var(--jp-inverse-layout-color0);
+  border: none;
+  cursor: pointer;
+  width: 100%; /* Stretch buttons across the div */
+  text-align: left; /* Left align button text */
+  font-weight: bold; /* Make button text bold */
+}
 
-  .nvdashboardListing-item button.jp-mod-styled.jp-mod-accept {
-    height: var(--bokeh-launch-button-height);
-  }
+.chart-title {
+  padding-left: 62px;
+  font-size: 18px;
+  font-family: var(--jp-ui-font-family);
+}
 
-  /**
-   * Rules for the dashboard panels.
-   */
-  .bokeh-BokehDashboard-inactive {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--jp-ui-font-color3);
-    font-size: var(--jp-ui-font-size3);
-    background-color: var(--jp-layout-color0);
-    z-index: 10;
-  }
+.custom-tooltip {
+  background-color: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color0);
+  font-size: var(--jp-ui-font-size1);
+  border: 1px solid var(--jp-border-color1);
+  padding: 8px; /* Add padding as needed */
+  text-align: center;
+}
 
-  .bokeh-BokehDashboard-inactive:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url(./expansion-card-variant-light.svg);
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.1;
-  }
+.tooltip-title {
+  font-weight: bold;
+  margin-bottom: 4px; /* Add margin as needed */
+}
 
-  /**
-   * Icons
-   */
-  [data-jp-theme-light='true'] .jp-GPU-icon {
-    background-image: url(./expansion-card-variant-light.svg);
-  }
-  [data-jp-theme-light="false"] .jp-GPU-icon {
-    background-image: url(./expansion-card-variant-dark.svg);
-  }
+.tooltip-value {
+  margin-top: 4px; /* Add margin as needed */
+}
+
+.lm-TabBar-tabIcon {
+  padding-right: 5px;
+  margin-top: 3px;
+}
+
+.multi-chart-title {
+  font-size: 12px !important;
+}
+
+.hidden-brush-for-sync {
+  display: none !important;
+}
+
+.gpu-dashboard-toolbar-button {
+  background-color: #76b900;
+  color: var(--jp-inverse-layout-color0);
+  float: inline-end;
+}
