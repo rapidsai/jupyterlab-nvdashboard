@@ -86,7 +86,7 @@ const NvLinkThroughputChart = (): JSX.Element => {
                   renderCustomTooltip(data, { valueFormatter: formatBytes })
                 }
               />
-              <Bar dataKey="tx">
+              <Bar dataKey="tx" barSize={50} isAnimationActive={false}>
                 {data.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
@@ -121,7 +121,7 @@ const NvLinkThroughputChart = (): JSX.Element => {
                   renderCustomTooltip(data, { valueFormatter: formatBytes })
                 }
               />
-              <Bar dataKey="rx">
+              <Bar dataKey="rx" barSize={50} isAnimationActive={false}>
                 {data.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}

@@ -83,7 +83,7 @@ const GpuUtilizationChart = (): JSX.Element => {
               }
             />
 
-            <Bar dataKey="utilization">
+            <Bar dataKey="utilization" barSize={50} isAnimationActive={false}>
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
