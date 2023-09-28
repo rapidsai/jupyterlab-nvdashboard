@@ -55,7 +55,8 @@ gpuci_conda_retry mambabuild conda/recipes/jupyterlab-nvdashboard --python=$PYTH
 
 gpuci_logger "Build pip pkg for jupyterlab-nvdashboard"
 rm -rf dist/
-python setup.py sdist bdist_wheel
+pip install build
+python -m build -s
 
 ################################################################################
 # UPLOAD - Packages
