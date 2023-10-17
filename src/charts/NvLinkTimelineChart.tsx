@@ -6,6 +6,8 @@ import { CustomLineChart } from '../components/customLineChart';
 import { Line, XAxis, YAxis, Brush, LineChart } from 'recharts';
 import { formatDate, formatBytes } from '../components/formatUtils';
 import { pauseIcon, playIcon } from '../assets/icons';
+import { scaleLinear } from 'd3-scale';
+import { gpuColorCategoricalRange } from '../assets/constants';
 
 interface INvLinkChartProps {
   time: number;
@@ -18,6 +20,7 @@ const NvLinkTimelineChart = (): JSX.Element => {
   const [nvlinkStats, setNvLinkStats] = useState<INvLinkChartProps[]>([]);
   const [tempData, setTempData] = useState<INvLinkChartProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
+  const ngpus = nvlinkStats[0]?.nvlink_tx.length || 0;
 
   useEffect(() => {
     async function fetchNvLinkStats() {
@@ -46,6 +49,10 @@ const NvLinkTimelineChart = (): JSX.Element => {
     setIsPaused(!isPaused);
   };
 
+  const colorScale = scaleLinear<string>()
+  .domain([0, ngpus])
+  .range(gpuColorCategoricalRange);
+
   return (
     <div className="gradient-background">
       <AutoSizer>
@@ -65,12 +72,12 @@ const NvLinkTimelineChart = (): JSX.Element => {
                   (gpu: any, index: number) => (
                     <Line
                       key={index}
-                      dataKey={`gpu_utilization_individual[${index}]`}
+                      dataKey={`nvlink_tx[${index}]`}
                       name={`GPU ${index}`}
-                      stroke={`hsl(${
-                        (index * 180) / nvlinkStats[0].nvlink_tx.length
-                      }, 100%, 50%)`}
+                      stroke={colorScale(index)}
                       type="monotone"
+                      activeDot={{ fill: 'transparent' }}
+                      dot={{ fill: 'transparent' }}
                       isAnimationActive={false}
                     />
                   )
@@ -90,12 +97,12 @@ const NvLinkTimelineChart = (): JSX.Element => {
                   (gpu: any, index: number) => (
                     <Line
                       key={index}
-                      dataKey={`gpu_memory_individual[${index}]]`}
+                      dataKey={`nvlink_rx[${index}]]`}
                       name={`GPU ${index}`}
-                      stroke={`hsl(${
-                        (index * 180) / nvlinkStats[0].nvlink_rx.length
-                      }, 100%, 50%)`}
+                      stroke={colorScale(index)}
                       type="monotone"
+                      activeDot={{ fill: 'transparent' }}
+                      dot={{ fill: 'transparent' }}
                       isAnimationActive={false}
                     />
                   )

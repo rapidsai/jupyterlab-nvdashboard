@@ -32,18 +32,21 @@ export function renderCustomTooltip(
     );
 
     const color = payload.map((entry: any) => entry.color);
+    const columnCount = Math.ceil(formattedYValues.length / 5);
     return (
       <div className="custom-tooltip">
         <div className="tooltip-title">{formatterLabel}</div>
-        {formattedYValues.map((value: string, index: number) => (
-          <div
-            key={index}
-            className="tooltip-value"
-            style={color[index] ? { color: `${color[index]}` } : {}}
-          >
-            {value}
-          </div>
-        ))}
+        <div style={{ columnCount: columnCount }}>
+          {formattedYValues.map((value: string, index: number) => (
+            <div
+              key={index}
+              className="tooltip-value"
+              style={color[index] ? { color: `${color[index]}` } : {}}
+            >
+              {value}
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

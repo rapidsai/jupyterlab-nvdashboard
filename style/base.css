@@ -103,10 +103,6 @@
   color: var(--nv-custom-chart-title-color);
 }
 
-.tooltip-value {
-  margin-top: 4px; /* Add margin as needed */
-}
-
 .lm-TabBar-tabIcon {
   padding-right: 5px;
   margin-top: 3px;

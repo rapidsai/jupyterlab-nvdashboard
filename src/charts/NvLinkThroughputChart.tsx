@@ -45,15 +45,16 @@ const NvLinkThroughputChart = (): JSX.Element => {
     rx: nvlinkStats?.nvlink_rx[index] || 0,
     tx: nvlinkStats?.nvlink_tx[index] || 0,
     maxTP: nvlinkStats?.max_rxtx_bw || 0
-  }));
+  }));  
 
   const colorScale = scaleLinear<string>()
     .domain([0, 1])
     .range(barColorLinearRange);
 
-  const formatBytes = (value: number): string => {
-    return `${format('.2s')(value)}B`;
-  };
+  const formatBytes = (bytes: number) : string => {
+    return `${format('.2s')(bytes)}B`;
+  }
+  
 
   return (
     <div className="gradient-background">
@@ -61,7 +62,7 @@ const NvLinkThroughputChart = (): JSX.Element => {
         {({ height, width }: { height: number; width: number }) => (
           <div style={{ width, height }}>
             <strong className="chart-title multi-chart-title">
-              TX PCIe [B/s]
+              TX NvLink [B/s]
             </strong>
 
             <BarChart
@@ -96,7 +97,7 @@ const NvLinkThroughputChart = (): JSX.Element => {
               </Bar>
             </BarChart>
             <strong className="chart-title multi-chart-title">
-              RX PCIe [B/s]
+              RX NvLink [B/s]
             </strong>
 
             <BarChart

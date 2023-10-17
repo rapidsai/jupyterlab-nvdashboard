@@ -14,6 +14,24 @@ else:
     gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
     try:
         nvlink_ver = pynvml.nvmlDeviceGetNvLinkVersion(gpu_handles[0], 0)
+        links = [
+            getattr(pynvml, f"NVML_FI_DEV_NVLINK_SPEED_MBPS_L{i}", "")
+            for i in range(pynvml.NVML_NVLINK_MAX_LINKS)
+            if hasattr(pynvml, f"NVML_FI_DEV_NVLINK_SPEED_MBPS_L{i}")
+        ]
+
+        bandwidth = [
+            pynvml.nvmlDeviceGetFieldValues(handle, links)
+            for handle in gpu_handles
+        ]
+
+        # Maximum bandwidth is bidirectional, divide by two for separate RX and TX
+        max_bw = (
+            max(
+                sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth
+            )
+            / 2
+        )
     except (IndexError, pynvml.nvml.NVMLError_NotSupported):
         nvlink_ver = None
     try:
@@ -104,6 +122,8 @@ class GPUResourceHandler(APIHandler):
 
 
 class NVLinkThroughputHandler(APIHandler):
+    prev_throughput = None
+
     @tornado.web.authenticated
     def get(self):
         throughput = [
@@ -121,43 +141,37 @@ class NVLinkThroughputHandler(APIHandler):
             for handle in gpu_handles
         ]
 
-        links = [
-            getattr(pynvml, f"NVML_FI_DEV_NVLINK_SPEED_MBPS_L{i}", "")
-            for i in range(pynvml.NVML_NVLINK_MAX_LINKS)
-            if hasattr(pynvml, f"NVML_FI_DEV_NVLINK_SPEED_MBPS_L{i}")
-        ]
+        # Check if previous throughput is available
+        if self.prev_throughput is not None:
+            # Calculate the change since the last request
+            throughput_change = [
+                [
+                    throughput[i][j].value.ullVal
+                    - self.prev_throughput[i][j].value.ullVal
+                    for j in range(len(throughput[i]))
+                ]
+                for i in range(len(throughput))
+            ]
+        else:
+            # If no previous throughput is available, set change to zero
+            throughput_change = [[0] * len(throughput[i]) for i in range(len(throughput))]
 
-        bandwidth = [
-            pynvml.nvmlDeviceGetFieldValues(handle, links)
-            for handle in gpu_handles
-        ]
+        # Store the current throughput for the next request
+        self.prev_throughput = throughput
 
-        # Maximum bandwidth is bidirectional, divide by two for separate RX and TX
-        max_bw = (
-            max(
-                sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth
-            )
-            / 2
-        )
 
         self.set_header("Content-Type", "application/json")
+        # Send the change in throughput as part of the response
         self.write(
             json.dumps(
                 {
                     "nvlink_rx": [
-                        sum(
-                            t[i].value.ullVal * 1024
-                            for i in range(pynvml.NVML_NVLINK_MAX_LINKS)
-                        )
-                        for t in throughput
+                        sum(throughput_change[i][:pynvml.NVML_NVLINK_MAX_LINKS]) * 1024
+                        for i in range(len(throughput_change))
                     ],
                     "nvlink_tx": [
-                        sum(
-                            t[pynvml.NVML_NVLINK_MAX_LINKS + i].value.ullVal
-                            * 1024
-                            for i in range(pynvml.NVML_NVLINK_MAX_LINKS)
-                        )
-                        for t in throughput
+                        sum(throughput_change[i][pynvml.NVML_NVLINK_MAX_LINKS:]) * 1024
+                        for i in range(len(throughput_change))
                     ],
                     "max_rxtx_bw": max_bw,
                 }
@@ -168,8 +182,11 @@ class NVLinkThroughputHandler(APIHandler):
 class PCIStatsHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
+        # Use device-0 to get "upper bound"
         pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
         pci_bw = {
+            # Keys = PCIe-Generation, Values = Max PCIe Lane BW (per direction)
+            # [Note: Using specs at https://en.wikipedia.org/wiki/PCI_Express]
             1: (250.0 * 1024 * 1024),
             2: (500.0 * 1024 * 1024),
             3: (985.0 * 1024 * 1024),
@@ -177,6 +194,7 @@ class PCIStatsHandler(APIHandler):
             5: (3938.0 * 1024 * 1024),
             6: (7877.0 * 1024 * 1024),
         }
+        # Max PCIe Throughput = BW-per-lane * Width
         max_rxtx_tp = pci_width * pci_bw[pci_gen]
 
         pci_tx = [
