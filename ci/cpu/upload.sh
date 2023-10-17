@@ -32,7 +32,7 @@ fi
 ################################################################################
 
 gpuci_logger "Get conda file output locations"
-export JUPYTERLAB_NVDASHBOARD_FILE=`conda build conda/recipes/jupyterlab-nvdashboard --output`
+export jupyterlab-nvdashboard_FILE=`conda build conda/recipes/jupyterlab-nvdashboard --output`
 
 ################################################################################
 # UPLOAD - Conda packages
@@ -40,7 +40,7 @@ export JUPYTERLAB_NVDASHBOARD_FILE=`conda build conda/recipes/jupyterlab-nvdashb
 
 gpuci_logger "Starting conda uploads"
 
-gpuci_retry anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} ${LABEL_OPTION} --skip-existing ${JUPYTERLAB_NVDASHBOARD_FILE} --no-progress
+gpuci_retry anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-rapidsai} ${LABEL_OPTION} --skip-existing ${jupyterlab-nvdashboard_FILE} --no-progress
 
 
 echo "Upload pypi"

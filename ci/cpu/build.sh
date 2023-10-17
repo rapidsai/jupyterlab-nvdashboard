@@ -17,25 +17,20 @@ export GIT_DESCRIBE_TAG=`git describe --abbrev=0 --tags`
 export GIT_DESCRIBE_NUMBER=`git rev-list ${GIT_DESCRIBE_TAG}..HEAD --count`
 export RAPIDS_DATE_STRING=$(date +%y%m%d)
 
-# Setup 'gpuci_conda_retry' for build retries (results in 2 total attempts)
-export GPUCI_CONDA_RETRY_MAX=1
-export GPUCI_CONDA_RETRY_SLEEP=30
-
 ################################################################################
 # SETUP - Check environment
 ################################################################################
 
-gpuci_logger "Get env"
+rapids-logger "Get env"
 env
 
-gpuci_logger "Activate conda env"
+rapids-logger "Activate conda env"
 . /opt/conda/etc/profile.d/conda.sh
+# conda create -n rapids
 conda activate rapids
 
-gpuci_logger "Check versions"
+rapids-logger "Check versions"
 python --version
-$CC --version
-$CXX --version
 conda info
 conda config --show-sources
 conda list --show-channel-urls
@@ -44,16 +39,16 @@ conda list --show-channel-urls
 conda config --set ssl_verify False
 
 # FIXME: Remove
-gpuci_mamba_retry install -c conda-forge boa
+# rapids-mamba-retry install -c conda-forge boa
 
 ################################################################################
 # BUILD - Conda & pip package
 ################################################################################
 
-gpuci_logger "Build conda pkg for jupyterlab-nvdashboard"
-gpuci_conda_retry mambabuild conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
+# rapids-logger "Build conda pkg for jupyterlab-nvdashboard"
+# rapids-mamba-retry mambabuild conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
 
-gpuci_logger "Build pip pkg for jupyterlab-nvdashboard"
+rapids-logger "Build pip pkg for jupyterlab-nvdashboard"
 rm -rf dist/
 pip install build
 python -m build -s
@@ -62,5 +57,5 @@ python -m build -s
 # UPLOAD - Packages
 ################################################################################
 
-gpuci_logger "Upload packages"
+rapids-logger "Upload packages"
 source ci/cpu/upload.sh

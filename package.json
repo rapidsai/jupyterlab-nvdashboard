@@ -35,7 +35,7 @@
         "clean": "jlpm clean:lib",
         "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
         "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-        "clean:labextension": "rimraf jupyterlab_nvdashboard/labextension jupyterlab_nvdashboard/_version.py",
+        "clean:labextension": "rimraf jupyterlab-nvdashboard/labextension jupyterlab-nvdashboard/_version.py",
         "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
         "eslint": "jlpm eslint:check --fix",
         "eslint:check": "eslint . --cache --ext .ts,.tsx",
@@ -105,12 +105,12 @@
                     "pip"
                 ],
                 "base": {
-                    "name": "jupyterlab_nvdashboard"
+                    "name": "jupyterlab-nvdashboard"
                 }
             }
         },
         "extension": true,
-        "outputDir": "jupyterlab_nvdashboard/labextension",
+        "outputDir": "jupyterlab-nvdashboard/labextension",
         "schemaDir": "schema"
     },
     "eslintIgnore": [

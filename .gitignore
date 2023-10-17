@@ -7,9 +7,9 @@ node_modules/
 *.egg-info/
 .ipynb_checkpoints
 *.tsbuildinfo
-jupyterlab_nvdashboard/labextension
+jupyterlab-nvdashboard/labextension
 # Version file is handled by hatchling
-jupyterlab_nvdashboard/_version.py
+jupyterlab-nvdashboard/_version.py
 
 # Created by https://www.gitignore.io/api/python
 # Edit at https://www.gitignore.io/?templates=python

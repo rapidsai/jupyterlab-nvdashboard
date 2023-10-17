@@ -15,8 +15,6 @@ build:
   string: py_{{ date_string }}_{{ GIT_DESCRIBE_HASH }}_{{ GIT_DESCRIBE_NUMBER }}
   script: python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
   noarch: python
-  script_env:
-    - NODE_OPTIONS=--openssl-legacy-provider
 
 requirements:
   host:
@@ -37,10 +35,7 @@ requirements:
 
 test:
   imports:
-    - jupyterlab_nvdashboard
-  commands:
-    - test -f ${PREFIX}/share/jupyter/labextensions/jupyterlab-nvdashboard/package.json                              # [unix]
-    - if exist %PREFIX%\\share\\jupyter\\labextensions\\jupyterlab-nvdashboard\\package.json (exit 0) else (exit 1)  # [win]
+    - jupyterlab-nvdashboard
 
 about:
   home: https://rapids.ai

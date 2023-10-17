@@ -51,14 +51,14 @@ else
     cd $WORKSPACE
     python -m pip install .
 
-    gpuci_logger "Python py.test for jupyterlab_nvdashboard"
-    py.test --cache-clear --junitxml=${WORKSPACE}/junit-nvstrings.xml -v jupyterlab_nvdashboard
+    gpuci_logger "Python py.test for jupyterlab-nvdashboard"
+    py.test --cache-clear --junitxml=${WORKSPACE}/junit-nvstrings.xml -v jupyterlab-nvdashboard
 
-    gpuci_logger "Node jlpm test for jupyterlab_nvdashboard"
+    gpuci_logger "Node jlpm test for jupyterlab-nvdashboard"
     jlpm install
     jlpm run eslint:check
     jlpm test
 
-    gpuci_logger "Jupyter extension installation test for jupyterlab_nvdashboard"
+    gpuci_logger "Jupyter extension installation test for jupyterlab-nvdashboard"
     jupyter labextension list 2>&1 | grep -ie "jupyterlab-nvdashboard.*OK"
 fi
