@@ -45,10 +45,13 @@ For pages with multiple charts, JupyterLab-nvdashboard now offers synchronized t
 
 Seamless integration with JupyterLab themes is now a reality. The extension adapts its colors and aesthetics based on whether the user is in a light or dark theme, ensuring a consistent and visually appealing experience.
 
-<div style="display: flex;">
-  <img src="./docs/_images/screenshot1.png" alt="JupyterLab-nvdashboard Demo2" style="width: 50%;">
-  <img src="./docs/_images/screenshot2.png" alt="JupyterLab-nvdashboard Demo3" style="width: 50%;">
-</div>
+#### Light Theme
+
+![JupyterLab-nvdashboard Demo3](./docs/_images/screenshot2.png)
+
+#### Dark Theme
+
+![JupyterLab-nvdashboard Demo2](./docs/_images/screenshot1.png)
 
 ## Version Compatibility
 
