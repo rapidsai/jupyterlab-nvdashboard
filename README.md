@@ -18,9 +18,10 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
   - [Synced Tooltips](#synced-tooltips)
   - [Theme Compatibility](#theme-compatibility)
 - [Version Compatibility](#version-compatibility)
+- [Requirements](#requirements)
 - [Installation](#installation)
 - [Troubleshoot](#troubleshoot)
-- [Contributing](#contributing)
+- [Contributing](#contributing-developers-guide)
 - [Future Improvements](#future-improvements)
 
 ## New Features
