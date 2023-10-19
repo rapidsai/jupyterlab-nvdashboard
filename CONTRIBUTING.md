@@ -192,7 +192,7 @@ class GPUResourceHandler(APIHandler):
 
 ```
 
-4. Testing:
+3. Testing:
 
 - Build and test your changes. Follow the JupyterLab documentation for building and testing extensions.
 
