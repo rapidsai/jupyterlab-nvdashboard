@@ -12,7 +12,7 @@
         "url": "https://github.com/rapidsai/jupyterlab-nvdashboard/issues"
     },
     "license": "",
-    "author": "NV Dashbaord contributors",
+    "author": "NV Dashboard contributors",
     "files": [
         "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
         "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
@@ -35,7 +35,7 @@
         "clean": "jlpm clean:lib",
         "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
         "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-        "clean:labextension": "rimraf jupyterlab-nvdashboard/labextension jupyterlab-nvdashboard/_version.py",
+        "clean:labextension": "rimraf jupyterlab_nvdashboard/labextension jupyterlab_nvdashboard/_version.py",
         "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
         "eslint": "jlpm eslint:check --fix",
         "eslint:check": "eslint . --cache --ext .ts,.tsx",
@@ -100,17 +100,17 @@
     },
     "jupyterlab": {
         "discovery": {
-            "server": {
-                "managers": [
-                    "pip"
-                ],
-                "base": {
-                    "name": "jupyterlab-nvdashboard"
-                }
+        "server": {
+            "managers": [
+                "pip"
+            ],
+            "base": {
+                "name": "jupyterlab_nvdashboard"
             }
+        }
         },
         "extension": true,
-        "outputDir": "jupyterlab-nvdashboard/labextension",
+        "outputDir": "jupyterlab_nvdashboard/labextension",
         "schemaDir": "schema"
     },
     "eslintIgnore": [
@@ -199,6 +199,7 @@
         "rules": {
             "csstree/validator": true,
             "property-no-vendor-prefix": null,
+            "selector-class-pattern": "^([a-z][A-z\\d]*)(-[A-z\\d]+)*$",
             "selector-no-vendor-prefix": null,
             "value-no-vendor-prefix": null
         }

@@ -36,7 +36,7 @@ requirements:
 
 test:
   imports:
-    - jupyterlab-nvdashboard
+    - jupyterlab_nvdashboard
 
 about:
   home: https://rapids.ai
