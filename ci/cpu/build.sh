@@ -51,7 +51,9 @@ gpuci_mamba_retry install -c conda-forge boa
 ################################################################################
 
 gpuci_logger "Build conda pkg for jupyterlab-nvdashboard"
-gpuci_conda_retry mambabuild conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
+# TODO: Remove `--no-test` flag once importing on a CPU
+# node works correctly
+gpuci_conda_retry mambabuild --no-test conda/recipes/jupyterlab-nvdashboard --python=$PYTHON
 
 gpuci_logger "Build pip pkg for jupyterlab-nvdashboard"
 rm -rf dist/
