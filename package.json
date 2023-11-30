@@ -100,14 +100,14 @@
     },
     "jupyterlab": {
         "discovery": {
-        "server": {
-            "managers": [
-                "pip"
-            ],
-            "base": {
-                "name": "jupyterlab_nvdashboard"
+            "server": {
+                "managers": [
+                    "pip"
+                ],
+                "base": {
+                    "name": "jupyterlab_nvdashboard"
+                }
             }
-        }
         },
         "extension": true,
         "outputDir": "jupyterlab_nvdashboard/labextension",
