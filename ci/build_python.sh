@@ -1,0 +1,34 @@
+#!/bin/bash
+# Copyright (c) 2023, NVIDIA CORPORATION.
+
+# Exit script if any command fails
+set -euo pipefail
+
+# Source rapids-env-update to set environment variables
+source rapids-env-update
+
+# Print the Rapids environment for debugging purposes
+rapids-print-env
+
+# Generate version and replace any letter with a hyphen
+version=$(rapids-generate-version)
+node_version=$(echo "$version" | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
+
+# Update the version field in package.json
+rapids-logger "Updating version in package.json to $node_version"
+jq -e --arg tag "$node_version" '.version=$tag' package.json > package.json.tmp
+mv package.json.tmp package.json
+
+
+# Auto-generate jupyterlab_nvdashboard/_version.py
+rapids-logger "Installing hatch to generate python version from package.json"
+rapids-conda-retry install hatch
+python -m hatch build --hooks-only
+
+# TODO: Remove `--no-test` flag once importing on a CPU
+# node works correctly
+rapids-logger "Building JupyterLab NVDashboard conda package"
+RAPIDS_PACKAGE_VERSION=${version} rapids-conda-retry mambabuild --no-test conda/recipes/jupyterlab-nvdashboard
+
+rapids-logger "Uploading JupyterLab NVDashboard conda package to S3"
+rapids-upload-conda-to-s3 python
