@@ -1,6 +1,4 @@
-{% set version = environ.get('GIT_DESCRIBE_TAG', '0.0.0.dev').lstrip('v') %}
-{% set minor_version =  version.split('.')[0] + '.' + version.split('.')[1] %}
-{% set py_version=environ.get('CONDA_PY', 37) %}
+{% set version = environ['RAPIDS_PACKAGE_VERSION'].lstrip('v') %}
 {% set date_string = environ['RAPIDS_DATE_STRING'] %}
 
 package:
@@ -18,17 +16,15 @@ build:
 
 requirements:
   host:
-    - python >=3.7
+    - python >=3.8
     - setuptools
-    - pynvml
-    - psutil
     - nodejs =18
     - hatchling
     - hatch-nodejs-version
     - hatch-jupyter-builder
     - jupyterlab >=4
   run:
-    - python >=3.7
+    - python >=3.8
     - jupyterlab >=4
     - pynvml
     - psutil

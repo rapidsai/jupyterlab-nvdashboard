@@ -25,7 +25,7 @@ else:
             for handle in gpu_handles
         ]
 
-        # Maximum bandwidth is bidirectional, divide by two for separate RX and TX
+        # Maximum bandwidth is bidirectional, divide by 2 for separate RX & TX
         max_bw = (
             max(
                 sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth
@@ -154,11 +154,12 @@ class NVLinkThroughputHandler(APIHandler):
             ]
         else:
             # If no previous throughput is available, set change to zero
-            throughput_change = [[0] * len(throughput[i]) for i in range(len(throughput))]
+            throughput_change = [
+                [0] * len(throughput[i]) for i in range(len(throughput))
+            ]
 
         # Store the current throughput for the next request
         self.prev_throughput = throughput
-
 
         self.set_header("Content-Type", "application/json")
         # Send the change in throughput as part of the response
@@ -166,11 +167,21 @@ class NVLinkThroughputHandler(APIHandler):
             json.dumps(
                 {
                     "nvlink_rx": [
-                        sum(throughput_change[i][:pynvml.NVML_NVLINK_MAX_LINKS]) * 1024
+                        sum(
+                            throughput_change[i][
+                                : pynvml.NVML_NVLINK_MAX_LINKS
+                            ]
+                        )
+                        * 1024
                         for i in range(len(throughput_change))
                     ],
                     "nvlink_tx": [
-                        sum(throughput_change[i][pynvml.NVML_NVLINK_MAX_LINKS:]) * 1024
+                        sum(
+                            throughput_change[i][
+                                pynvml.NVML_NVLINK_MAX_LINKS :
+                            ]
+                        )
+                        * 1024
                         for i in range(len(throughput_change))
                     ],
                     "max_rxtx_bw": max_bw,

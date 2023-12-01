@@ -1,0 +1,23 @@
+# Copyright (c) 2023, NVIDIA CORPORATION.
+
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        files: jupyterlab_nvdashboard/.*
+        # Explicitly specify the pyproject.toml at the repo root, not per-project.
+        args: ['--config', 'pyproject.toml']
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        args: ['--config=.flake8']
+        files: jupyterlab_nvdashboard/.*$
+  - repo: https://github.com/rapidsai/dependency-file-generator
+    rev: v1.7.1
+    hooks:
+      - id: rapids-dependency-file-generator
+        args: ['--clean']
+default_language_version:
+  python: python3

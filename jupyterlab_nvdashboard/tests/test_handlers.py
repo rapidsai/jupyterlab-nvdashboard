@@ -1,4 +1,5 @@
 import json
+
 URL_PATH = "nvdashboard"
 
 
