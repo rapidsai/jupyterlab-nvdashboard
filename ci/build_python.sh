@@ -19,11 +19,8 @@ rapids-logger "Updating version in package.json to $node_version"
 jq -e --arg tag "$node_version" '.version=$tag' package.json > package.json.tmp
 mv package.json.tmp package.json
 
-
-# Auto-generate jupyterlab_nvdashboard/_version.py
-rapids-logger "Installing hatch to generate python version from package.json"
-rapids-conda-retry install hatch
-python -m hatch build --hooks-only
+# Generate jupyterlab_nvdashboard/_version.py since hatch version hook isn't working with conda-build
+echo "__version__ = '$version'" > jupyterlab_nvdashboard/_version.py
 
 # TODO: Remove `--no-test` flag once importing on a CPU
 # node works correctly
