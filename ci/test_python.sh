@@ -18,9 +18,8 @@ set +u
 conda activate test
 set -u
 
-# rapids-logger "Downloading artifacts from previous jobs"
+rapids-logger "Downloading artifacts from previous jobs"
 PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
-PYTHON_CHANNEL="/tmp/conda-bld-output/noarch"
 
 RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
 RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
