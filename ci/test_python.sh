@@ -18,12 +18,7 @@ set +u
 conda activate test
 set -u
 
-rapids-logger "Downloading artifacts from previous jobs"
-PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
-
-RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
-RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
-mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
+PYTHON_CHANNEL="/tmp/conda-bld-output/noarch"
 
 rapids-print-env
 
@@ -39,7 +34,7 @@ trap "EXITCODE=1" ERR
 set +e
 
 rapids-logger "pytest jupyterlab-nvdashboard"
-JUPYTER_PLATFORM_DIRS=1 pytest
+JUPYTER_PLATFORM_DIRS=1 python -m pytest
 
 rapids-logger "Test script exiting with value: $EXITCODE"
 exit ${EXITCODE}

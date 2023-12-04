@@ -13,41 +13,63 @@ jobs:
   pr-builder:
     needs:
       - checks
-      - conda-python-build
-      - conda-python-tests
-      - wheel-build
-      - wheel-tests
+      - conda-python-build-tests
+      - wheel-build-test
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@branch-24.02
   checks:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@branch-24.02
-  conda-python-build:
+  conda-python-build-tests:
     needs: checks
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-24.02
-    with:
-      build_type: pull-request
-  conda-python-tests:
-    needs: conda-python-build
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-24.02
-    with:
-      build_type: pull-request
-      run_codecov: false
-  wheel-build:
+    runs-on: "linux-amd64-gpu-v100-latest-1"
+    container:
+      image: rapidsai/ci-conda:latest
+      env:
+        RAPIDS_BUILD_TYPE: ${{ inputs.build_type }}
+        PARALLEL_LEVEL: ${{ env.PARALLEL_LEVEL }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Standardize repository information
+        run: |
+          echo "RAPIDS_REPOSITORY=${{ inputs.repo || github.repository }}" >> "${GITHUB_ENV}"
+          echo "RAPIDS_SHA=$(git rev-parse HEAD)" >> "${GITHUB_ENV}"
+          echo "RAPIDS_REF_NAME=${{ inputs.branch || github.ref_name }}" >> "${GITHUB_ENV}"
+          echo "RAPIDS_NIGHTLY_DATE=${{ inputs.date }}" >> "${GITHUB_ENV}"
+      - name: Python build
+        run: ci/build_python.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Python test
+        run: ci/test_python.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  wheel-build-test:
     needs: checks
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.02
-    with:
-      build_type: pull-request
-      script: ci/build_wheel.sh
-      matrix_filter: map(select(.ARCH == "amd64" and .PY_VER == "3.10" and (.CUDA_VER == "11.8.0" or .CUDA_VER == "12.0.1")))
-  wheel-tests:
-    needs: wheel-build
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.02
-    with:
-      build_type: pull-request
-      script: ci/test_wheel.sh
-      matrix_filter: map(select(.ARCH == "amd64" and .PY_VER == "3.10" and (.CUDA_VER == "11.8.0" or .CUDA_VER == "12.0.1")))
+    runs-on: "linux-amd64-gpu-v100-latest-1"
+    container:
+      image: rapidsai/ci-wheel:latest
+      env:
+        RAPIDS_BUILD_TYPE: ${{ inputs.build_type }}
+        PARALLEL_LEVEL: ${{ env.PARALLEL_LEVEL }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Standardize repository information
+        run: |
+          echo "RAPIDS_REPOSITORY=${{ inputs.repo || github.repository }}" >> "${GITHUB_ENV}"
+          echo "RAPIDS_SHA=$(git rev-parse HEAD)" >> "${GITHUB_ENV}"
+          echo "RAPIDS_REF_NAME=${{ inputs.branch || github.ref_name }}" >> "${GITHUB_ENV}"
+          echo "RAPIDS_NIGHTLY_DATE=${{ inputs.date }}" >> "${GITHUB_ENV}"
+      - name: Python build
+        run: ci/build_wheel.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Python test
+        run: ci/test_wheel.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
