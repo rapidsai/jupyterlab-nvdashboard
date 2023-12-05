@@ -25,4 +25,7 @@ echo "__version__ = '$version'" > jupyterlab_nvdashboard/_version.py
 # TODO: Remove `--no-test` flag once importing on a CPU
 # node works correctly
 rapids-logger "Building JupyterLab NVDashboard conda package"
-RAPIDS_PACKAGE_VERSION=${version} rapids-conda-retry mambabuild --no-test conda/recipes/jupyterlab-nvdashboard
+RAPIDS_PACKAGE_VERSION=${version} rapids-conda-retry mambabuild --no-test conda/recipes/jupyterlab-nvdashboard --output
+
+rapids-logger "Uploading JupyterLab NVDashboard conda package to S3"
+rapids-upload-conda-to-s3 python

@@ -18,7 +18,8 @@ set +u
 conda activate test
 set -u
 
-PYTHON_CHANNEL="/tmp/conda-bld-output/noarch"
+# rapids-logger "Downloading artifacts from previous jobs"
+PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
 
 rapids-print-env
 
