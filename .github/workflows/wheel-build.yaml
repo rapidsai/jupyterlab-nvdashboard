@@ -1,0 +1,54 @@
+on:
+  workflow_call:
+    inputs:
+      build_type:
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  actions: read
+  checks: none
+  contents: read
+  deployments: none
+  discussions: none
+  id-token: write
+  issues: none
+  packages: read
+  pages: none
+  pull-requests: read
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+jobs:
+  build:
+    runs-on: 'linux-amd64-cpu8'
+    container:
+      image: rapidsai/ci-wheel:latest
+      env:
+        RAPIDS_BUILD_TYPE: ${{ inputs.build_type }}
+        PARALLEL_LEVEL: ${{ env.PARALLEL_LEVEL }}
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-duration-seconds: 1200 # 20 minutes
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Standardize repository information
+        uses: rapidsai/shared-actions/rapids-github-info@main
+        with:
+          repo: ${{ inputs.repo }}
+          branch: ${{ inputs.branch }}
+          date: ${{ inputs.date }}
+          sha: ${{ inputs.sha }}
+      - name: Python build
+        run: ci/build_wheel.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
