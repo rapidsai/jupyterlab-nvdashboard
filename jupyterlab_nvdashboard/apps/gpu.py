@@ -34,6 +34,7 @@ else:
         )
     except (IndexError, pynvml.nvml.NVMLError_NotSupported):
         nvlink_ver = None
+        max_bw = []
     try:
         pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
     except (IndexError, pynvml.nvml.NVMLError_NotSupported):
