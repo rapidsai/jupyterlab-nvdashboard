@@ -60,6 +60,7 @@ dependencies:
       - output_types: [conda, requirements]
         packages:
           - pre-commit
+          - jupyterlab>=4
   py_version:
     common:
       - output_types: conda
