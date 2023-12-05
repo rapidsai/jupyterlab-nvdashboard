@@ -6,7 +6,7 @@ import { requestAPI } from '../handler';
 import { CustomLineChart } from '../components/customLineChart';
 import { formatDate, formatBytes } from '../components/formatUtils';
 import { scaleLinear } from 'd3-scale';
-import { gpuColorCategoricalRange } from '../assets/constants';
+import { GPU_COLOR_CATEGORICAL_RANGE } from '../assets/constants';
 import { pauseIcon, playIcon } from '../assets/icons';
 
 interface IChartProps {
@@ -53,7 +53,7 @@ const GpuResourceChart = () => {
 
   const colorScale = scaleLinear<string>()
     .domain([0, ngpus])
-    .range(gpuColorCategoricalRange);
+    .range(GPU_COLOR_CATEGORICAL_RANGE);
 
   return (
     <div className="gradient-background">

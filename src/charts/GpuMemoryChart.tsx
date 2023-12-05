@@ -12,7 +12,7 @@ import {
 } from 'recharts';
 import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
-import { barColorLinearRange } from '../assets/constants';
+import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
 import { format } from 'd3-format';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
@@ -52,7 +52,7 @@ const GpuMemoryChart = (): JSX.Element => {
 
   // Create a formatter for displaying bytes
 
-  const colorScale = scaleLinear<string>().range(barColorLinearRange);
+  const colorScale = scaleLinear<string>().range(BAR_COLOR_LINEAR_RANGE);
 
   const usageSum = data.reduce((sum, data) => sum + data.memory, 0);
   const formatBytes = (value: number): string => {

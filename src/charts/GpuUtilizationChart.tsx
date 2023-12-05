@@ -12,7 +12,7 @@ import {
 } from 'recharts';
 import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
-import { barColorLinearRange } from '../assets/constants';
+import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
 const GpuUtilizationChart = (): JSX.Element => {
@@ -46,7 +46,7 @@ const GpuUtilizationChart = (): JSX.Element => {
 
   const colorScale = scaleLinear<string>()
     .domain([0, 100])
-    .range(barColorLinearRange);
+    .range(BAR_COLOR_LINEAR_RANGE);
 
   return (
     <div className="gradient-background">

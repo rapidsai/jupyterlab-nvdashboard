@@ -6,7 +6,7 @@ import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { formatBytes } from '../components/formatUtils';
-import { barColorLinearRange } from '../assets/constants';
+import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
 interface IPciChartProps {
   pci_tx: number[];
   pci_rx: number[];
@@ -48,7 +48,7 @@ const PciThroughputChart = (): JSX.Element => {
 
   const colorScale = scaleLinear<string>()
     .domain([0, 1])
-    .range(barColorLinearRange);
+    .range(BAR_COLOR_LINEAR_RANGE);
 
   return (
     <div className="gradient-background">

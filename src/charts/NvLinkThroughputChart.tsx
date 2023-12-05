@@ -5,7 +5,7 @@ import { BarChart, Bar, Cell, YAxis, XAxis, Tooltip } from 'recharts';
 import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
 import { format } from 'd3-format';
-import { barColorLinearRange } from '../assets/constants';
+import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
 interface INvLinkChartProps {
@@ -45,16 +45,15 @@ const NvLinkThroughputChart = (): JSX.Element => {
     rx: nvlinkStats?.nvlink_rx[index] || 0,
     tx: nvlinkStats?.nvlink_tx[index] || 0,
     maxTP: nvlinkStats?.max_rxtx_bw || 0
-  }));  
+  }));
 
   const colorScale = scaleLinear<string>()
     .domain([0, 1])
-    .range(barColorLinearRange);
+    .range(BAR_COLOR_LINEAR_RANGE);
 
-  const formatBytes = (bytes: number) : string => {
+  const formatBytes = (bytes: number): string => {
     return `${format('.2s')(bytes)}B`;
-  }
-  
+  };
 
   return (
     <div className="gradient-background">

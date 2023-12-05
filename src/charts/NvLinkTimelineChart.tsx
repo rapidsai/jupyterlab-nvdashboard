@@ -7,7 +7,7 @@ import { Line, XAxis, YAxis, Brush, LineChart } from 'recharts';
 import { formatDate, formatBytes } from '../components/formatUtils';
 import { pauseIcon, playIcon } from '../assets/icons';
 import { scaleLinear } from 'd3-scale';
-import { gpuColorCategoricalRange } from '../assets/constants';
+import { GPU_COLOR_CATEGORICAL_RANGE } from '../assets/constants';
 
 interface INvLinkChartProps {
   time: number;
@@ -50,8 +50,8 @@ const NvLinkTimelineChart = (): JSX.Element => {
   };
 
   const colorScale = scaleLinear<string>()
-  .domain([0, ngpus])
-  .range(gpuColorCategoricalRange);
+    .domain([0, ngpus])
+    .range(GPU_COLOR_CATEGORICAL_RANGE);
 
   return (
     <div className="gradient-background">
