@@ -16,3 +16,6 @@ conda activate checks
 
 # Run pre-commit checks
 pre-commit run --hook-stage manual --all-files --show-diff-on-failure
+
+# Run eslint checks
+jlpm run eslint:check
