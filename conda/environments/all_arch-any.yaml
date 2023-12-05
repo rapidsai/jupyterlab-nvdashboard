@@ -7,6 +7,7 @@ channels:
 - nvidia
 dependencies:
 - jupyterlab>=4
+- nodejs=18
 - pre-commit
 - psutil
 - pynvml

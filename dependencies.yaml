@@ -61,6 +61,7 @@ dependencies:
         packages:
           - pre-commit
           - jupyterlab>=4
+          - nodejs=18
   py_version:
     common:
       - output_types: conda

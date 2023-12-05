@@ -14,8 +14,11 @@ rapids-dependency-file-generator \
 rapids-mamba-retry env create --force -f env.yaml -n checks
 conda activate checks
 
+rapids-logger "Run pre-commit checks - Python backend"
 # Run pre-commit checks
 pre-commit run --hook-stage manual --all-files --show-diff-on-failure
 
+rapids-logger "eslint:check - TS frontend"
 # Run eslint checks
+jlpm install
 jlpm run eslint:check
