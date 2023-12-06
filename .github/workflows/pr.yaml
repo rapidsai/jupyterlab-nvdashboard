@@ -3,30 +3,11 @@ name: pr
 on:
   push:
     branches:
-      - 'pull-request/[0-9]+'
+      - "pull-request/[0-9]+"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
-defaults:
-  run:
-    shell: bash
-
-permissions:
-  actions: read
-  checks: none
-  contents: read
-  deployments: none
-  discussions: none
-  id-token: write
-  issues: none
-  packages: read
-  pages: none
-  pull-requests: read
-  repository-projects: none
-  security-events: none
-  statuses: none
 
 jobs:
   pr-builder:
@@ -44,70 +25,28 @@ jobs:
   conda-python-build:
     needs: checks
     secrets: inherit
-    uses: ./.github/workflows/conda-build.yaml
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-24.02
     with:
       build_type: pull-request
   conda-python-tests:
     needs: conda-python-build
-    runs-on: 'linux-amd64-gpu-v100-latest-1'
-    container:
-      image: rapidsai/ci-conda:latest
-      env:
-        RAPIDS_BUILD_TYPE: pull-request
-        PARALLEL_LEVEL: ${{ env.PARALLEL_LEVEL }}
-        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-          role-duration-seconds: 1200 # 20 minutes
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Standardize repository information
-        uses: rapidsai/shared-actions/rapids-github-info@main
-        with:
-          repo: ${{ inputs.repo }}
-          branch: ${{ inputs.branch }}
-          date: ${{ inputs.date }}
-          sha: ${{ inputs.sha }}
-      - name: Python tests
-        run: ci/test_python.sh
-        env:
-          GH_TOKEN: ${{ github.token }}
-  wheel-build:
-    needs: checks
     secrets: inherit
-    uses: ./.github/workflows/wheel-build.yaml
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-24.02
     with:
       build_type: pull-request
+  wheel-build:
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.02
+    with:
+      build_type: pull-request
+      # Package is pure Python and only ever requires one build.
+      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | .[-1] + {ARCH: "amd64"}'
+      script: "ci/build_wheel.sh"
   wheel-tests:
-    needs: wheel-build
-    runs-on: 'linux-amd64-gpu-v100-latest-1'
-    container:
-      image: rapidsai/ci-wheel:latest
-      env:
-        RAPIDS_BUILD_TYPE: pull-request
-        PARALLEL_LEVEL: ${{ env.PARALLEL_LEVEL }}
-        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-          role-duration-seconds: 1200 # 20 minutes
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Standardize repository information
-        uses: rapidsai/shared-actions/rapids-github-info@main
-        with:
-          repo: ${{ inputs.repo }}
-          branch: ${{ inputs.branch }}
-          date: ${{ inputs.date }}
-          sha: ${{ inputs.sha }}
-      - name: Python tests
-        run: ci/test_wheel.sh
-        env:
-          GH_TOKEN: ${{ github.token }}
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.02
+    with:
+      build_type: pull-request
+      # Package is pure Python and only ever requires one build.
+      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | .[-1] + {ARCH: "amd64"}'
+      script: "ci/test_wheel.sh"
