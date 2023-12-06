@@ -28,12 +28,16 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-24.02
     with:
       build_type: pull-request
+      # Package is pure Python and only ever requires one build.
+      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
   conda-python-tests:
     needs: conda-python-build
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-24.02
     with:
       build_type: pull-request
+      # Package is pure Python and only ever requires one build.
+      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
   wheel-build:
     needs: checks
     secrets: inherit
@@ -50,5 +54,5 @@ jobs:
     with:
       build_type: pull-request
       # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | .[-1] + {ARCH: "amd64"}'
+      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
       script: "ci/test_wheel.sh"
