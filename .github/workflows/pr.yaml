@@ -35,6 +35,7 @@ jobs:
     with:
       build_type: pull-request
   wheel-build:
+    needs: checks
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.02
     with:
@@ -43,6 +44,7 @@ jobs:
       matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | .[-1] + {ARCH: "amd64"}'
       script: "ci/build_wheel.sh"
   wheel-tests:
+    needs: wheel-build
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.02
     with:
