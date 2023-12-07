@@ -36,7 +36,7 @@ jobs:
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
       # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select(.ARCH == "amd64")) | map(select((.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+      matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
   upload-conda:
     needs: conda-python-build
     secrets: inherit

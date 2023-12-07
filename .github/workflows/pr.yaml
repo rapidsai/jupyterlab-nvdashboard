@@ -29,7 +29,7 @@ jobs:
     with:
       build_type: pull-request
       # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select(.ARCH == "amd64")) | map(select((.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+      matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
   conda-python-tests:
     needs: conda-python-build
     secrets: inherit
@@ -37,7 +37,7 @@ jobs:
     with:
       build_type: pull-request
       # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select(.ARCH == "amd64")) | map(select((.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+      matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
   wheel-build:
     needs: checks
     secrets: inherit
@@ -54,5 +54,5 @@ jobs:
     with:
       build_type: pull-request
       # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select(.ARCH == "amd64")) | map(select((.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+      matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
       script: "ci/test_wheel.sh"
