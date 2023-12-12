@@ -69,17 +69,17 @@ JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later ve
 
 ```bash
 # nightly version (for jupyterlab>=4)
-conda install -c rapidsai-nightly jupyterlab-nvdashboard
+conda install -c rapidsai-nightly -c conda-forge jupyterlab-nvdashboard
 
 # stable version (for jupyterlab<4)
-conda install -c rapidsai jupyterlab-nvdashboard
+conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard
 ```
 
 ### PyPI
 
 ```bash
 # nightly version (for jupyterlab>=4)
-pip install -i https://pypi.anaconda.org/rapidsai-wheels-nightly/simple jupyterlab_nvdashboard
+pip install --extra-index-url https://pypi.anaconda.org/rapidsai-wheels-nightly/simple jupyterlab_nvdashboard
 
 # stable version (for jupyterlab<4)
 pip install jupyterlab_nvdashboard
