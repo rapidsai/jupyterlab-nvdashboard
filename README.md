@@ -9,7 +9,7 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
 
 ## Demo
 
-![JupyterLab-nvdashboard Demo](./docs/_images/screencast1.gif)
+![JupyterLab-nvdashboard Demo](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screencast1.gif)
 
 ## Table of Contents
 
@@ -33,13 +33,13 @@ Explore the exciting updates below.
 
 Introducing a powerful brushing feature for time series charts. Users can easily inspect past events by selecting a specific time range, providing more granular control over data exploration.
 
-![JupyterLab-nvdashboard Demo1](./docs/_images/screencast2.gif)
+![JupyterLab-nvdashboard Demo1](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screencast2.gif)
 
 ### Synced Tooltips
 
 For pages with multiple charts, JupyterLab-nvdashboard now offers synchronized tooltips for timestamps across all charts. This feature enhances the user's ability to analyze data cohesively and understand relationships between different data points.
 
-![JupyterLab-nvdashboard Demo4](./docs/_images/screenshot3.png)
+![JupyterLab-nvdashboard Demo4](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screenshot3.png)
 
 ### Theme Compatibility
 
@@ -47,11 +47,11 @@ Seamless integration with JupyterLab themes is now a reality. The extension adap
 
 #### Light Theme
 
-![JupyterLab-nvdashboard Demo3](./docs/_images/screenshot2.png)
+![JupyterLab-nvdashboard Demo3](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screenshot2.png)
 
 #### Dark Theme
 
-![JupyterLab-nvdashboard Demo2](./docs/_images/screenshot1.png)
+![JupyterLab-nvdashboard Demo2](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screenshot1.png)
 
 ## Version Compatibility
 
@@ -68,13 +68,21 @@ JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later ve
 ### Conda
 
 ```bash
+# nightly version (for jupyterlab>=4)
+conda install -c rapidsai-nightly jupyterlab-nvdashboard
+
+# stable version (for jupyterlab<4)
 conda install -c rapidsai jupyterlab-nvdashboard
 ```
 
 ### PyPI
 
 ```bash
-pip install jupyterlab-nvdashboard
+# nightly version (for jupyterlab>=4)
+pip install -i https://pypi.anaconda.org/rapidsai-wheels-nightly/simple jupyterlab_nvdashboard
+
+# stable version (for jupyterlab<4)
+pip install jupyterlab_nvdashboard
 ```
 
 ## Troubleshoot
