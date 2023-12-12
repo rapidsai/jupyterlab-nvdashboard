@@ -4,24 +4,16 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-
-import { WidgetTracker } from '@jupyterlab/apputils';
-
-import {
-  BokehDashboard,
-  BokehDashboardLauncher,
-  IDashboardItem
-} from './dashboard';
-
-import '../style/index.css';
-
-const COMMAND_ID = 'bokeh-server:launch-document';
+import { ControlWidget } from './launchWidget';
+import { MainAreaWidget, WidgetTracker } from '@jupyterlab/apputils';
+import { gpuIcon } from './assets/icons';
 
 /**
- * Initialization data for the jupyterlab-nvdashboard extension.
+ * Initialization data for the react-widget extension.
  */
 const extension: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-nvdashboard',
+  id: 'react-widget',
+  description: 'A minimal JupyterLab extension using a React Widget.',
   autoStart: true,
   requires: [ILabShell],
   optional: [ILayoutRestorer],
@@ -30,58 +22,28 @@ const extension: JupyterFrontEndPlugin<void> = {
     labShell: ILabShell,
     restorer: ILayoutRestorer | null
   ) => {
-    const sidebar = new BokehDashboardLauncher({
-      launchItem: (item: IDashboardItem) => {
-        app.commands.execute(COMMAND_ID, item);
-      }
+    const tracker = new WidgetTracker<MainAreaWidget>({
+      namespace: 'gpu-dashboard-widgets'
     });
-    sidebar.id = 'nvdashboard-launcher';
-    sidebar.title.iconClass = 'jp-GPU-icon jp-SideBar-tabIcon';
-    sidebar.title.caption = 'GPU Dashboards';
-    labShell.add(sidebar, 'left');
+    const controlWidget = new ControlWidget(app, labShell, tracker);
+    controlWidget.id = 'gpu-dashboard';
+    controlWidget.title.icon = gpuIcon;
+    controlWidget.title.caption = 'GPU Dashboards';
 
-    // An instance tracker which is used for state restoration.
-    const tracker = new WidgetTracker<BokehDashboard>({
-      namespace: 'nvdashboard-launcher'
-    });
-
-    app.commands.addCommand(COMMAND_ID, {
-      label: 'Open Bokeh document',
-      execute: args => {
-        const item = args as IDashboardItem;
-        // If we already have a dashboard open to this url, activate it
-        // but don't create a duplicate.
-        const w = tracker.find(w => {
-          return !!(w && w.item && w.item.route === item.route);
-        });
-        if (w) {
-          if (!w.isAttached) {
-            labShell.add(w, 'main');
-          }
-          labShell.activateById(w.id);
-          return;
-        }
-
-        const widget = new BokehDashboard();
-        widget.title.label = item.label;
-        widget.title.icon = 'jp-GPU-icon';
-        widget.item = item;
-        labShell.add(widget, 'main');
-        tracker.add(widget);
-      }
-    });
-
+    // If there is a restorer, restore the widget
     if (restorer) {
-      // Add state restoration for the dashboard items.
-      restorer.add(sidebar, sidebar.id);
+      // Add state restoration for the widget so they can be restored on reload
+      restorer.add(controlWidget, 'gpu-dashboard');
+      // Track and restore the chart widgets states so they can be restored on reload
       restorer.restore(tracker, {
-        command: COMMAND_ID,
-        args: widget => widget.item || {},
-        name: widget => (widget.item && widget.item.route) || ''
+        command: 'gpu-dashboard-widget:open',
+        args: widget => ({ id: widget.id, title: widget.title.label }),
+        name: widget => widget.title.label
       });
     }
 
-    labShell.add(sidebar, 'left', { rank: 200 });
+    // Add control widget to the left area
+    labShell.add(controlWidget, 'left', { rank: 200 });
   }
 };
 

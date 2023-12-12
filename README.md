@@ -1,8 +1,4 @@
-# JupyterLab NVDashboard
-
-![GPU Dashboard](demo.gif)
-
-![Github Actions Status](https://github.com/rapidsai/jupyterlab-nvdashboard/workflows/Build/badge.svg)
+# JupyterLab NVdashboard
 
 NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It enables JupyterLab users to visualize system hardware metrics within the same interactive environment they use for development. Supported metrics include:
 
@@ -11,22 +7,75 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
 - PCIe throughput
 - NVLink throughput
 
+## Demo
 
-This extension is composed of a Python package named `jupyterlab_nvdashboard`
-for the server extension and a NPM package named `jupyterlab-nvdashboard`
-for the frontend extension.
+![JupyterLab-nvdashboard Demo](./docs/_images/screencast1.gif)
 
+## Table of Contents
+
+- [New Features](#new-features)
+  - [Brush for Time Series Charts](#brush-for-time-series-charts)
+  - [Synced Tooltips](#synced-tooltips)
+  - [Theme Compatibility](#theme-compatibility)
+- [Version Compatibility](#version-compatibility)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Troubleshoot](#troubleshoot)
+- [Contributing](#contributing-developers-guide)
+- [Future Improvements](#future-improvements)
+
+## New Features
+
+JupyterLab-nvdashboard v4 brings a host of new features, improved backend architecture, and enhanced frontend components for an even better user experience.
+Explore the exciting updates below.
+
+### Brush for Time Series Charts
+
+Introducing a powerful brushing feature for time series charts. Users can easily inspect past events by selecting a specific time range, providing more granular control over data exploration.
+
+![JupyterLab-nvdashboard Demo1](./docs/_images/screencast2.gif)
+
+### Synced Tooltips
+
+For pages with multiple charts, JupyterLab-nvdashboard now offers synchronized tooltips for timestamps across all charts. This feature enhances the user's ability to analyze data cohesively and understand relationships between different data points.
+
+![JupyterLab-nvdashboard Demo4](./docs/_images/screenshot3.png)
+
+### Theme Compatibility
+
+Seamless integration with JupyterLab themes is now a reality. The extension adapts its colors and aesthetics based on whether the user is in a light or dark theme, ensuring a consistent and visually appealing experience.
+
+#### Light Theme
+
+![JupyterLab-nvdashboard Demo3](./docs/_images/screenshot2.png)
+
+#### Dark Theme
+
+![JupyterLab-nvdashboard Demo2](./docs/_images/screenshot1.png)
+
+## Version Compatibility
+
+JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later versions. To ensure continued support for JupyterLab v3 users, we will maintain the previous version separately (branch-0.9).
 
 ## Requirements
 
-* JupyterLab >= 3.0
+- JupyterLab >=4
+- pynvml
+- psutil
 
-## Install
+## Installation
+
+### Conda
 
 ```bash
-pip install jupyterlab_nvdashboard
+conda install -c rapidsai jupyterlab-nvdashboard
 ```
 
+### PyPI
+
+```bash
+pip install jupyterlab-nvdashboard
+```
 
 ## Troubleshoot
 
@@ -44,49 +93,10 @@ the frontend extension, check the frontend extension is installed:
 jupyter labextension list
 ```
 
+## Contributing Developers Guide
 
-## Contributing
+For more details, check out the [contributing guide](./CONTRIBUTING.md).
 
-### Development install
+## Future Improvements
 
-Note: You will need NodeJS to build the extension package.
-
-The `jlpm` command is JupyterLab's pinned version of
-[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
-`yarn` or `npm` in lieu of `jlpm` below.
-
-```bash
-# Clone the repo to your local environment
-# Change directory to the jupyterlab_nvdashboard directory
-# Install package in development mode
-pip install -e .
-# Link your development version of the extension with JupyterLab
-jupyter labextension develop . --overwrite
-# Rebuild extension Typescript source after making changes
-jlpm run build
-```
-
-You can watch the source directory and run JupyterLab at the same time in different terminals to watch for changes in the extension's source and automatically rebuild the extension.
-
-```bash
-# Watch the source directory in one terminal, automatically rebuilding when needed
-jlpm run watch
-# Run JupyterLab in another terminal
-jupyter lab
-```
-
-With the watch command running, every saved change will immediately be built locally and available in your running JupyterLab. Refresh JupyterLab to load the change in your browser (you may need to wait several seconds for the extension to be rebuilt).
-
-By default, the `jlpm run build` command generates the source maps for this extension to make it easier to debug using the browser dev tools. To also generate source maps for the JupyterLab core extensions, you can run the following command:
-
-```bash
-jupyter lab build --minimize=False
-```
-
-### Uninstall
-
-```bash
-pip uninstall jupyterlab_nvdashboard
-```
-
-Releases for both packages are handled by [gpuCI](https://gpuci.gpuopenanalytics.com/job/rapidsai/job/gpuci/job/jupyterlab-nvdashboard/). Nightly builds are triggered when a push to a versioned branch occurs (i.e. `branch-0.5`). Stable builds are triggered when a push to the `main` branch occurs.
+While we've introduced a range of exciting features in this release, we understand that there are always opportunities for improvement. We have noted a request to add cell execution markers to the charts. Due to the complexities associated with asynchronous cells, we have decided to defer this feature to a future update. Rest assured, we will explore this enhancement in subsequent releases.

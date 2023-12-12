@@ -1,0 +1,10 @@
+# Copyright (c) 2023, NVIDIA CORPORATION.
+
+[flake8]
+filename = *.py,
+exclude = __init__.py, *.egg, build, docs, .git
+ignore =
+    # line break before binary operator
+    W503,
+    # whitespace before :
+    E203

@@ -1,0 +1,69 @@
+name: build
+
+on:
+  push:
+    branches:
+      - "branch-*"
+    tags:
+      - "v**"
+      - "!v**a"
+  workflow_dispatch:
+    inputs:
+      branch:
+        required: true
+        type: string
+      date:
+        required: true
+        type: string
+      sha:
+        required: true
+        type: string
+      build_type:
+        type: string
+        default: nightly
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  conda-python-build:
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-24.02
+    with:
+      build_type: ${{ inputs.build_type || 'branch' }}
+      branch: ${{ inputs.branch }}
+      date: ${{ inputs.date }}
+      sha: ${{ inputs.sha }}
+      # Package is pure Python and only ever requires one build.
+      matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+  upload-conda:
+    needs: conda-python-build
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@branch-24.02
+    with:
+      build_type: ${{ inputs.build_type || 'branch' }}
+      branch: ${{ inputs.branch }}
+      date: ${{ inputs.date }}
+      sha: ${{ inputs.sha }}
+  wheel-build:
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.02
+    with:
+      build_type: ${{ inputs.build_type || 'branch' }}
+      branch: ${{ inputs.branch }}
+      sha: ${{ inputs.sha }}
+      date: ${{ inputs.date }}
+      script: ci/build_wheel.sh
+      # Package is pure Python and only ever requires one build.
+      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
+  wheel-publish:
+    needs: wheel-build
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-24.02
+    with:
+      build_type: ${{ inputs.build_type || 'branch' }}
+      branch: ${{ inputs.branch }}
+      sha: ${{ inputs.sha }}
+      date: ${{ inputs.date }}
+      package-name: jupyterlab-nvdashboard
