@@ -79,7 +79,7 @@ conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard
 
 ```bash
 # nightly version (for jupyterlab>=4)
-pip install --extra-index-url https://pypi.anaconda.org/rapidsai-wheels-nightly/simple jupyterlab_nvdashboard
+pip install --extra-index-url https://pypi.anaconda.org/rapidsai-wheels-nightly/simple --pre jupyterlab_nvdashboard
 
 # stable version (for jupyterlab<4)
 pip install jupyterlab_nvdashboard
