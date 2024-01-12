@@ -4,8 +4,11 @@
 # Exit script if any command fails
 set -euo pipefail
 
-# Source rapids-env-update to set environment variables
-source rapids-env-update
+rapids-configure-conda-channels
+
+source rapids-configure-sccache
+
+source rapids-date-string
 
 # Print the Rapids environment for debugging purposes
 rapids-print-env
