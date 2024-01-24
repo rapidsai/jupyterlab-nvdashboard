@@ -67,7 +67,7 @@ const GpuResourceChart = () => {
               xFormatter={formatDate}
               yFormatter={value => `${value}%`}
               width={width}
-              height={height / 5}
+              height={(height - 60) / 5}
               syncId="gpu-resource-sync"
             >
               {gpuData[0] &&
@@ -92,7 +92,7 @@ const GpuResourceChart = () => {
               xFormatter={formatDate}
               yFormatter={formatBytes}
               width={width}
-              height={height / 5}
+              height={(height - 60) / 5}
               syncId="gpu-resource-sync"
             >
               {gpuData[0] &&
@@ -118,7 +118,7 @@ const GpuResourceChart = () => {
               yFormatter={value => `${value}%`}
               yDomain={[0, 100]}
               width={width}
-              height={height / 5}
+              height={(height - 60) / 5}
               syncId="gpu-resource-sync"
             >
               <Line
@@ -148,7 +148,7 @@ const GpuResourceChart = () => {
               xFormatter={formatDate}
               yFormatter={formatBytes}
               width={width}
-              height={height / 5}
+              height={(height - 60) / 5}
               syncId="gpu-resource-sync"
             >
               <Line
@@ -216,6 +216,11 @@ const GpuResourceChart = () => {
 };
 
 export class GpuResourceChartWidget extends ReactWidget {
+  constructor() {
+    super();
+    /* Time series charts need to have a min height for seekbar to be visible without scrolling*/
+    this.addClass('size-constrained-widgets-lg');
+  }
   render() {
     return <GpuResourceChart />;
   }
