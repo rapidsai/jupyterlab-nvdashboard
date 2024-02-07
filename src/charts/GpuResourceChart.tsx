@@ -8,8 +8,11 @@ import { formatDate, formatBytes } from '../components/formatUtils';
 import { scaleLinear } from 'd3-scale';
 import { GPU_COLOR_CATEGORICAL_RANGE } from '../assets/constants';
 import { pauseIcon, playIcon } from '../assets/icons';
+import loadSettingRegistry from '../assets/hooks';
+import { IChartProps } from '../assets/interfaces';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
-interface IChartProps {
+interface IDataProps {
   time: number;
   gpu_utilization_total: number;
   gpu_memory_total: number;
@@ -19,15 +22,18 @@ interface IChartProps {
   gpu_memory_individual: number[];
 }
 
-const GpuResourceChart = () => {
-  const [gpuData, setGpuData] = useState<IChartProps[]>([]);
-  const [tempData, setTempData] = useState<IChartProps[]>([]);
+const GpuResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
+  const [gpuData, setGpuData] = useState<IDataProps[]>([]);
+  const [tempData, setTempData] = useState<IDataProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const ngpus = gpuData[0]?.gpu_utilization_individual.length || 0;
+  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+
+  loadSettingRegistry(settingRegistry, setUpdateFrequency);
 
   useEffect(() => {
     async function fetchGpuUsage() {
-      const response = await requestAPI<IChartProps>('gpu_resource');
+      const response = await requestAPI<IDataProps>('gpu_resource');
       if (!isPaused) {
         setGpuData(prevData => {
           if (tempData.length > 1) {
@@ -42,7 +48,7 @@ const GpuResourceChart = () => {
       }
     }
 
-    const interval = setInterval(fetchGpuUsage, 1000);
+    const interval = setInterval(fetchGpuUsage, updateFrequency);
 
     return () => clearInterval(interval);
   }, [isPaused, tempData]);
@@ -216,7 +222,11 @@ const GpuResourceChart = () => {
 };
 
 export class GpuResourceChartWidget extends ReactWidget {
-  render() {
-    return <GpuResourceChart />;
+  constructor(private settingRegistry: ISettingRegistry) {
+    super();
+    this.settingRegistry = settingRegistry;
+  }
+  render(): JSX.Element {
+    return <GpuResourceChart settingRegistry={this.settingRegistry} />;
   }
 }

@@ -14,9 +14,17 @@ import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
 import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { IChartProps } from '../assets/interfaces';
+import loadSettingRegistry from '../assets/hooks';
 
-const GpuUtilizationChart = (): JSX.Element => {
+const GpuUtilizationChart: React.FC<IChartProps> = ({
+  settingRegistry
+}): JSX.Element => {
   const [gpuUtilization, setGpuUtilization] = useState([]);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+
+  loadSettingRegistry(settingRegistry, setUpdateFrequency);
 
   useEffect(() => {
     async function fetchGPUUtilization() {
@@ -34,7 +42,7 @@ const GpuUtilizationChart = (): JSX.Element => {
     }
     const intervalId = setInterval(() => {
       fetchGPUUtilization();
-    }, 1000);
+    }, updateFrequency);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -99,7 +107,12 @@ const GpuUtilizationChart = (): JSX.Element => {
 };
 
 export class GpuUtilizationChartWidget extends ReactWidget {
+  constructor(private settingRegistry: ISettingRegistry) {
+    super();
+    this.settingRegistry = settingRegistry;
+  }
+
   render(): JSX.Element {
-    return <GpuUtilizationChart />;
+    return <GpuUtilizationChart settingRegistry={this.settingRegistry} />;
   }
 }

@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ILabShell, JupyterFrontEnd } from '@jupyterlab/application';
-import { ReactWidget, Button, LabIcon } from '@jupyterlab/ui-components';
+import {
+  ReactWidget,
+  Button,
+  LabIcon,
+  settingsIcon
+} from '@jupyterlab/ui-components';
 import {
   GpuResourceChartWidget,
   GpuMemoryChartWidget,
@@ -12,33 +17,37 @@ import {
 } from './charts';
 import { MainAreaWidget, WidgetTracker } from '@jupyterlab/apputils';
 import { gpuIcon, hBarIcon, vBarIcon, lineIcon } from './assets/icons';
-
-interface IControlProps {
-  app: JupyterFrontEnd;
-  labShell: ILabShell;
-  tracker: WidgetTracker;
-}
-
-export interface IWidgetInfo {
-  id: string;
-  title: string;
-  instance: MainAreaWidget;
-}
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { IControlProps, IWidgetInfo } from './assets/interfaces';
+import {
+  COMMAND_OPEN_WIDGET,
+  PLUGIN_ID_OPEN_SETTINGS
+} from './assets/constants';
+import loadSettingRegistry from './assets/hooks';
 
 // Control component for the GPU Dashboard, which contains buttons to open the GPU widgets
-const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
+const Control: React.FC<IControlProps> = ({
+  app,
+  labShell,
+  tracker,
+  settingRegistry
+}) => {
   // Keep track of open widgets
   const openWidgets: IWidgetInfo[] = [];
-  console.log(tracker);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
 
-  // Add command to open GPU Dashboard Widget
-  app.commands.addCommand('gpu-dashboard-widget:open', {
-    label: 'Open GPU Dashboard Widget',
-    execute: args => {
-      const { id, title } = args as { id: string; title: string };
-      openWidgetById(id, title);
-    }
-  });
+  loadSettingRegistry(settingRegistry, setUpdateFrequency);
+
+  if (!app.commands.hasCommand(COMMAND_OPEN_WIDGET)) {
+    // Add command to open GPU Dashboard Widget
+    app.commands.addCommand(COMMAND_OPEN_WIDGET, {
+      label: 'Open GPU Dashboard Widget',
+      execute: args => {
+        const { id, title } = args as { id: string; title: string };
+        openWidgetById(id, title);
+      }
+    });
+  }
 
   /* Function to create a widget by id and title and add it to the main area,
    or bring it to the front if it is already open */
@@ -60,6 +69,7 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
       const content = widgetCreator();
       const widgetInstance = new MainAreaWidget({ content });
       widgetInstance.title.label = title;
+      widgetInstance.title.caption = title;
       widgetInstance.title.icon = gpuIcon;
       widgetInstance.id = id;
       app.shell.add(widgetInstance, 'main');
@@ -82,25 +92,25 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
     let widgetFunction;
     switch (id) {
       case 'gpu-memory-widget':
-        widgetFunction = () => new GpuMemoryChartWidget();
+        widgetFunction = () => new GpuMemoryChartWidget(settingRegistry);
         break;
       case 'gpu-utilization-widget':
-        widgetFunction = () => new GpuUtilizationChartWidget();
+        widgetFunction = () => new GpuUtilizationChartWidget(settingRegistry);
         break;
       case 'gpu-resource-widget':
-        widgetFunction = () => new GpuResourceChartWidget();
+        widgetFunction = () => new GpuResourceChartWidget(settingRegistry);
         break;
       case 'machine-resource-widget':
-        widgetFunction = () => new MachineResourceChartWidget();
+        widgetFunction = () => new MachineResourceChartWidget(settingRegistry);
         break;
       case 'pci-throughput-widget':
-        widgetFunction = () => new PciThroughputChartWidget();
+        widgetFunction = () => new PciThroughputChartWidget(settingRegistry);
         break;
       case 'nvlink-throughput-widget':
-        widgetFunction = () => new NvLinkThroughputChartWidget();
+        widgetFunction = () => new NvLinkThroughputChartWidget(settingRegistry);
         break;
       case 'nvlink-throughput-timeseries-widget':
-        widgetFunction = () => new NvLinkTimelineChartWidget();
+        widgetFunction = () => new NvLinkTimelineChartWidget(settingRegistry);
         break;
       default:
         return;
@@ -119,7 +129,15 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
 
   return (
     <div className="gpu-dashboard-container">
-      <div className="gpu-dashboard-header">GPU Dashboards </div>
+      <div className="gpu-dashboard-header">
+        <span className="header-text">GPU Dashboards</span>
+        <Button
+          className="header-button"
+          onClick={() => app.commands.execute(PLUGIN_ID_OPEN_SETTINGS)}
+        >
+          <settingsIcon.react className="nv-header-icon"></settingsIcon.react>
+        </Button>
+      </div>
       <hr className="gpu-dashboard-divider" />
       <Button
         className="gpu-dashboard-button"
@@ -176,6 +194,12 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
       >
         {IconTitle(lineIcon.react, 'NVLink Throughput')}
       </Button>
+      <div className="gpu-dashboard-footer">
+        <hr className="gpu-dashboard-divider" />
+        <span className="gpu-dashboard-footer-body">
+          Updated every {updateFrequency}ms
+        </span>
+      </div>
     </div>
   );
 };
@@ -184,15 +208,22 @@ export class ControlWidget extends ReactWidget {
   constructor(
     private app: JupyterFrontEnd,
     private labShell: ILabShell,
-    private tracker: WidgetTracker
+    private tracker: WidgetTracker,
+    private settingRegistry: ISettingRegistry
   ) {
     super();
     this.tracker = tracker;
+    this.settingRegistry = settingRegistry;
   }
 
   render(): JSX.Element {
     return (
-      <Control app={this.app} labShell={this.labShell} tracker={this.tracker} />
+      <Control
+        app={this.app}
+        labShell={this.labShell}
+        tracker={this.tracker}
+        settingRegistry={this.settingRegistry}
+      />
     );
   }
 }

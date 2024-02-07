@@ -41,11 +41,23 @@
 }
 
 .gpu-dashboard-header {
+  display: flex; /* Use flexbox layout */
+  align-items: center; /* Align items vertically */
+  justify-content: space-between; /* Space evenly between items */
   font-size: 25px; /* Adjust font size */
   font-weight: bold;
   margin-bottom: 10px;
-  align-self: flex-start; /* Left align the header */
   color: #ff7900;
+}
+
+.gpu-dashboard-footer {
+  font-size: 18px;
+  color: #ff7900;
+  margin-top: 30px;
+}
+
+.gpu-dashboard-footer-body {
+  font-variant: petite-caps;
 }
 
 .gpu-dashboard-divider {
@@ -53,6 +65,13 @@
   border: none;
   border-top: 1px solid #ff7900;
   margin: -8px -5px 10px 0;
+}
+
+.header-text {
+  align-self: flex-start; /* Align text to the left */
+}
+.header-button {
+  background: transparent;
 }
 
 .gpu-dashboard-button {
@@ -114,6 +133,14 @@
 
 .gpu-dashboard-toolbar-button {
   height: 40px;
+}
+
+.nv-header-icon:hover {
+  stroke: #ff7900;
+}
+
+.nv-header-icon svg path {
+  fill: #ff7900 !important;
 }
 
 .nv-icon-custom {

@@ -8,23 +8,29 @@ import { formatDate, formatBytes } from '../components/formatUtils';
 import { pauseIcon, playIcon } from '../assets/icons';
 import { scaleLinear } from 'd3-scale';
 import { GPU_COLOR_CATEGORICAL_RANGE } from '../assets/constants';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { IChartProps } from '../assets/interfaces';
+import loadSettingRegistry from '../assets/hooks';
 
-interface INvLinkChartProps {
+interface IDataProps {
   time: number;
   nvlink_tx: number[];
   nvlink_rx: number[];
   max_rxtx_bw: number;
 }
 
-const NvLinkTimelineChart = (): JSX.Element => {
-  const [nvlinkStats, setNvLinkStats] = useState<INvLinkChartProps[]>([]);
-  const [tempData, setTempData] = useState<INvLinkChartProps[]>([]);
+const NvLinkTimelineChart: React.FC<IChartProps> = ({ settingRegistry }) => {
+  const [nvlinkStats, setNvLinkStats] = useState<IDataProps[]>([]);
+  const [tempData, setTempData] = useState<IDataProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const ngpus = nvlinkStats[0]?.nvlink_tx.length || 0;
+  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+
+  loadSettingRegistry(settingRegistry, setUpdateFrequency);
 
   useEffect(() => {
     async function fetchNvLinkStats() {
-      const response = await requestAPI<INvLinkChartProps>('nvlink_throughput');
+      const response = await requestAPI<IDataProps>('nvlink_throughput');
       response.time = Date.now();
       if (!isPaused) {
         setNvLinkStats(prevData => {
@@ -40,7 +46,7 @@ const NvLinkTimelineChart = (): JSX.Element => {
       }
     }
 
-    const interval = setInterval(fetchNvLinkStats, 1000);
+    const interval = setInterval(fetchNvLinkStats, updateFrequency);
 
     return () => clearInterval(interval);
   }, [isPaused, tempData]);
@@ -151,7 +157,11 @@ const NvLinkTimelineChart = (): JSX.Element => {
 };
 
 export class NvLinkTimelineChartWidget extends ReactWidget {
+  constructor(private settingRegistry: ISettingRegistry) {
+    super();
+    this.settingRegistry = settingRegistry;
+  }
   render(): JSX.Element {
-    return <NvLinkTimelineChart />;
+    return <NvLinkTimelineChart settingRegistry={this.settingRegistry} />;
   }
 }

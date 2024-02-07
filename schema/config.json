@@ -1,0 +1,15 @@
+{
+  "title": "jupyterlab-nvdashboard",
+  "description": "Settings for the jupyterlab-nvdashboard extension.",
+  "type": "object",
+  "properties": {
+    "updateFrequency": {
+      "type": "integer",
+      "title": "Frequency of Updates",
+      "description": "The frequency of updates for the GPU Dashboard widgets, in milliseconds.",
+      "default": 1000,
+      "minimum": 1
+    }
+  },
+  "additionalProperties": false
+}

@@ -7,18 +7,24 @@ import { renderCustomTooltip } from '../components/tooltipUtils';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { formatBytes } from '../components/formatUtils';
 import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
-interface IPciChartProps {
+import { IChartProps } from '../assets/interfaces';
+import loadSettingRegistry from '../assets/hooks';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+interface IDataProps {
   pci_tx: number[];
   pci_rx: number[];
   max_rxtx_tp: number;
 }
 
-const PciThroughputChart = (): JSX.Element => {
-  const [pciStats, setPciStats] = useState<IPciChartProps>();
+const PciThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
+  const [pciStats, setPciStats] = useState<IDataProps>();
+  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+
+  loadSettingRegistry(settingRegistry, setUpdateFrequency);
 
   useEffect(() => {
     async function fetchGPUMemory() {
-      const response = await requestAPI<IPciChartProps>('pci_stats');
+      const response = await requestAPI<IDataProps>('pci_stats');
       console.log(response);
       setPciStats(response);
     }
@@ -28,12 +34,12 @@ const PciThroughputChart = (): JSX.Element => {
 
   useEffect(() => {
     async function fetchGPUMemory() {
-      const response = await requestAPI<IPciChartProps>('pci_stats');
+      const response = await requestAPI<IDataProps>('pci_stats');
       setPciStats(response);
     }
     const intervalId = setInterval(() => {
       fetchGPUMemory();
-    }, 1000);
+    }, updateFrequency);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -133,7 +139,11 @@ const PciThroughputChart = (): JSX.Element => {
 };
 
 export class PciThroughputChartWidget extends ReactWidget {
+  constructor(private settingRegistry: ISettingRegistry) {
+    super();
+    this.settingRegistry = settingRegistry;
+  }
   render(): JSX.Element {
-    return <PciThroughputChart />;
+    return <PciThroughputChart settingRegistry={this.settingRegistry} />;
   }
 }
