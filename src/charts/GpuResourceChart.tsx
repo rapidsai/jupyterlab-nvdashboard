@@ -6,7 +6,10 @@ import { requestAPI } from '../handler';
 import { CustomLineChart } from '../components/customLineChart';
 import { formatDate, formatBytes } from '../components/formatUtils';
 import { scaleLinear } from 'd3-scale';
-import { GPU_COLOR_CATEGORICAL_RANGE } from '../assets/constants';
+import {
+  DEFAULT_UPDATE_FREQUENCY,
+  GPU_COLOR_CATEGORICAL_RANGE
+} from '../assets/constants';
 import { pauseIcon, playIcon } from '../assets/icons';
 import loadSettingRegistry from '../assets/hooks';
 import { IChartProps } from '../assets/interfaces';
@@ -27,7 +30,9 @@ const GpuResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
   const [tempData, setTempData] = useState<IDataProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const ngpus = gpuData[0]?.gpu_utilization_individual.length || 0;
-  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(
+    DEFAULT_UPDATE_FREQUENCY
+  );
 
   loadSettingRegistry(settingRegistry, setUpdateFrequency);
 

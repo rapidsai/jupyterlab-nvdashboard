@@ -21,6 +21,7 @@ import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { IControlProps, IWidgetInfo } from './assets/interfaces';
 import {
   COMMAND_OPEN_WIDGET,
+  DEFAULT_UPDATE_FREQUENCY,
   PLUGIN_ID_OPEN_SETTINGS
 } from './assets/constants';
 import loadSettingRegistry from './assets/hooks';
@@ -34,7 +35,9 @@ const Control: React.FC<IControlProps> = ({
 }) => {
   // Keep track of open widgets
   const openWidgets: IWidgetInfo[] = [];
-  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(
+    DEFAULT_UPDATE_FREQUENCY
+  );
 
   loadSettingRegistry(settingRegistry, setUpdateFrequency);
 

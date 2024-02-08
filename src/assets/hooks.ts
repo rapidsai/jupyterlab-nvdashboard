@@ -1,6 +1,6 @@
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { SetStateAction, useEffect } from 'react';
-import { PLUGIN_ID_CONFIG } from './constants';
+import { DEFAULT_UPDATE_FREQUENCY, PLUGIN_ID_CONFIG } from './constants';
 
 function loadSettingRegistry(
   settingRegistry: ISettingRegistry,
@@ -14,12 +14,14 @@ function loadSettingRegistry(
       try {
         const settings = await settingRegistry.load(PLUGIN_ID_CONFIG);
         const loadedUpdateFrequency =
-          (settings.get('updateFrequency').composite as number) || 1000;
+          (settings.get('updateFrequency').composite as number) ||
+          DEFAULT_UPDATE_FREQUENCY;
         setUpdateFrequency(loadedUpdateFrequency);
 
         settings.changed.connect(() => {
           setUpdateFrequency(
-            (settings.get('updateFrequency').composite as number) || 1000
+            (settings.get('updateFrequency').composite as number) ||
+              DEFAULT_UPDATE_FREQUENCY
           );
         });
       } catch (error) {

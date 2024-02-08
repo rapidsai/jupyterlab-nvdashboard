@@ -6,7 +6,10 @@ import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { formatBytes } from '../components/formatUtils';
-import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
+import {
+  BAR_COLOR_LINEAR_RANGE,
+  DEFAULT_UPDATE_FREQUENCY
+} from '../assets/constants';
 import { IChartProps } from '../assets/interfaces';
 import loadSettingRegistry from '../assets/hooks';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
@@ -18,7 +21,9 @@ interface IDataProps {
 
 const PciThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
   const [pciStats, setPciStats] = useState<IDataProps>();
-  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(
+    DEFAULT_UPDATE_FREQUENCY
+  );
 
   loadSettingRegistry(settingRegistry, setUpdateFrequency);
 

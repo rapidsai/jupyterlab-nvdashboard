@@ -7,7 +7,7 @@
       "type": "integer",
       "title": "Frequency of Updates",
       "description": "The frequency of updates for the GPU Dashboard widgets, in milliseconds.",
-      "default": 1000,
+      "default": 100,
       "minimum": 1
     }
   },

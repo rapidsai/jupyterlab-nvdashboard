@@ -12,7 +12,10 @@ import {
 } from 'recharts';
 import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
-import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
+import {
+  BAR_COLOR_LINEAR_RANGE,
+  DEFAULT_UPDATE_FREQUENCY
+} from '../assets/constants';
 import { format } from 'd3-format';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
@@ -24,7 +27,9 @@ const GpuMemoryChart: React.FC<IChartProps> = ({
 }): JSX.Element => {
   const [gpuMemory, setGpuMemory] = useState([]);
   const [gpuTotalMemory, setGpuTotalMemory] = useState([]);
-  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(
+    DEFAULT_UPDATE_FREQUENCY
+  );
 
   loadSettingRegistry(settingRegistry, setUpdateFrequency);
 

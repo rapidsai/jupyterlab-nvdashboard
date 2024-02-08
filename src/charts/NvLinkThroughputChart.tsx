@@ -5,7 +5,10 @@ import { BarChart, Bar, Cell, YAxis, XAxis, Tooltip } from 'recharts';
 import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
 import { format } from 'd3-format';
-import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
+import {
+  BAR_COLOR_LINEAR_RANGE,
+  DEFAULT_UPDATE_FREQUENCY
+} from '../assets/constants';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { IChartProps } from '../assets/interfaces';
 import loadSettingRegistry from '../assets/hooks';
@@ -19,7 +22,9 @@ interface IDataProps {
 
 const NvLinkThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
   const [nvlinkStats, setNvLinkStats] = useState<IDataProps>();
-  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(
+    DEFAULT_UPDATE_FREQUENCY
+  );
 
   loadSettingRegistry(settingRegistry, setUpdateFrequency);
 

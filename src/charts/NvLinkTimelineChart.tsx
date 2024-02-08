@@ -7,7 +7,10 @@ import { Line, XAxis, YAxis, Brush, LineChart } from 'recharts';
 import { formatDate, formatBytes } from '../components/formatUtils';
 import { pauseIcon, playIcon } from '../assets/icons';
 import { scaleLinear } from 'd3-scale';
-import { GPU_COLOR_CATEGORICAL_RANGE } from '../assets/constants';
+import {
+  DEFAULT_UPDATE_FREQUENCY,
+  GPU_COLOR_CATEGORICAL_RANGE
+} from '../assets/constants';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { IChartProps } from '../assets/interfaces';
 import loadSettingRegistry from '../assets/hooks';
@@ -24,7 +27,9 @@ const NvLinkTimelineChart: React.FC<IChartProps> = ({ settingRegistry }) => {
   const [tempData, setTempData] = useState<IDataProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const ngpus = nvlinkStats[0]?.nvlink_tx.length || 0;
-  const [updateFrequency, setUpdateFrequency] = useState<number>(1000);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(
+    DEFAULT_UPDATE_FREQUENCY
+  );
 
   loadSettingRegistry(settingRegistry, setUpdateFrequency);
 
