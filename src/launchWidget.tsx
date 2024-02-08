@@ -62,6 +62,7 @@ const Control: React.FC<IControlProps> = ({ app, labShell, tracker }) => {
       widgetInstance.title.label = title;
       widgetInstance.title.icon = gpuIcon;
       widgetInstance.id = id;
+      widgetInstance.addClass('size-constrained-widgets');
       app.shell.add(widgetInstance, 'main');
       tracker.add(widgetInstance);
       openWidgets.push({ id, title, instance: widgetInstance });
