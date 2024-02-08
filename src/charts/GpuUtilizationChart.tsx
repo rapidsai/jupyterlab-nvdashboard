@@ -114,6 +114,7 @@ const GpuUtilizationChart: React.FC<IChartProps> = ({
 export class GpuUtilizationChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();
+    this.addClass('size-constrained-widgets');
     this.settingRegistry = settingRegistry;
   }
 

@@ -120,6 +120,7 @@ const GpuMemoryChart: React.FC<IChartProps> = ({
 export class GpuMemoryChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();
+    this.addClass('size-constrained-widgets');
     this.settingRegistry = settingRegistry;
   }
   render(): JSX.Element {

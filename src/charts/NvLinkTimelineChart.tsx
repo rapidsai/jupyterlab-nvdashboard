@@ -164,6 +164,7 @@ const NvLinkTimelineChart: React.FC<IChartProps> = ({ settingRegistry }) => {
 export class NvLinkTimelineChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();
+    this.addClass('size-constrained-widgets');
     this.settingRegistry = settingRegistry;
   }
   render(): JSX.Element {

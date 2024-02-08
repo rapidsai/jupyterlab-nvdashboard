@@ -151,6 +151,7 @@ const NvLinkThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
 export class NvLinkThroughputChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();
+    this.addClass('size-constrained-widgets');
     this.settingRegistry = settingRegistry;
   }
   render(): JSX.Element {

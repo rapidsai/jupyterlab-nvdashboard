@@ -146,6 +146,7 @@ const PciThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
 export class PciThroughputChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();
+    this.addClass('size-constrained-widgets');
     this.settingRegistry = settingRegistry;
   }
   render(): JSX.Element {
