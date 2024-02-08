@@ -31,13 +31,25 @@
     var(--jp-layout-color0),
     var(--jp-layout-color1)
   );
-  overflow-y: auto;
+  overflow-y: hidden;
   overflow-x: hidden;
   width: 100%;
   height: 100%;
   font-family: 'Courier New', Courier, monospace;
   word-spacing: 5px;
   font-variant: all-small-caps;
+}
+
+/* Time series charts need to have a min height for seekbar to be visible without scrolling*/
+.size-constrained-widgets-lg {
+  min-width: 25vw !important;
+  min-height: 45vh !important;
+}
+
+/* default min size constraints for all widgets */
+.size-constrained-widgets {
+  min-width: 25vw !important;
+  min-height: 25vh !important;
 }
 
 .gpu-dashboard-header {

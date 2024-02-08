@@ -93,7 +93,7 @@ const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
               xFormatter={formatDate}
               yFormatter={value => `${value}%`}
               width={width}
-              height={height / 5}
+              height={(height - 60) / 5}
               syncId="cpu-resource-sync"
             >
               <Line
@@ -110,7 +110,7 @@ const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
               xFormatter={formatDate}
               yFormatter={formatBytes}
               width={width}
-              height={height / 5}
+              height={(height - 60) / 5}
               syncId="cpu-resource-sync"
             >
               <Line
@@ -127,7 +127,7 @@ const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
               xFormatter={formatDate}
               yFormatter={formatBytes}
               width={width}
-              height={height / 5}
+              height={(height - 60) / 5}
               syncId="cpu-resource-sync"
             >
               <Line
@@ -151,7 +151,7 @@ const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
               xFormatter={formatDate}
               yFormatter={formatBytes}
               width={width}
-              height={height / 5}
+              height={(height - 60) / 5}
               syncId="cpu-resource-sync"
             >
               <Line
@@ -214,6 +214,8 @@ const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
 export class MachineResourceChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();
+    /* Time series charts need to have a min height for seekbar to be visible without scrolling*/
+    this.addClass('size-constrained-widgets-lg');
     this.settingRegistry = settingRegistry;
   }
   render(): JSX.Element {
