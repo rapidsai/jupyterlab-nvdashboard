@@ -5,21 +5,32 @@ import { BarChart, Bar, Cell, YAxis, XAxis, Tooltip } from 'recharts';
 import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
 import { format } from 'd3-format';
-import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
+import {
+  BAR_COLOR_LINEAR_RANGE,
+  DEFAULT_UPDATE_FREQUENCY
+} from '../assets/constants';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import { IChartProps } from '../assets/interfaces';
+import loadSettingRegistry from '../assets/hooks';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
-interface INvLinkChartProps {
+interface IDataProps {
   nvlink_tx: number[];
   nvlink_rx: number[];
   max_rxtx_bw: number;
 }
 
-const NvLinkThroughputChart = (): JSX.Element => {
-  const [nvlinkStats, setNvLinkStats] = useState<INvLinkChartProps>();
+const NvLinkThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
+  const [nvlinkStats, setNvLinkStats] = useState<IDataProps>();
+  const [updateFrequency, setUpdateFrequency] = useState<number>(
+    DEFAULT_UPDATE_FREQUENCY
+  );
+
+  loadSettingRegistry(settingRegistry, setUpdateFrequency);
 
   useEffect(() => {
     async function fetchGPUMemory() {
-      const response = await requestAPI<INvLinkChartProps>('nvlink_throughput');
+      const response = await requestAPI<IDataProps>('nvlink_throughput');
       console.log(response);
       setNvLinkStats(response);
     }
@@ -29,12 +40,12 @@ const NvLinkThroughputChart = (): JSX.Element => {
 
   useEffect(() => {
     async function fetchGPUMemory() {
-      const response = await requestAPI<INvLinkChartProps>('nvlink_throughput');
+      const response = await requestAPI<IDataProps>('nvlink_throughput');
       setNvLinkStats(response);
     }
     const intervalId = setInterval(() => {
       fetchGPUMemory();
-    }, 1000);
+    }, updateFrequency);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -138,7 +149,12 @@ const NvLinkThroughputChart = (): JSX.Element => {
 };
 
 export class NvLinkThroughputChartWidget extends ReactWidget {
+  constructor(private settingRegistry: ISettingRegistry) {
+    super();
+    this.addClass('size-constrained-widgets');
+    this.settingRegistry = settingRegistry;
+  }
   render(): JSX.Element {
-    return <NvLinkThroughputChart />;
+    return <NvLinkThroughputChart settingRegistry={this.settingRegistry} />;
   }
 }

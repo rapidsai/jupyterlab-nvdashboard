@@ -6,10 +6,16 @@ import { requestAPI } from '../handler';
 import { CustomLineChart } from '../components/customLineChart';
 import { formatDate, formatBytes } from '../components/formatUtils';
 import { scaleLinear } from 'd3-scale';
-import { GPU_COLOR_CATEGORICAL_RANGE } from '../assets/constants';
+import {
+  DEFAULT_UPDATE_FREQUENCY,
+  GPU_COLOR_CATEGORICAL_RANGE
+} from '../assets/constants';
 import { pauseIcon, playIcon } from '../assets/icons';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { IChartProps } from '../assets/interfaces';
+import loadSettingRegistry from '../assets/hooks';
 
-interface IChartProps {
+interface IDataProps {
   time: number;
   cpu_utilization: number;
   memory_usage: number;
@@ -23,14 +29,19 @@ interface IChartProps {
   network_write_current: number;
 }
 
-const MachineResourceChart = () => {
-  const [cpuData, setCpuData] = useState<IChartProps[]>([]);
-  const [tempData, setTempData] = useState<IChartProps[]>([]);
+const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
+  const [cpuData, setCpuData] = useState<IDataProps[]>([]);
+  const [tempData, setTempData] = useState<IDataProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(
+    DEFAULT_UPDATE_FREQUENCY
+  );
+
+  loadSettingRegistry(settingRegistry, setUpdateFrequency);
 
   useEffect(() => {
     async function fetchCpuUsage() {
-      let response = await requestAPI<IChartProps>('cpu_resource');
+      let response = await requestAPI<IDataProps>('cpu_resource');
 
       if (cpuData.length > 0) {
         response = {
@@ -59,7 +70,7 @@ const MachineResourceChart = () => {
       }
     }
 
-    const interval = setInterval(fetchCpuUsage, 1000);
+    const interval = setInterval(fetchCpuUsage, updateFrequency);
 
     return () => clearInterval(interval);
   }, [isPaused, tempData]);
@@ -201,12 +212,13 @@ const MachineResourceChart = () => {
 };
 
 export class MachineResourceChartWidget extends ReactWidget {
-  constructor() {
+  constructor(private settingRegistry: ISettingRegistry) {
     super();
     /* Time series charts need to have a min height for seekbar to be visible without scrolling*/
     this.addClass('size-constrained-widgets-lg');
+    this.settingRegistry = settingRegistry;
   }
-  render() {
-    return <MachineResourceChart />;
+  render(): JSX.Element {
+    return <MachineResourceChart settingRegistry={this.settingRegistry} />;
   }
 }

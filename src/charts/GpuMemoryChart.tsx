@@ -12,13 +12,26 @@ import {
 } from 'recharts';
 import { scaleLinear } from 'd3-scale';
 import { renderCustomTooltip } from '../components/tooltipUtils';
-import { BAR_COLOR_LINEAR_RANGE } from '../assets/constants';
+import {
+  BAR_COLOR_LINEAR_RANGE,
+  DEFAULT_UPDATE_FREQUENCY
+} from '../assets/constants';
 import { format } from 'd3-format';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import loadSettingRegistry from '../assets/hooks';
+import { IChartProps } from '../assets/interfaces';
 
-const GpuMemoryChart = (): JSX.Element => {
+const GpuMemoryChart: React.FC<IChartProps> = ({
+  settingRegistry
+}): JSX.Element => {
   const [gpuMemory, setGpuMemory] = useState([]);
   const [gpuTotalMemory, setGpuTotalMemory] = useState([]);
+  const [updateFrequency, setUpdateFrequency] = useState<number>(
+    DEFAULT_UPDATE_FREQUENCY
+  );
+
+  loadSettingRegistry(settingRegistry, setUpdateFrequency);
 
   useEffect(() => {
     async function fetchGPUMemory() {
@@ -39,7 +52,7 @@ const GpuMemoryChart = (): JSX.Element => {
     }
     const intervalId = setInterval(() => {
       fetchGPUMemory();
-    }, 1000);
+    }, updateFrequency);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -105,7 +118,12 @@ const GpuMemoryChart = (): JSX.Element => {
 };
 
 export class GpuMemoryChartWidget extends ReactWidget {
+  constructor(private settingRegistry: ISettingRegistry) {
+    super();
+    this.addClass('size-constrained-widgets');
+    this.settingRegistry = settingRegistry;
+  }
   render(): JSX.Element {
-    return <GpuMemoryChart />;
+    return <GpuMemoryChart settingRegistry={this.settingRegistry} />;
   }
 }
