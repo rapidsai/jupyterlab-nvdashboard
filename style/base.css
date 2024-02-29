@@ -1,93 +1,181 @@
-:root {
-    --bokeh-launch-button-height: 28px;
-  }
+/*
+    See the JupyterLab Developer Guide for useful CSS Patterns:
 
-  /**
-   * Rules related to the overall sidebar panel.
-   */
-  .bokeh-BokehDashboardLauncher {
-    background: var(--jp-layout-color1);
-    color: var(--jp-ui-font-color1);
-    font-size: var(--jp-ui-font-size1);
-    overflow: auto;
-  }
+    https://jupyterlab.readthedocs.io/en/stable/developer/css.html
+*/
 
-  .bokeh-BokehDashboardLauncher-header {
-    font-size: var(--jp-ui-font-size0);
-    padding: 8px 12px;
-    font-weight: 600;
-    border-bottom: var(--jp-border-width) solid var(--jp-border-color2);
-    letter-spacing: 1px;
-    margin: 0px;
-    text-transform: uppercase;
-  }
+[data-jp-theme-light='true'] {
+  --nv-custom-tick-color: #000;
+  --nv-custom-chart-title-color: #000;
+}
 
-  /**
-   * Rules related to the dashboard launcher.
-   */
-  .nvdashboardListing-list {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 8px;
-    padding: 0;
-    list-style-type: none;
-  }
+[data-jp-theme-light='false'] {
+  --nv-custom-tick-color: #ff7900;
+  --nv-custom-chart-title-color: #ff7900;
+}
 
-  .nvdashboardListing-item {
-    margin: 4px 0px 4px 0px;
-    width: 100%;
-  }
+.gpu-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Stretch buttons across the div */
+  padding: 10px;
+  background-color: var(--jp-layout-color1);
+  font-family: 'Courier New', Courier, monospace;
+  word-spacing: 5px;
+  font-variant: all-small-caps;
+}
 
-  .nvdashboardListing-item button {
-    font-size: var(--jp-ui-font-size1);
-    line-height: 24px;
-    padding: 0px 8px;
-    width: 100%;
-  }
+.gradient-background {
+  background: linear-gradient(
+    to bottom,
+    var(--jp-layout-color0),
+    var(--jp-layout-color1)
+  );
+  overflow-y: hidden;
+  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
+  font-family: 'Courier New', Courier, monospace;
+  word-spacing: 5px;
+  font-variant: all-small-caps;
+}
 
-  .nvdashboardListing-item button.jp-mod-styled.jp-mod-accept {
-    height: var(--bokeh-launch-button-height);
-  }
+/* Time series charts need to have a min height for seekbar to be visible without scrolling*/
+.size-constrained-widgets-lg {
+  min-width: 25vw !important;
+  min-height: 45vh !important;
+}
 
-  /**
-   * Rules for the dashboard panels.
-   */
-  .bokeh-BokehDashboard-inactive {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--jp-ui-font-color3);
-    font-size: var(--jp-ui-font-size3);
-    background-color: var(--jp-layout-color0);
-    z-index: 10;
-  }
+/* default min size constraints for all widgets */
+.size-constrained-widgets {
+  min-width: 25vw !important;
+  min-height: 25vh !important;
+}
 
-  .bokeh-BokehDashboard-inactive:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url(./expansion-card-variant-light.svg);
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.1;
-  }
+.gpu-dashboard-header {
+  display: flex; /* Use flexbox layout */
+  align-items: center; /* Align items vertically */
+  justify-content: space-between; /* Space evenly between items */
+  font-size: 25px; /* Adjust font size */
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ff7900;
+}
 
-  /**
-   * Icons
-   */
-  [data-jp-theme-light='true'] .jp-GPU-icon {
-    background-image: url(./expansion-card-variant-light.svg);
-  }
-  [data-jp-theme-light="false"] .jp-GPU-icon {
-    background-image: url(./expansion-card-variant-dark.svg);
-  }
+.gpu-dashboard-footer {
+  font-size: 18px;
+  color: #ff7900;
+  margin-top: 30px;
+}
+
+.gpu-dashboard-footer-body {
+  font-variant: petite-caps;
+}
+
+.gpu-dashboard-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #ff7900;
+  margin: -8px -5px 10px 0;
+}
+
+.header-text {
+  align-self: flex-start; /* Align text to the left */
+}
+.header-button {
+  background: transparent;
+}
+
+.gpu-dashboard-button {
+  margin: 5px 0;
+  padding: 10px 20px;
+  background: transparent;
+  color: #ff7900;
+  cursor: pointer;
+  max-width: 250px;
+  display: block !important;
+  text-align: left; /* Left align button text */
+  font-size: 16px;
+  border: 2px solid #ff3e00a8; /* Green border */
+  transition:
+    border 0.3s,
+    box-shadow 0.3s; /* Add a transition effect */
+}
+
+.gpu-dashboard-button:hover {
+  border: 2px solid #ff3e00a8; /* Green border on hover */
+  box-shadow: 0 0 5px 2px #ff7900; /* Reduced blur for the glowing effect on hover */
+}
+
+.chart-title {
+  padding-left: 62px;
+  font-size: 22px;
+  color: var(--nv-custom-chart-title-color);
+}
+
+.multi-chart-title {
+  padding-left: 62px;
+  font-size: 18px;
+  color: var(--nv-custom-chart-title-color);
+}
+
+.custom-tooltip {
+  background-color: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color0);
+  font-size: 18px;
+  border: 1px solid var(--jp-border-color1);
+  padding: 8px; /* Add padding as needed */
+  text-align: center;
+}
+
+.tooltip-title {
+  font-weight: bold;
+  margin-bottom: 4px; /* Add margin as needed */
+  color: var(--nv-custom-chart-title-color);
+}
+
+.lm-TabBar-tabIcon {
+  padding-right: 5px;
+  margin-top: 3px;
+}
+
+.hidden-brush-for-sync {
+  display: none !important;
+}
+
+.gpu-dashboard-toolbar-button {
+  height: 40px;
+}
+
+.nv-header-icon:hover {
+  stroke: #ff7900;
+}
+
+.nv-header-icon svg path {
+  fill: #ff7900 !important;
+}
+
+.nv-icon-custom {
+  stroke: #ff7900;
+  fill: #ff7900;
+  height: 10px !important;
+  width: 20px;
+}
+
+.nv-icon-custom-time-series {
+  stroke: #ff7900;
+  fill: #ff7900;
+}
+
+.nv-axis-custom text {
+  font-size: 18px;
+  fill: var(--nv-custom-tick-color);
+}
+
+.nv-custom-legend {
+  font-size: 18px;
+}
+
+.recharts-legend-item {
+  font-size: 17px;
+}

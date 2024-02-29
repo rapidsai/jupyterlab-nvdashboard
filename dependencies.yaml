@@ -1,0 +1,82 @@
+# Dependency list for https://github.com/rapidsai/dependency-file-generator
+files:
+  all:
+    output: conda
+    matrix:
+      arch: ['any']
+    includes:
+      - build_wheels
+      - checks
+      - py_version
+      - run
+      - test_python
+  test_python:
+    output: none
+    includes:
+      - py_version
+      - test_python
+  checks:
+    output: none
+    includes:
+      - checks
+      - py_version
+  py_build:
+    output: pyproject
+    pyproject_dir: ./
+    extras:
+      table: build-system
+    includes:
+      - build_wheels
+  py_run:
+    output: pyproject
+    pyproject_dir: ./
+    extras:
+      table: project
+    includes:
+      - run
+  py_test:
+    output: pyproject
+    pyproject_dir: ./
+    extras:
+      table: project.optional-dependencies
+      key: test
+    includes:
+      - test_python
+channels:
+  - rapidsai
+  - rapidsai-nightly
+  - conda-forge
+  - nvidia
+dependencies:
+  build_wheels:
+    common:
+      - output_types: pyproject
+        packages:
+          - hatchling>=1.5.0
+          - jupyterlab>=4.0.0,<5
+          - hatch-nodejs-version>=0.3.2
+  checks:
+    common:
+      - output_types: [conda, requirements]
+        packages:
+          - pre-commit
+          - jupyterlab>=4
+          - nodejs=18
+  py_version:
+    common:
+      - output_types: conda
+        packages:
+          - python>=3.8
+  run:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - jupyterlab>=4
+          - pynvml
+          - psutil
+  test_python:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - pytest
+          - pytest-jupyter[server]>=0.6.0

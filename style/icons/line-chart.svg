@@ -1,0 +1,7 @@
+<!-- Your SVG code -->
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <rect fill="none" height="256" width="256"/>
+  <polyline fill="none" points="224 208 32 208 32 48"  stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+  <polyline fill="none" points="208 64 128 144 96 112 32 176"  stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+  <polyline fill="none" points="208 104 208 64 168 64"  stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+</svg>
