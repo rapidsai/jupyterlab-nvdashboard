@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { requestAPI } from '../handler';
+import React, { useState } from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { BarChart, Bar, Cell, YAxis, XAxis, Tooltip } from 'recharts';
 import { scaleLinear } from 'd3-scale';
@@ -10,45 +9,29 @@ import {
   BAR_COLOR_LINEAR_RANGE,
   DEFAULT_UPDATE_FREQUENCY
 } from '../assets/constants';
-import { IChartProps } from '../assets/interfaces';
-import loadSettingRegistry from '../assets/hooks';
+import { IChartProps, IPCIThroughputProps } from '../assets/interfaces';
+import { loadSettingRegistry, useWebSocket } from '../assets/hooks';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-interface IDataProps {
-  pci_tx: number[];
-  pci_rx: number[];
-  max_rxtx_tp: number;
-}
 
+// PciThroughputChart component displays a bar chart representing pcie throughput data.
 const PciThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
-  const [pciStats, setPciStats] = useState<IDataProps>();
+  const [pciStats, setPciStats] = useState<IPCIThroughputProps>();
   const [updateFrequency, setUpdateFrequency] = useState<number>(
     DEFAULT_UPDATE_FREQUENCY
   );
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState<boolean>(false);
 
-  loadSettingRegistry(settingRegistry, setUpdateFrequency);
+  // Load settings and initialize WebSocket connection
+  loadSettingRegistry(settingRegistry, setUpdateFrequency, setIsSettingsLoaded);
+  useWebSocket<IPCIThroughputProps>(
+    'nvlink_throughput',
+    false,
+    updateFrequency,
+    setPciStats,
+    isSettingsLoaded
+  );
 
-  useEffect(() => {
-    async function fetchGPUMemory() {
-      const response = await requestAPI<IDataProps>('pci_stats');
-      console.log(response);
-      setPciStats(response);
-    }
-
-    fetchGPUMemory();
-  }, []);
-
-  useEffect(() => {
-    async function fetchGPUMemory() {
-      const response = await requestAPI<IDataProps>('pci_stats');
-      setPciStats(response);
-    }
-    const intervalId = setInterval(() => {
-      fetchGPUMemory();
-    }, updateFrequency);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
+  // Prepare data for rendering
   const gpuCount = pciStats?.pci_tx.length;
   const data = Array.from(Array(gpuCount).keys()).map(index => ({
     name: `GPU ${index}`,
@@ -57,6 +40,7 @@ const PciThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
     maxTP: pciStats?.max_rxtx_tp || 0
   }));
 
+  // Create a color scale for the bars
   const colorScale = scaleLinear<string>()
     .domain([0, 1])
     .range(BAR_COLOR_LINEAR_RANGE);

@@ -24,7 +24,7 @@ import {
   DEFAULT_UPDATE_FREQUENCY,
   PLUGIN_ID_OPEN_SETTINGS
 } from './assets/constants';
-import loadSettingRegistry from './assets/hooks';
+import { loadSettingRegistry } from './assets/hooks';
 
 // Control component for the GPU Dashboard, which contains buttons to open the GPU widgets
 const Control: React.FC<IControlProps> = ({
@@ -39,7 +39,9 @@ const Control: React.FC<IControlProps> = ({
     DEFAULT_UPDATE_FREQUENCY
   );
 
-  loadSettingRegistry(settingRegistry, setUpdateFrequency);
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState<boolean>(false);
+
+  loadSettingRegistry(settingRegistry, setUpdateFrequency, setIsSettingsLoaded);
 
   if (!app.commands.hasCommand(COMMAND_OPEN_WIDGET)) {
     // Add command to open GPU Dashboard Widget
@@ -200,7 +202,7 @@ const Control: React.FC<IControlProps> = ({
       <div className="gpu-dashboard-footer">
         <hr className="gpu-dashboard-divider" />
         <span className="gpu-dashboard-footer-body">
-          Updated every {updateFrequency}ms
+          {isSettingsLoaded && `Updated every ${updateFrequency}ms`}
         </span>
       </div>
     </div>

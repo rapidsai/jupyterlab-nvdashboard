@@ -1,84 +1,93 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ReactWidget, Button } from '@jupyterlab/ui-components';
 import { Line, XAxis, YAxis, Brush, LineChart } from 'recharts';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { requestAPI } from '../handler';
 import { CustomLineChart } from '../components/customLineChart';
 import { formatDate, formatBytes } from '../components/formatUtils';
 import { scaleLinear } from 'd3-scale';
 import {
+  DEFAULT_MAX_RECORDS_TIMESERIES,
   DEFAULT_UPDATE_FREQUENCY,
   GPU_COLOR_CATEGORICAL_RANGE
 } from '../assets/constants';
 import { pauseIcon, playIcon } from '../assets/icons';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { IChartProps } from '../assets/interfaces';
-import loadSettingRegistry from '../assets/hooks';
+import { ICPUResourceProps, IChartProps } from '../assets/interfaces';
+import { loadSettingRegistry, useWebSocket } from '../assets/hooks';
 
-interface IDataProps {
-  time: number;
-  cpu_utilization: number;
-  memory_usage: number;
-  disk_read: number;
-  disk_write: number;
-  network_read: number;
-  network_write: number;
-  disk_read_current: number;
-  disk_write_current: number;
-  network_read_current: number;
-  network_write_current: number;
-}
-
+/**
+ * Component to display CPU resource charts in the Nvdashboard.
+ */
 const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
-  const [cpuData, setCpuData] = useState<IDataProps[]>([]);
-  const [tempData, setTempData] = useState<IDataProps[]>([]);
+  const [cpuData, setCpuData] = useState<ICPUResourceProps[]>([]);
+  const [tempData, setTempData] = useState<ICPUResourceProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const [updateFrequency, setUpdateFrequency] = useState<number>(
     DEFAULT_UPDATE_FREQUENCY
   );
+  const [maxRecords, setMaxRecords] = useState<number>(
+    DEFAULT_MAX_RECORDS_TIMESERIES
+  );
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState<boolean>(false);
 
-  loadSettingRegistry(settingRegistry, setUpdateFrequency);
+  // Load settings from the JupyterLab setting registry.
+  loadSettingRegistry(
+    settingRegistry,
+    setUpdateFrequency,
+    setIsSettingsLoaded,
+    setMaxRecords
+  );
 
-  useEffect(() => {
-    async function fetchCpuUsage() {
-      let response = await requestAPI<IDataProps>('cpu_resource');
-
-      if (cpuData.length > 0) {
-        response = {
-          ...response,
-          disk_read_current:
-            response.disk_read - cpuData[cpuData.length - 1].disk_read,
-          disk_write_current:
-            response.disk_write - cpuData[cpuData.length - 1].disk_write,
-          network_read_current:
-            response.network_read - cpuData[cpuData.length - 1].network_read,
-          network_write_current:
-            response.network_write - cpuData[cpuData.length - 1].network_write
-        };
-      }
-      if (!isPaused) {
-        setCpuData(prevData => {
-          if (tempData.length > 1) {
-            prevData = [...prevData, ...tempData];
-          }
-          const newData = [...prevData, response];
-          return newData;
-        });
-        setTempData([]);
-      } else {
-        setTempData([...tempData, response]);
-      }
+  // Process incoming data from the WebSocket and manage the CPU data state.
+  const processData = (response: ICPUResourceProps, isPaused: any) => {
+    if (cpuData.length > 0) {
+      response = {
+        ...response,
+        disk_read_current:
+          response.disk_read - cpuData[cpuData.length - 1].disk_read,
+        disk_write_current:
+          response.disk_write - cpuData[cpuData.length - 1].disk_write,
+        network_read_current:
+          response.network_read - cpuData[cpuData.length - 1].network_read,
+        network_write_current:
+          response.network_write - cpuData[cpuData.length - 1].network_write
+      };
     }
+    if (!isPaused) {
+      setCpuData(prevData => {
+        let newData;
+        if (tempData.length > 1) {
+          newData = [...prevData, ...tempData, response];
+        } else {
+          newData = [...prevData, response];
+        }
+        // Truncate data if it exceeds the maximum records limit.
+        if (newData.length > maxRecords) {
+          newData = newData.slice(-1 * maxRecords);
+        }
+        return newData;
+      });
+      setTempData([]);
+    } else {
+      setTempData([...tempData, response]);
+    }
+  };
 
-    const interval = setInterval(fetchCpuUsage, updateFrequency);
+  // Establish a WebSocket connection and listen for data updates.
+  useWebSocket<ICPUResourceProps>(
+    'cpu_resource',
+    isPaused,
+    updateFrequency,
+    processData,
+    isSettingsLoaded
+  );
 
-    return () => clearInterval(interval);
-  }, [isPaused, tempData]);
-
+  // Handle click events for the pause/play button.
   const handlePauseClick = () => {
     setIsPaused(!isPaused);
   };
 
+  // Define a color scale for the chart lines.
   const colorScale = scaleLinear<string>().range(GPU_COLOR_CATEGORICAL_RANGE);
 
   return (
@@ -169,6 +178,7 @@ const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
                 isAnimationActive={false}
               />
             </CustomLineChart>
+            {/* Render the control panel with the pause/play button and the time brush */}
             <div
               style={{
                 width: width,
@@ -211,6 +221,9 @@ const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
   );
 };
 
+/**
+ * A widget for rendering the Machine resource chart in JupyterLab.
+ */
 export class MachineResourceChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();

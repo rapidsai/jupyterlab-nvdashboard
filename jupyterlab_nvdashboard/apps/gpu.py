@@ -1,8 +1,7 @@
 import json
+from jupyterlab_nvdashboard.apps.utils import CustomWebSocketHandler
 import pynvml
 import time
-import tornado
-from jupyter_server.base.handlers import APIHandler
 
 try:
     pynvml.nvmlInit()
@@ -41,19 +40,17 @@ else:
         pci_gen = None
 
 
-class GPUUtilizationHandler(APIHandler):
-    @tornado.web.authenticated
-    def get(self):
+class GPUUtilizationWebSocketHandler(CustomWebSocketHandler):
+    def send_data(self):
         gpu_utilization = [
             pynvml.nvmlDeviceGetUtilizationRates(gpu_handles[i]).gpu
             for i in range(ngpus)
         ]
-        self.finish(json.dumps({"gpu_utilization": gpu_utilization}))
+        self.write_message(json.dumps({"gpu_utilization": gpu_utilization}))
 
 
-class GPUUsageHandler(APIHandler):
-    @tornado.web.authenticated
-    def get(self):
+class GPUUsageWebSocketHandler(CustomWebSocketHandler):
+    def send_data(self):
         memory_usage = [
             pynvml.nvmlDeviceGetMemoryInfo(handle).used
             for handle in gpu_handles
@@ -64,16 +61,15 @@ class GPUUsageHandler(APIHandler):
             for handle in gpu_handles
         ]
 
-        self.finish(
+        self.write_message(
             json.dumps(
                 {"memory_usage": memory_usage, "total_memory": total_memory}
             )
         )
 
 
-class GPUResourceHandler(APIHandler):
-    @tornado.web.authenticated
-    def get(self):
+class GPUResourceWebSocketHandler(CustomWebSocketHandler):
+    def send_data(self):
         now = time.time()
         stats = {
             "time": now * 1000,
@@ -118,15 +114,14 @@ class GPUResourceHandler(APIHandler):
         stats["gpu_memory_total"] = round(
             (stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2
         )
-        self.set_header("Content-Type", "application/json")
-        self.write(json.dumps(stats))
+        print("writing message", stats)
+        self.write_message(json.dumps(stats))
 
 
-class NVLinkThroughputHandler(APIHandler):
+class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
     prev_throughput = None
 
-    @tornado.web.authenticated
-    def get(self):
+    def send_data(self):
         throughput = [
             pynvml.nvmlDeviceGetFieldValues(
                 handle,
@@ -162,9 +157,8 @@ class NVLinkThroughputHandler(APIHandler):
         # Store the current throughput for the next request
         self.prev_throughput = throughput
 
-        self.set_header("Content-Type", "application/json")
         # Send the change in throughput as part of the response
-        self.write(
+        self.write_message(
             json.dumps(
                 {
                     "nvlink_rx": [
@@ -191,9 +185,8 @@ class NVLinkThroughputHandler(APIHandler):
         )
 
 
-class PCIStatsHandler(APIHandler):
-    @tornado.web.authenticated
-    def get(self):
+class PCIStatsWebSocketHandler(CustomWebSocketHandler):
+    def send_data(self):
         # Use device-0 to get "upper bound"
         pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
         pci_bw = {
@@ -231,5 +224,4 @@ class PCIStatsHandler(APIHandler):
             "max_rxtx_tp": max_rxtx_tp,
         }
 
-        self.set_header("Content-Type", "application/json")
-        self.write(json.dumps(stats))
+        self.write_message(json.dumps(stats))

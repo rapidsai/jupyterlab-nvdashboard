@@ -1,46 +1,32 @@
-import { URLExt } from '@jupyterlab/coreutils';
-
-import { ServerConnection } from '@jupyterlab/services';
-
 /**
- * Call the API extension
+ * Connect to a WebSocket API endpoint
  *
- * @param endPoint API REST end point for the extension
- * @param init Initial values for the request
- * @returns The response body interpreted as JSON
+ * @param endPoint WebSocket endpoint for the extension
+ * @returns A WebSocket object connected to the endpoint
  */
-export async function requestAPI<T>(
-  endPoint = '',
-  init: RequestInit = {}
-): Promise<T> {
-  // Make request to Jupyter API
-  const settings = ServerConnection.makeSettings();
-  const requestUrl = URLExt.join(
-    settings.baseUrl,
-    'nvdashboard', // API Namespace
-    endPoint
-  );
+export function connectToWebSocket(endPoint = '') {
+  const baseUrl = document.location.origin.replace(/^http/, 'ws');
+  const wsUrl = new URL(`nvdashboard/${endPoint}`, baseUrl);
 
-  let response: Response;
-  try {
-    response = await ServerConnection.makeRequest(requestUrl, init, settings);
-  } catch (error) {
-    throw new ServerConnection.NetworkError(error as any);
-  }
+  const ws = new WebSocket(wsUrl.href);
 
-  let data: any = await response.text();
+  ws.onopen = () => {
+    console.log(`WebSocket connected to ${endPoint}`);
+    ws.send(JSON.stringify({ message: 'Client connected' }));
+  };
 
-  if (data.length > 0) {
-    try {
-      data = JSON.parse(data);
-    } catch (error) {
-      console.log('Not a JSON response body.', response);
-    }
-  }
+  ws.onmessage = event => {
+    const data = JSON.parse(event.data);
+    console.log(`Data received from ${endPoint}:`, data);
+  };
 
-  if (!response.ok) {
-    throw new ServerConnection.ResponseError(response, data.message || data);
-  }
+  ws.onerror = error => {
+    console.error(`WebSocket error on ${endPoint}:`, error);
+  };
 
-  return data;
+  ws.onclose = () => {
+    console.log(`WebSocket disconnected from ${endPoint}`);
+  };
+
+  return ws;
 }

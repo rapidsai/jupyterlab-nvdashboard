@@ -4,11 +4,18 @@
   "type": "object",
   "properties": {
     "updateFrequency": {
-      "type": "integer",
       "title": "Frequency of Updates",
       "description": "The frequency of updates for the GPU Dashboard widgets, in milliseconds.",
+      "type": "integer",
       "default": 100,
       "minimum": 1
+    },
+    "maxTimeSeriesDataRecords": {
+      "title": "Maximum Number of Data Records",
+      "description": "This setting determines the maximum number of data points that can be displayed in each time series chart within Nvdashboard. To apply changes to this setting, please close and reopen the chart window",
+      "type": "integer",
+      "default": 1000,
+      "minimum": 10
     }
   },
   "additionalProperties": false
