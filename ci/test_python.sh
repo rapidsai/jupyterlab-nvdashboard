@@ -18,7 +18,7 @@ set +u
 conda activate test
 set -u
 
-# rapids-logger "Downloading artifacts from previous jobs"
+rapids-logger "Downloading artifacts from previous jobs"
 PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
 
 rapids-print-env
@@ -35,12 +35,7 @@ trap "EXITCODE=1" ERR
 set +e
 
 rapids-logger "pytest jupyterlab-nvdashboard"
-# Start JupyterLab in the background
-python -m jupyterlab --no-browser --port=8888 --allow-root --NotebookApp.token='' --NotebookApp.password='' &
-JUPYTER_PID=$!
 JUPYTER_PLATFORM_DIRS=1 python -m pytest
-# Shut down JupyterLab
-kill $JUPYTER_PID
 
 rapids-logger "Test script exiting with value: $EXITCODE"
 exit ${EXITCODE}
