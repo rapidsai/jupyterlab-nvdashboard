@@ -36,7 +36,7 @@ set +e
 
 rapids-logger "pytest jupyterlab-nvdashboard"
 # Start JupyterLab in the background
-jupyter lab --no-browser --port=8888 --NotebookApp.token='' --NotebookApp.password='' &
+python -m jupyterlab --no-browser --port=8888 --NotebookApp.token='' --NotebookApp.password='' &
 JUPYTER_PID=$!
 JUPYTER_PLATFORM_DIRS=1 python -m pytest
 # Shut down JupyterLab
