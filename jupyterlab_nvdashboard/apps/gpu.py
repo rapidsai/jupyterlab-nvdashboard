@@ -114,7 +114,6 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
         stats["gpu_memory_total"] = round(
             (stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2
         )
-        print("writing message", stats)
         self.write_message(json.dumps(stats))
 
 
