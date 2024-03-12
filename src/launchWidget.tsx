@@ -140,6 +140,7 @@ const Control: React.FC<IControlProps> = ({
           className="header-button"
           onClick={() => app.commands.execute(PLUGIN_ID_OPEN_SETTINGS)}
         >
+          <div className="nv-header-icon-text">settings</div>
           <settingsIcon.react className="nv-header-icon"></settingsIcon.react>
         </Button>
       </div>
