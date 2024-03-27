@@ -80,3 +80,5 @@ dependencies:
         packages:
           - pytest
           - pytest-jupyter[server]>=0.6.0
+          - pytest-asyncio
+          - websockets

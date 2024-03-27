@@ -12,6 +12,8 @@ dependencies:
 - psutil
 - pynvml
 - pytest
+- pytest-asyncio
 - pytest-jupyter[server]>=0.6.0
 - python>=3.8
+- websockets
 name: all_arch-any

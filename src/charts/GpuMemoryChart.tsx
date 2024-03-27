@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { requestAPI } from '../handler';
+import React, { useState } from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import {
   BarChart,
@@ -19,55 +18,46 @@ import {
 import { format } from 'd3-format';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import loadSettingRegistry from '../assets/hooks';
-import { IChartProps } from '../assets/interfaces';
+import { loadSettingRegistry, useWebSocket } from '../assets/hooks';
+import { IChartProps, IGpuUsageProps } from '../assets/interfaces';
 
+// GpuMemoryChart component displays a bar chart representing GPU memory usage.
 const GpuMemoryChart: React.FC<IChartProps> = ({
   settingRegistry
 }): JSX.Element => {
-  const [gpuMemory, setGpuMemory] = useState([]);
-  const [gpuTotalMemory, setGpuTotalMemory] = useState([]);
+  const [gpuMemory, setGpuMemory] = useState<IGpuUsageProps>({
+    memory_usage: [],
+    total_memory: []
+  });
   const [updateFrequency, setUpdateFrequency] = useState<number>(
     DEFAULT_UPDATE_FREQUENCY
   );
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState<boolean>(false);
 
-  loadSettingRegistry(settingRegistry, setUpdateFrequency);
+  // Load settings and initialize WebSocket connection
+  loadSettingRegistry(settingRegistry, setUpdateFrequency, setIsSettingsLoaded);
+  useWebSocket<IGpuUsageProps>(
+    'gpu_usage',
+    false,
+    updateFrequency,
+    setGpuMemory,
+    isSettingsLoaded
+  );
 
-  useEffect(() => {
-    async function fetchGPUMemory() {
-      const response = await requestAPI<any>('gpu_usage');
-      setGpuMemory(response.memory_usage);
-      // set gpuTotalMemory to max of total memory array returned from API
-      setGpuTotalMemory(response.total_memory);
-    }
-
-    fetchGPUMemory();
-  }, []);
-
-  useEffect(() => {
-    async function fetchGPUMemory() {
-      const response = await requestAPI<any>('gpu_usage');
-      setGpuMemory(response.memory_usage);
-      setGpuTotalMemory(response.total_memory);
-    }
-    const intervalId = setInterval(() => {
-      fetchGPUMemory();
-    }, updateFrequency);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const data = gpuMemory.map((memory, index) => ({
+  // Prepare data for rendering
+  const data = gpuMemory.memory_usage.map((memory, index) => ({
     name: `GPU ${index}`,
     memory: memory,
-    totalMemory: gpuTotalMemory[index]
+    totalMemory: gpuMemory.total_memory[index]
   }));
 
-  // Create a formatter for displaying bytes
-
+  // Create a color scale for the bars
   const colorScale = scaleLinear<string>().range(BAR_COLOR_LINEAR_RANGE);
 
-  const usageSum = data.reduce((sum, data) => sum + data.memory, 0);
+  // Calculate the sum of GPU memory usage
+  const usageSum = data?.reduce((sum, data) => sum + data.memory, 0);
+
+  // Formatter for displaying bytes
   const formatBytes = (value: number): string => {
     return `${format('.2s')(value)}B`;
   };
@@ -76,7 +66,7 @@ const GpuMemoryChart: React.FC<IChartProps> = ({
     <div className="gradient-background">
       <strong className="chart-title">
         {' '}
-        GPU Memory: {formatBytes(usageSum)}
+        GPU Memory: {formatBytes(usageSum)}{' '}
       </strong>
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
@@ -89,7 +79,7 @@ const GpuMemoryChart: React.FC<IChartProps> = ({
             <CartesianGrid horizontal={false} />
             <XAxis
               type="number"
-              domain={[0, Math.max(...gpuTotalMemory)]}
+              domain={[0, Math.max(...gpuMemory.total_memory)]}
               tickFormatter={formatBytes}
               className="nv-axis-custom"
             />
@@ -104,9 +94,7 @@ const GpuMemoryChart: React.FC<IChartProps> = ({
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={colorScale(
-                    parseFloat(entry.memory) / parseFloat(entry.totalMemory)
-                  ).toString()}
+                  fill={colorScale(entry.memory / entry.totalMemory).toString()}
                 />
               ))}
             </Bar>
@@ -117,12 +105,14 @@ const GpuMemoryChart: React.FC<IChartProps> = ({
   );
 };
 
+// GpuMemoryChartWidget is a ReactWidget that renders the GpuMemoryChart component.
 export class GpuMemoryChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();
     this.addClass('size-constrained-widgets');
     this.settingRegistry = settingRegistry;
   }
+
   render(): JSX.Element {
     return <GpuMemoryChart settingRegistry={this.settingRegistry} />;
   }

@@ -1,67 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ReactWidget, Button } from '@jupyterlab/ui-components';
 import { Line, XAxis, YAxis, Brush, LineChart } from 'recharts';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { requestAPI } from '../handler';
 import { CustomLineChart } from '../components/customLineChart';
 import { formatDate, formatBytes } from '../components/formatUtils';
 import { scaleLinear } from 'd3-scale';
 import {
+  DEFAULT_MAX_RECORDS_TIMESERIES,
   DEFAULT_UPDATE_FREQUENCY,
   GPU_COLOR_CATEGORICAL_RANGE
 } from '../assets/constants';
 import { pauseIcon, playIcon } from '../assets/icons';
-import loadSettingRegistry from '../assets/hooks';
-import { IChartProps } from '../assets/interfaces';
+import { loadSettingRegistry, useWebSocket } from '../assets/hooks';
+import { IChartProps, IGpuResourceProps } from '../assets/interfaces';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
-interface IDataProps {
-  time: number;
-  gpu_utilization_total: number;
-  gpu_memory_total: number;
-  rx_total: number;
-  tx_total: number;
-  gpu_utilization_individual: number[];
-  gpu_memory_individual: number[];
-}
-
+/**
+ * Component to display GPU resource charts in the Nvdashboard.
+ */
 const GpuResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
-  const [gpuData, setGpuData] = useState<IDataProps[]>([]);
-  const [tempData, setTempData] = useState<IDataProps[]>([]);
+  const [gpuData, setGpuData] = useState<IGpuResourceProps[]>([]);
+  const [tempData, setTempData] = useState<IGpuResourceProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const ngpus = gpuData[0]?.gpu_utilization_individual.length || 0;
   const [updateFrequency, setUpdateFrequency] = useState<number>(
     DEFAULT_UPDATE_FREQUENCY
   );
+  const [maxRecords, setMaxRecords] = useState<number>(
+    DEFAULT_MAX_RECORDS_TIMESERIES
+  );
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState<boolean>(false);
 
-  loadSettingRegistry(settingRegistry, setUpdateFrequency);
+  // Load settings from the JupyterLab setting registry.
+  loadSettingRegistry(
+    settingRegistry,
+    setUpdateFrequency,
+    setIsSettingsLoaded,
+    setMaxRecords
+  );
 
-  useEffect(() => {
-    async function fetchGpuUsage() {
-      const response = await requestAPI<IDataProps>('gpu_resource');
-      if (!isPaused) {
-        setGpuData(prevData => {
-          if (tempData.length > 1) {
-            prevData = [...prevData, ...tempData];
-          }
-          const newData = [...prevData, response];
-          return newData;
-        });
-        setTempData([]);
-      } else {
-        setTempData([...tempData, response]);
-      }
+  // Process incoming data from the WebSocket and manage the GPU data state.
+  const processData = (response: IGpuResourceProps, isPaused: boolean) => {
+    if (!isPaused) {
+      setGpuData(prevData => {
+        let newData =
+          tempData.length > 1
+            ? [...prevData, ...tempData, response]
+            : [...prevData, response];
+        // Truncate data if it exceeds the maximum records limit.
+        if (newData.length > maxRecords) {
+          newData = newData.slice(-maxRecords);
+        }
+        return newData;
+      });
+      setTempData([]);
+    } else {
+      setTempData(prevTempData => [...prevTempData, response]);
     }
+  };
 
-    const interval = setInterval(fetchGpuUsage, updateFrequency);
+  // Establish a WebSocket connection and listen for data updates.
+  useWebSocket<IGpuResourceProps>(
+    'gpu_resource',
+    isPaused,
+    updateFrequency,
+    processData,
+    isSettingsLoaded
+  );
 
-    return () => clearInterval(interval);
-  }, [isPaused, tempData]);
-
+  // Handle click events for the pause/play button.
   const handlePauseClick = () => {
     setIsPaused(!isPaused);
   };
 
+  // Define a color scale for the chart lines.
   const colorScale = scaleLinear<string>()
     .domain([0, ngpus])
     .range(GPU_COLOR_CATEGORICAL_RANGE);
@@ -183,6 +195,7 @@ const GpuResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
                 isAnimationActive={false}
               />
             </CustomLineChart>
+            {/* Render the control panel with the pause/play button and the time brush */}
             <div
               style={{
                 display: 'flex',
@@ -226,6 +239,9 @@ const GpuResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
   );
 };
 
+/**
+ * A widget for rendering the GPU resource chart in JupyterLab.
+ */
 export class GpuResourceChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();

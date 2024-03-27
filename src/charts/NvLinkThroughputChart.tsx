@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { requestAPI } from '../handler';
+import React, { useState } from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { BarChart, Bar, Cell, YAxis, XAxis, Tooltip } from 'recharts';
 import { scaleLinear } from 'd3-scale';
@@ -10,46 +9,29 @@ import {
   DEFAULT_UPDATE_FREQUENCY
 } from '../assets/constants';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { IChartProps } from '../assets/interfaces';
-import loadSettingRegistry from '../assets/hooks';
+import { IChartProps, INVLinkThroughputProps } from '../assets/interfaces';
+import { loadSettingRegistry, useWebSocket } from '../assets/hooks';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
-interface IDataProps {
-  nvlink_tx: number[];
-  nvlink_rx: number[];
-  max_rxtx_bw: number;
-}
-
+// NvLinkThroughputChart component displays a bar chart representing nvlink throughput data.
 const NvLinkThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
-  const [nvlinkStats, setNvLinkStats] = useState<IDataProps>();
+  const [nvlinkStats, setNvLinkStats] = useState<INVLinkThroughputProps>();
   const [updateFrequency, setUpdateFrequency] = useState<number>(
     DEFAULT_UPDATE_FREQUENCY
   );
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState<boolean>(false);
 
-  loadSettingRegistry(settingRegistry, setUpdateFrequency);
+  // Load settings and initialize WebSocket connection
+  loadSettingRegistry(settingRegistry, setUpdateFrequency, setIsSettingsLoaded);
+  useWebSocket<INVLinkThroughputProps>(
+    'nvlink_throughput',
+    false,
+    updateFrequency,
+    setNvLinkStats,
+    isSettingsLoaded
+  );
 
-  useEffect(() => {
-    async function fetchGPUMemory() {
-      const response = await requestAPI<IDataProps>('nvlink_throughput');
-      console.log(response);
-      setNvLinkStats(response);
-    }
-
-    fetchGPUMemory();
-  }, []);
-
-  useEffect(() => {
-    async function fetchGPUMemory() {
-      const response = await requestAPI<IDataProps>('nvlink_throughput');
-      setNvLinkStats(response);
-    }
-    const intervalId = setInterval(() => {
-      fetchGPUMemory();
-    }, updateFrequency);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
+  // Prepare data for rendering
   const gpuCount = nvlinkStats?.nvlink_rx.length;
   const data = Array.from(Array(gpuCount).keys()).map(index => ({
     name: `GPU ${index}`,
@@ -58,10 +40,12 @@ const NvLinkThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
     maxTP: nvlinkStats?.max_rxtx_bw || 0
   }));
 
+  // Create a color scale for the bars
   const colorScale = scaleLinear<string>()
     .domain([0, 1])
     .range(BAR_COLOR_LINEAR_RANGE);
 
+  // Formatter for displaying bytes
   const formatBytes = (bytes: number): string => {
     return `${format('.2s')(bytes)}B`;
   };

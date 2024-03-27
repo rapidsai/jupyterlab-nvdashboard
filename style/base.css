@@ -107,6 +107,22 @@
   box-shadow: 0 0 5px 2px #ff7900; /* Reduced blur for the glowing effect on hover */
 }
 
+.nv-header-icon-text {
+  font-family: 'Courier New', Courier, monospace;
+  word-spacing: 5px;
+  font-variant: all-small-caps;
+  color: #ff7900;
+  margin-right: 3px;
+  font-size: 15px;
+}
+
+.nv-header-icon-text:hover {
+  text-shadow:
+    -0.25px 0 #ff7900,
+    0 0.25px #ff7900,
+    0.25px 0 #ff7900,
+    0 -0.25px #ff7900;
+}
 .chart-title {
   padding-left: 62px;
   font-size: 22px;
@@ -153,6 +169,7 @@
 
 .nv-header-icon svg path {
   fill: #ff7900 !important;
+  font-size: 5px !important;
 }
 
 .nv-icon-custom {

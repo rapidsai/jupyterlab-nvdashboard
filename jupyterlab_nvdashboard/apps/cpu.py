@@ -1,13 +1,11 @@
 import json
 import psutil
 import time
-import tornado
-from jupyter_server.base.handlers import APIHandler
+from jupyterlab_nvdashboard.apps.utils import CustomWebSocketHandler
 
 
-class CPUResourceHandler(APIHandler):
-    @tornado.web.authenticated
-    def get(self):
+class CPUResourceWebSocketHandler(CustomWebSocketHandler):
+    def send_data(self):
         now = time.time()
         stats = {
             "time": now * 1000,
@@ -18,5 +16,4 @@ class CPUResourceHandler(APIHandler):
             "network_read": psutil.net_io_counters().bytes_recv,
             "network_write": psutil.net_io_counters().bytes_sent,
         }
-        self.set_header("Content-Type", "application/json")
-        self.write(json.dumps(stats))
+        self.write_message(json.dumps(stats))
