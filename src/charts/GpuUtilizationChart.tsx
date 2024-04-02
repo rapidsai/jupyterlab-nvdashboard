@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { requestAPI } from '../handler';
+import React, { useState } from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import {
   BarChart,
@@ -18,45 +17,37 @@ import {
 } from '../assets/constants';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { IChartProps } from '../assets/interfaces';
-import loadSettingRegistry from '../assets/hooks';
+import { IChartProps, IGpuUtilizationProps } from '../assets/interfaces';
+import { loadSettingRegistry, useWebSocket } from '../assets/hooks';
 
+// GpuUtilizationChart component displays a bar chart representing GPU Utilization usage.
 const GpuUtilizationChart: React.FC<IChartProps> = ({
   settingRegistry
 }): JSX.Element => {
-  const [gpuUtilization, setGpuUtilization] = useState([]);
+  const [gpuUtilization, setGpuUtilization] = useState<IGpuUtilizationProps>();
   const [updateFrequency, setUpdateFrequency] = useState<number>(
     DEFAULT_UPDATE_FREQUENCY
   );
 
-  loadSettingRegistry(settingRegistry, setUpdateFrequency);
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState<boolean>(false);
 
-  useEffect(() => {
-    async function fetchGPUUtilization() {
-      const response = await requestAPI<any>('gpu_utilization');
-      setGpuUtilization(response.gpu_utilization);
-    }
+  // Load settings and initialize WebSocket connection
+  loadSettingRegistry(settingRegistry, setUpdateFrequency, setIsSettingsLoaded);
+  useWebSocket<IGpuUtilizationProps>(
+    'gpu_utilization',
+    false,
+    updateFrequency,
+    setGpuUtilization,
+    isSettingsLoaded
+  );
 
-    fetchGPUUtilization();
-  }, []);
-
-  useEffect(() => {
-    async function fetchGPUUtilization() {
-      const response = await requestAPI<any>('gpu_utilization');
-      setGpuUtilization(response.gpu_utilization);
-    }
-    const intervalId = setInterval(() => {
-      fetchGPUUtilization();
-    }, updateFrequency);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const data = gpuUtilization.map((utilization, index) => ({
+  // Prepare data for rendering
+  const data = gpuUtilization?.gpu_utilization.map((utilization, index) => ({
     name: `GPU ${index}`,
     utilization: utilization
   }));
 
+  // Create a color scale for the bars
   const colorScale = scaleLinear<string>()
     .domain([0, 100])
     .range(BAR_COLOR_LINEAR_RANGE);
@@ -97,10 +88,10 @@ const GpuUtilizationChart: React.FC<IChartProps> = ({
             />
 
             <Bar dataKey="utilization" barSize={50} isAnimationActive={false}>
-              {data.map((entry, index) => (
+              {data?.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={colorScale(parseInt(entry.utilization)).toString()}
+                  fill={colorScale(entry.utilization).toString()}
                 />
               ))}
             </Bar>
@@ -111,6 +102,7 @@ const GpuUtilizationChart: React.FC<IChartProps> = ({
   );
 };
 
+// GpuUtilizationChartWidget is a ReactWidget that renders the GpuUtilizationChart component.
 export class GpuUtilizationChartWidget extends ReactWidget {
   constructor(private settingRegistry: ISettingRegistry) {
     super();

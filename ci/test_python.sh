@@ -18,7 +18,7 @@ set +u
 conda activate test
 set -u
 
-# rapids-logger "Downloading artifacts from previous jobs"
+rapids-logger "Downloading artifacts from previous jobs"
 PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
 
 rapids-print-env
