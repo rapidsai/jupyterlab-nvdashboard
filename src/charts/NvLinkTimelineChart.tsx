@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { requestAPI } from '../handler';
+import React, { useState } from 'react';
 import { ReactWidget, Button } from '@jupyterlab/ui-components';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { CustomLineChart } from '../components/customLineChart';
@@ -8,58 +7,76 @@ import { formatDate, formatBytes } from '../components/formatUtils';
 import { pauseIcon, playIcon } from '../assets/icons';
 import { scaleLinear } from 'd3-scale';
 import {
+  DEFAULT_MAX_RECORDS_TIMESERIES,
   DEFAULT_UPDATE_FREQUENCY,
   GPU_COLOR_CATEGORICAL_RANGE
 } from '../assets/constants';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { IChartProps } from '../assets/interfaces';
-import loadSettingRegistry from '../assets/hooks';
+import { IChartProps, INVLinkTimeLineProps } from '../assets/interfaces';
+import { loadSettingRegistry, useWebSocket } from '../assets/hooks';
 
-interface IDataProps {
-  time: number;
-  nvlink_tx: number[];
-  nvlink_rx: number[];
-  max_rxtx_bw: number;
-}
-
+/**
+ * Component to display Nvlink stats in a timeseries format in the Nvdashboard.
+ */
 const NvLinkTimelineChart: React.FC<IChartProps> = ({ settingRegistry }) => {
-  const [nvlinkStats, setNvLinkStats] = useState<IDataProps[]>([]);
-  const [tempData, setTempData] = useState<IDataProps[]>([]);
+  const [nvlinkStats, setNvLinkStats] = useState<INVLinkTimeLineProps[]>([]);
+  const [tempData, setTempData] = useState<INVLinkTimeLineProps[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const ngpus = nvlinkStats[0]?.nvlink_tx.length || 0;
   const [updateFrequency, setUpdateFrequency] = useState<number>(
     DEFAULT_UPDATE_FREQUENCY
   );
+  const [maxRecords, setMaxRecords] = useState<number>(
+    DEFAULT_MAX_RECORDS_TIMESERIES
+  );
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState<boolean>(false);
 
-  loadSettingRegistry(settingRegistry, setUpdateFrequency);
+  // Load settings from the JupyterLab setting registry.
+  loadSettingRegistry(
+    settingRegistry,
+    setUpdateFrequency,
+    setIsSettingsLoaded,
+    setMaxRecords
+  );
 
-  useEffect(() => {
-    async function fetchNvLinkStats() {
-      const response = await requestAPI<IDataProps>('nvlink_throughput');
-      response.time = Date.now();
-      if (!isPaused) {
-        setNvLinkStats(prevData => {
-          if (tempData.length > 1) {
-            prevData = [...prevData, ...tempData];
-          }
-          const newData = [...prevData, response];
-          return newData;
-        });
-        setTempData([]);
-      } else {
-        setTempData([...tempData, response]);
-      }
+  // Process incoming data from the WebSocket and manage the nvlink stats.
+  const processData = (response: INVLinkTimeLineProps, isPaused: any) => {
+    response.time = Date.now();
+    if (!isPaused) {
+      setNvLinkStats(prevData => {
+        let newData;
+        if (tempData.length > 1) {
+          newData = [...prevData, ...tempData, response];
+        } else {
+          newData = [...prevData, response];
+        }
+        // Truncate data if it exceeds 1000 records
+        if (newData.length > maxRecords) {
+          newData = newData.slice(-1 * maxRecords);
+        }
+        return newData;
+      });
+      setTempData([]);
+    } else {
+      setTempData([...tempData, response]);
     }
+  };
 
-    const interval = setInterval(fetchNvLinkStats, updateFrequency);
+  // Establish a WebSocket connection and listen for data updates.
+  useWebSocket<INVLinkTimeLineProps>(
+    'nvlink_throughput',
+    isPaused,
+    updateFrequency,
+    processData,
+    isSettingsLoaded
+  );
 
-    return () => clearInterval(interval);
-  }, [isPaused, tempData]);
-
+  // Handle click events for the pause/play button.
   const handlePauseClick = () => {
     setIsPaused(!isPaused);
   };
 
+  // Define a color scale for the chart lines.
   const colorScale = scaleLinear<string>()
     .domain([0, ngpus])
     .range(GPU_COLOR_CATEGORICAL_RANGE);
@@ -119,6 +136,7 @@ const NvLinkTimelineChart: React.FC<IChartProps> = ({ settingRegistry }) => {
                   )
                 )}
             </CustomLineChart>
+            {/* Render the control panel with the pause/play button and the time brush */}
             <div
               style={{
                 display: 'flex',

@@ -26,13 +26,13 @@ def setup_handlers(web_app):
             base_url, URL_PATH, "nvlink_throughput"
         )
         handlers += [
-            (route_pattern_gpu_util, apps.gpu.GPUUtilizationHandler),
-            (route_pattern_gpu_usage, apps.gpu.GPUUsageHandler),
-            (route_pattern_gpu_resource, apps.gpu.GPUResourceHandler),
-            (route_pattern_pci_stats, apps.gpu.PCIStatsHandler),
+            (route_pattern_gpu_util, apps.gpu.GPUUtilizationWebSocketHandler),
+            (route_pattern_gpu_usage, apps.gpu.GPUUsageWebSocketHandler),
+            (route_pattern_gpu_resource, apps.gpu.GPUResourceWebSocketHandler),
+            (route_pattern_pci_stats, apps.gpu.PCIStatsWebSocketHandler),
             (
                 route_pattern_nvlink_throughput,
-                apps.gpu.NVLinkThroughputHandler,
+                apps.gpu.NVLinkThroughputWebSocketHandler,
             ),
         ]
 
@@ -41,7 +41,7 @@ def setup_handlers(web_app):
     )
 
     handlers += [
-        (route_pattern_cpu_resource, apps.cpu.CPUResourceHandler),
+        (route_pattern_cpu_resource, apps.cpu.CPUResourceWebSocketHandler),
     ]
 
     web_app.add_handlers(host_pattern, handlers)
