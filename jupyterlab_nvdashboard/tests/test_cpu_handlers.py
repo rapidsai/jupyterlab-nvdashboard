@@ -27,6 +27,7 @@ def handler_args():
         mock_application.settings = mock_settings
         yield mock_application, mock_request
 
+
 def test_cpu_resource_handler(mock_handler, handler_args):
     handler = CPUResourceWebSocketHandler(*handler_args)
     handler.send_data()
