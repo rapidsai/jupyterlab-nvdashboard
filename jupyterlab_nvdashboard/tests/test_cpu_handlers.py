@@ -20,8 +20,12 @@ def handler_args():
     with patch("tornado.web.Application") as mock_application, patch(
         "tornado.httputil.HTTPServerRequest"
     ) as mock_request:
+        # Mock the settings to return appropriate values
+        mock_settings = {
+            "base_url": "/",
+        }
+        mock_application.settings = mock_settings
         yield mock_application, mock_request
-
 
 def test_cpu_resource_handler(mock_handler, handler_args):
     handler = CPUResourceWebSocketHandler(*handler_args)

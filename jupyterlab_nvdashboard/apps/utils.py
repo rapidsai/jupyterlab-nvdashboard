@@ -1,10 +1,15 @@
 from tornado.websocket import WebSocketHandler
+from jupyter_server.base.handlers import JupyterHandler
 import tornado
 import json
 
 
-class CustomWebSocketHandler(WebSocketHandler):
+class CustomWebSocketHandler(JupyterHandler, WebSocketHandler):
     def open(self):
+        if not self.current_user:
+            self.write_message(json.dumps({"error": "Unauthorized access"}))
+            self.close()
+            return
         self.write_message(json.dumps({"status": "connected"}))
         self.set_nodelay(True)
         # Start a periodic callback to send data every 50ms
