@@ -29,5 +29,5 @@ function sed_runner() {
     sed -i.bak ''"$1"'' $2 && rm -f ${2}.bak
 }
 
-jq -e --arg tag "$NEXT_FULL_TAG" '.version=$tag' package.json > package.json.tmp
+jq --indent 4 -e --arg tag "$NEXT_FULL_TAG" '.version=$tag' package.json > package.json.tmp
 mv package.json.tmp package.json

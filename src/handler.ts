@@ -1,3 +1,6 @@
+import { URLExt } from '@jupyterlab/coreutils';
+import { ServerConnection } from '@jupyterlab/services';
+
 /**
  * Connect to a WebSocket API endpoint
  *
@@ -5,10 +8,11 @@
  * @returns A WebSocket object connected to the endpoint
  */
 export function connectToWebSocket(endPoint = '') {
-  const baseUrl = document.location.origin.replace(/^http/, 'ws');
-  const wsUrl = new URL(`nvdashboard/${endPoint}`, baseUrl);
+  const settings = ServerConnection.makeSettings();
+  const baseUrl = settings.baseUrl.replace(/^http/, 'ws');
+  const wsUrl = URLExt.join(baseUrl, 'nvdashboard', endPoint);
 
-  const ws = new WebSocket(wsUrl.href);
+  const ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
     console.log(`WebSocket connected to ${endPoint}`);

@@ -24,7 +24,7 @@ const PciThroughputChart: React.FC<IChartProps> = ({ settingRegistry }) => {
   // Load settings and initialize WebSocket connection
   loadSettingRegistry(settingRegistry, setUpdateFrequency, setIsSettingsLoaded);
   useWebSocket<IPCIThroughputProps>(
-    'nvlink_throughput',
+    'pci_stats',
     false,
     updateFrequency,
     setPciStats,
