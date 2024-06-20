@@ -1,6 +1,7 @@
 {
-  "title": "jupyterlab-nvdashboard",
+  "title": "NVDashboard",
   "description": "Settings for the jupyterlab-nvdashboard extension.",
+  "jupyter.lab.setting-icon": "launcher:gpu-icon",
   "type": "object",
   "properties": {
     "updateFrequency": {
