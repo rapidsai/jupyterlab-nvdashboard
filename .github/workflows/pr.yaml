@@ -44,8 +44,8 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.10
     with:
       build_type: pull-request
-      # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
+      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
+      matrix_filter: map(select(.ARCH == "amd64")) | max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]) | [.]
       script: "ci/build_wheel.sh"
   wheel-tests:
     needs: wheel-build
@@ -53,6 +53,6 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.10
     with:
       build_type: pull-request
-      # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
+      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
+      matrix_filter: map(select(.ARCH == "amd64")) | max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]) | [.]
       script: "ci/test_wheel.sh"
