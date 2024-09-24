@@ -7,7 +7,7 @@ set -eou pipefail
 package_name="jupyterlab-nvdashboard"
 
 rapids-logger "Downloading artifacts from previous jobs"
-RAPIDS_PY_WHEEL_NAME="${package_name}" rapids-download-wheels-from-s3 ./dist
+RAPIDS_PY_WHEEL_NAME="${package_name}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-s3 ./dist
 
 # echo to expand wildcard before adding `[extra]` required for pip
 python -m pip install $(echo ./dist/jupyterlab_nvdashboard*.whl)[test]
