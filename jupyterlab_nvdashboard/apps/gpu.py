@@ -26,9 +26,7 @@ else:
 
         # Maximum bandwidth is bidirectional, divide by 2 for separate RX & TX
         max_bw = (
-            max(
-                sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth
-            )
+            max(sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth)
             / 2
         )
     except (IndexError, pynvml.nvml.NVMLError_NotSupported):

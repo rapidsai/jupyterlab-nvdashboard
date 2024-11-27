@@ -17,9 +17,10 @@ def mock_handler(monkeypatch):
 
 @pytest.fixture
 def handler_args():
-    with patch("tornado.web.Application") as mock_application, patch(
-        "tornado.httputil.HTTPServerRequest"
-    ) as mock_request:
+    with (
+        patch("tornado.web.Application") as mock_application,
+        patch("tornado.httputil.HTTPServerRequest") as mock_request,
+    ):
         # Mock the settings to return appropriate values
         mock_settings = {
             "base_url": "/",

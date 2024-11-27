@@ -18,41 +18,41 @@ jobs:
       - wheel-build
       - wheel-tests
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@branch-24.02
+    uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@branch-24.10
   checks:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@branch-24.02
+    uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@branch-24.10
   conda-python-build:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-24.02
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-24.10
     with:
       build_type: pull-request
-      # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
+      matrix_filter: map(select(.ARCH == "amd64")) | max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]) | [.]
   conda-python-tests:
     needs: conda-python-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-24.02
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-24.10
     with:
       build_type: pull-request
-      # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
+      matrix_filter: map(select(.ARCH == "amd64")) | max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]) | [.]
   wheel-build:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.10
     with:
       build_type: pull-request
-      # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
+      # This selects the latest supported Python + CUDA
+      matrix_filter: max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]) | [.]
       script: "ci/build_wheel.sh"
   wheel-tests:
     needs: wheel-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.10
     with:
       build_type: pull-request
-      # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+      # This selects the latest supported Python + CUDA
+      matrix_filter: max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]) | [.]
       script: "ci/test_wheel.sh"
