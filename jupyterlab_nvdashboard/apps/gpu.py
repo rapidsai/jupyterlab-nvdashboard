@@ -5,7 +5,7 @@ import time
 
 try:
     pynvml.nvmlInit()
-except pynvml.nvml.NVMLError_LibraryNotFound:
+except pynvml.NVMLError_LibraryNotFound:
     ngpus = 0
     gpu_handles = []
 else:
@@ -29,12 +29,12 @@ else:
             max(sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth)
             / 2
         )
-    except (IndexError, pynvml.nvml.NVMLError_NotSupported):
+    except (IndexError, pynvml.NVMLError_NotSupported):
         nvlink_ver = None
         max_bw = []
     try:
         pci_gen = pynvml.nvmlDeviceGetMaxPcieLinkGeneration(gpu_handles[0])
-    except (IndexError, pynvml.nvml.NVMLError_NotSupported):
+    except (IndexError, pynvml.NVMLError_NotSupported):
         pci_gen = None
 
 
