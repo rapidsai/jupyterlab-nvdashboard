@@ -72,7 +72,7 @@ dependencies:
       - output_types: [conda, requirements, pyproject]
         packages:
           - jupyterlab>=4
-          - pynvml>=11.0.0,<12.0.0a0
+          - pynvml>=12.0.0,<13.0.0a0
           - psutil
   test_python:
     common:
