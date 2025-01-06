@@ -67,3 +67,4 @@ jobs:
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       package-name: jupyterlab-nvdashboard
+      publish_to_pypi: true
