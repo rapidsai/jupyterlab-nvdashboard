@@ -53,8 +53,10 @@ dependencies:
       - output_types: pyproject
         packages:
           - hatchling>=1.5.0
-          - jupyterlab>=4.0.0,<5
           - hatch-nodejs-version>=0.3.2
+          - hatch-jupyter-builder>=0.5
+          - jupyter-packaging
+          - jupyterlab>=4.0.0
   checks:
     common:
       - output_types: [conda, requirements]

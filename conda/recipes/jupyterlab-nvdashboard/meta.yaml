@@ -1,6 +1,9 @@
 {% set version = environ['RAPIDS_PACKAGE_VERSION'].lstrip('v') %}
 {% set date_string = environ['RAPIDS_DATE_STRING'] %}
 
+{% set python_min = "3.8" %}
+
+
 package:
   name: jupyterlab-nvdashboard
   version: {{ version }}
@@ -11,31 +14,43 @@ source:
 build:
   number: {{ GIT_DESCRIBE_NUMBER }}
   string: py_{{ date_string }}_{{ GIT_DESCRIBE_HASH }}_{{ GIT_DESCRIBE_NUMBER }}
-  script: python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
   noarch: python
+  script:
+    - {{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
 
 requirements:
   host:
-    - python >=3.8
+    - python {{ python_min }}
+    - pip
     - setuptools
-    - nodejs =18
-    - hatchling
-    - hatch-nodejs-version
-    - hatch-jupyter-builder
+    - hatchling >=1.5.0
+    - hatch-nodejs-version >=0.3.2
+    - hatch-jupyter-builder >=0.5
+    - nodejs
+    - jupyter-packaging
     - jupyterlab >=4
   run:
-    - python >=3.8
+    - python >={{ python_min }}
     - jupyterlab >=4
     - pynvml >=12.0.0,<13.0.0a0
     - psutil
 
-
 test:
+  requires:
+    - python {{ python_min }}
+    - pip
+  commands:
+    - pip check
   imports:
     - jupyterlab_nvdashboard
 
 about:
   home: https://rapids.ai
-  license: BSD-3
-  summary: 'A JupyterLab extension for displaying dashboards of GPU usage.'
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: ../../../LICENSE
+  summary: A JupyterLab extension for displaying dashboards of GPU usage
+  description: |
+    A JupyterLab extension for displaying dashboards of GPU usage.
+  doc_url: https://github.com/rapidsai/jupyterlab-nvdashboard
   dev_url: https://github.com/rapidsai/jupyterlab-nvdashboard
