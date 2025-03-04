@@ -48,7 +48,7 @@ about:
   home: https://rapids.ai
   license: BSD-3-Clause
   license_family: BSD
-  license_file: LICENSE.txt
+  license_file: ../../../LICENSE
   summary: A JupyterLab extension for displaying dashboards of GPU usage
   description: |
     A JupyterLab extension for displaying dashboards of GPU usage.
