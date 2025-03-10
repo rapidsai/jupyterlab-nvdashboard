@@ -11,7 +11,7 @@ rapids-dependency-file-generator \
   --file-key test_python \
   --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" | tee env.yaml
 
-rapids-mamba-retry env create --yes -f env.yaml -n test
+rapids-conda-retry env create --yes -f env.yaml -n test
 
 # Temporarily allow unbound variables for conda activation.
 set +u
@@ -23,7 +23,7 @@ PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
 
 rapids-print-env
 
-rapids-mamba-retry install \
+rapids-conda-retry install \
   --channel "${PYTHON_CHANNEL}" \
     jupyterlab-nvdashboard
 
