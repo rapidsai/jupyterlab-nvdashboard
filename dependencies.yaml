@@ -79,6 +79,11 @@ dependencies:
       - output_types: [conda, requirements, pyproject]
         packages:
           - pytest
-          - pytest-jupyter[server]>=0.6.0
           - pytest-asyncio
           - websockets
+      - output_types: [requirements, pyproject]
+        packages:
+          - pytest-jupyter[server]>=0.6.0
+      - output_types: [conda]
+        packages:
+          - pytest-jupyter-server>=0.6.0
