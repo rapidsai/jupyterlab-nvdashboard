@@ -52,15 +52,16 @@ dependencies:
     common:
       - output_types: pyproject
         packages:
-          - hatchling>=1.5.0
-          - jupyterlab>=4.0.0,<5
+          - hatch-jupyter-builder>=0.5
           - hatch-nodejs-version>=0.3.2
+          - hatchling>=1.5.0
+          - jupyterlab>=4.0.0
   checks:
     common:
       - output_types: [conda, requirements]
         packages:
           - pre-commit
-          - jupyterlab>=4
+          - jupyterlab>=4.0.0
           - nodejs=18
   py_version:
     common:
@@ -71,9 +72,9 @@ dependencies:
     common:
       - output_types: [conda, requirements, pyproject]
         packages:
-          - jupyterlab>=4
-          - pynvml>=12.0.0,<13.0.0a0
+          - jupyterlab>=4.0.0
           - psutil
+          - pynvml>=12.0.0,<13.0.0a0
   test_python:
     common:
       - output_types: [conda, requirements, pyproject]

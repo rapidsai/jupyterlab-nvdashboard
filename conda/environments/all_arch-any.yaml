@@ -6,7 +6,7 @@ channels:
 - conda-forge
 - nvidia
 dependencies:
-- jupyterlab>=4
+- jupyterlab>=4.0.0
 - nodejs=18
 - pre-commit
 - psutil
