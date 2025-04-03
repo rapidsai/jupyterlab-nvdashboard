@@ -7,8 +7,6 @@ set -euo pipefail
 # Set the package name
 package_name="jupyterlab-nvdashboard"
 
-wheel_dir="${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
-
 # Configure sccache and set the date string
 source rapids-configure-sccache
 source rapids-date-string
@@ -37,13 +35,11 @@ rapids-logger "Begin py build"
 # Install build tools for Python
 python -m pip install build
 
-mkdir -p "${wheel_dir}"
-
 # Build the Python package
-python -m build -s -w --outdir "${wheel_dir}"
+python -m build -s -w --outdir "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 
-ci/validate_wheel.sh "${wheel_dir}"
+ci/validate_wheel.sh "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 
 rapids-logger "Uploading JupyterLab NVDashboard wheels to S3"
 # Upload Python wheels to S3
-RAPIDS_PY_WHEEL_NAME="${package_name}" RAPIDS_PY_WHEEL_PURE="1" rapids-upload-wheels-to-s3 python "${wheel_dir}"
+RAPIDS_PY_WHEEL_NAME="${package_name}" RAPIDS_PY_WHEEL_PURE="1" rapids-upload-wheels-to-s3 python "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
