@@ -29,7 +29,7 @@ concurrency:
 jobs:
   conda-python-build:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-25.04
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-25.06
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -40,7 +40,7 @@ jobs:
   upload-conda:
     needs: conda-python-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@branch-25.04
+    uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@branch-25.06
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -48,7 +48,7 @@ jobs:
       sha: ${{ inputs.sha }}
   wheel-build:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.04
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.06
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -57,10 +57,14 @@ jobs:
       script: ci/build_wheel.sh
       # Package is pure Python and only ever requires one build.
       matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
+      wheel-name: jupyterlab-nvdashboard
+      package-type: python
+      pure-wheel: true
+      append-cuda-suffix: false
   wheel-publish:
     needs: wheel-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-25.04
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-25.06
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}

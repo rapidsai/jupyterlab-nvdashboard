@@ -36,10 +36,10 @@ rapids-logger "Begin py build"
 python -m pip install build
 
 # Build the Python package
-python -m build -s -w
+python -m build -s -w --outdir "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 
-ci/validate_wheel.sh dist
+ci/validate_wheel.sh "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 
 rapids-logger "Uploading JupyterLab NVDashboard wheels to S3"
 # Upload Python wheels to S3
-RAPIDS_PY_WHEEL_NAME="${package_name}" RAPIDS_PY_WHEEL_PURE="1" rapids-upload-wheels-to-s3 dist
+RAPIDS_PY_WHEEL_NAME="${package_name}" RAPIDS_PY_WHEEL_PURE="1" rapids-upload-wheels-to-s3 python "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
