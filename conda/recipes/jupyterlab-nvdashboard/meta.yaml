@@ -1,7 +1,10 @@
+{% set package_json = load_file_data("package.json") %}
+{% set pyproject_toml = load_file_data("pyproject.toml") %}
+
 {% set version = environ['RAPIDS_PACKAGE_VERSION'].lstrip('v') %}
 {% set date_string = environ['RAPIDS_DATE_STRING'] %}
 
-{% set python_min = "3.9" %}
+{% set requires_python = pyproject_toml["project"]["requires-python"] %}
 
 
 package:
@@ -20,22 +23,21 @@ build:
 
 requirements:
   host:
-    - python {{ python_min }}
+    - python {{ requires_python }}
     - pip
     - nodejs
-    - hatch-jupyter-builder >=0.5
-    - hatch-nodejs-version >=0.3.2
-    - hatchling >=1.5.0
-    - jupyterlab >=4.0.0
+    {% for r in pyproject_toml["build-system"]["requires"] %}
+    - {{ r }}
+    {% endfor %}
   run:
-    - python >={{ python_min }}
-    - jupyterlab >=4.0.0
-    - psutil
-    - pynvml >=12.0.0,<13.0.0a0
+    - python {{ requires_python }}
+    {% for r in pyproject_toml["project"]["dependencies"] %}
+    - {{ r }}
+    {% endfor %}
 
 test:
   requires:
-    - python {{ python_min }}
+    - python {{ requires_python }}
     - pip
   commands:
     - pip check
@@ -43,12 +45,10 @@ test:
     - jupyterlab_nvdashboard
 
 about:
-  home: https://rapids.ai
-  license: BSD-3-Clause
-  license_family: BSD
+  home: {{ package_json["homepage"] }}
+  license: {{ package_json["license"] }}
   license_file: ../../../LICENSE
-  summary: A JupyterLab extension for displaying dashboards of GPU usage
-  description: |
-    A JupyterLab extension for displaying dashboards of GPU usage.
-  doc_url: https://github.com/rapidsai/jupyterlab-nvdashboard
-  dev_url: https://github.com/rapidsai/jupyterlab-nvdashboard
+  summary: {{ package_json["description"] }}
+  description: {{ package_json["description"] }}
+  doc_url: {{ package_json["homepage"] }}
+  dev_url: {{ package_json["repository"]["url"] }}
