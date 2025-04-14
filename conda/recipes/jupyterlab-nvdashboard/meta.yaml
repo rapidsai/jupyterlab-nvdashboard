@@ -48,6 +48,10 @@ about:
   home: {{ package_json["homepage"] }}
   license: {{ package_json["license"] }}
   license_file: ../../../LICENSE
+  license_file:
+   {% for e in pyproject_toml["project"]["license-files"] %}
+   - ../../../{{ e }}
+   {% endfor %}
   summary: {{ package_json["description"] }}
   description: {{ package_json["description"] }}
   doc_url: {{ package_json["homepage"] }}
