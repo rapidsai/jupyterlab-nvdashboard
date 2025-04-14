@@ -47,7 +47,6 @@ test:
 about:
   home: {{ package_json["homepage"] }}
   license: {{ package_json["license"] }}
-  license_file: ../../../LICENSE
   license_file:
    {% for e in pyproject_toml["project"]["license-files"] %}
    - ../../../{{ e }}
