@@ -47,7 +47,7 @@ jobs:
       # This selects the latest supported Python + CUDA
       matrix_filter: max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]) | [.]
       script: "ci/build_wheel.sh"
-      wheel-name: jupyterlab-nvdashboard
+      package-name: jupyterlab-nvdashboard
       package-type: python
       pure-wheel: true
       append-cuda-suffix: false
