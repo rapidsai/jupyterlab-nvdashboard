@@ -3,6 +3,8 @@
 
 set -eou pipefail
 
+source rapids-init-pip
+
 # Set the package name
 package_name="jupyterlab-nvdashboard"
 

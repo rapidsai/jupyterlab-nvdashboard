@@ -15,7 +15,7 @@ repos:
         args: ['--config=.flake8']
         files: jupyterlab_nvdashboard/.*$
   - repo: https://github.com/rapidsai/dependency-file-generator
-    rev: v1.14.0
+    rev: v1.18.1
     hooks:
       - id: rapids-dependency-file-generator
         args: ['--clean']
