@@ -10,6 +10,7 @@ package_name="jupyterlab-nvdashboard"
 # Configure sccache and set the date string
 source rapids-configure-sccache
 source rapids-date-string
+source rapids-init-pip
 
 rapids-logger "Install Node.js required for building the extension front-end"
 
