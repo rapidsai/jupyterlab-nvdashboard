@@ -1,5 +1,5 @@
 # default (to be overridden by any matches in later lines below)
-*                        @jupyterlab-nvdashboard-write
+*                        @rapidsai/jupyterlab-nvdashboard-write
 
 # CI code owners
 .flake8
