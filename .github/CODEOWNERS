@@ -1,0 +1,15 @@
+# default (to be overridden by any matches in later lines below)
+*                        @jupyterlab-nvdashboard-write
+
+# CI code owners
+.flake8
+/.github/                @rapidsai/ci-codeowners
+/ci/                     @rapidsai/ci-codeowners
+
+# packaging code owners
+/.pre-commit-config.yaml @rapidsai/packaging-codeowners
+/conda/                  @rapidsai/packaging-codeowners
+dependencies.yaml        @rapidsai/packaging-codeowners
+/build.sh                @rapidsai/packaging-codeowners
+pyproject.toml           @rapidsai/packaging-codeowners
+setup.py                 @rapidsai/packaging-codeowners
