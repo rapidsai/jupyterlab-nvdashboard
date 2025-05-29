@@ -1,4 +1,5 @@
 # This file controls which features from the `ops-bot` repository below are enabled.
 # - https://github.com/rapidsai/ops-bot
 
+auto_merger: true
 forward_merger: true
