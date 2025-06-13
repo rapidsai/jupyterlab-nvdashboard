@@ -4,9 +4,6 @@
 # Exit script if any command fails
 set -euo pipefail
 
-# Set the package name
-package_name="jupyterlab-nvdashboard"
-
 # Configure sccache and set the date string
 source rapids-configure-sccache
 source rapids-date-string
