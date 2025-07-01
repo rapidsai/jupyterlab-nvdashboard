@@ -12,6 +12,9 @@ rapids-print-env
 version=$(rapids-generate-version)
 node_version=$(echo "$version" | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
 
+RAPIDS_PACKAGE_VERSION=$version
+export RAPIDS_PACKAGE_VERSION
+
 # Update the version field in package.json
 rapids-logger "Updating version in package.json to $node_version"
 jq -e --arg tag "$node_version" '.version=$tag' package.json > package.json.tmp
