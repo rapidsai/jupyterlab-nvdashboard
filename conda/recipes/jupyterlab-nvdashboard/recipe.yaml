@@ -30,10 +30,10 @@ requirements:
     - pip
     - python
   run:
-    - python
     - jupyterlab>=4.0.0
     - psutil
     - pynvml>=12.0.0,<13.0.0a0
+    - python
 
 tests:
   - python:
@@ -45,4 +45,6 @@ about:
   homepage: https://github.com/rapidsai/jupyterlab-nvdashboard
   license: BSD-3-Clause
   summary: >
-    NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It enables JupyterLab users to visualize system hardware metrics within the same interactive environment they use for development. Supported metrics include:
+    NVDashboard is a JupyterLab extension for displaying GPU usage dashboards.
+    It enables JupyterLab users to visualize system hardware metrics within the
+    same interactive environment they use for development.
