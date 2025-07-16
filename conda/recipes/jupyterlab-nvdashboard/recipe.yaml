@@ -1,0 +1,52 @@
+# Copyright (c) 2025, NVIDIA CORPORATION.
+schema_version: 1
+
+context:
+  version: ${{ env.get("RAPIDS_PACKAGE_VERSION") }}
+  date_string: '${{ env.get("RAPIDS_DATE_STRING") }}'
+  head_rev: '${{ git.head_rev(".")[:8] }}'
+  py_version: ${{ env.get("RAPIDS_PY_VERSION") }}
+  py_buildstring: ${{ py_version | version_to_buildstring }}
+
+package:
+  name: jupyterlab-nvdashboard
+  version: ${{ version }}
+
+source:
+  path: ../../..
+
+build:
+  noarch: python
+  string: py${{ py_buildstring }}_${{ date_string }}_${{ head_rev }}
+  script:
+    content: |
+      python -m pip install . -vv
+
+requirements:
+  host:
+    - hatch-jupyter-builder>=0.5
+    - hatch-nodejs-version>=0.3.2
+    - hatchling>=1.27.0
+    - jupyterlab>=4.0.0
+    - nodejs
+    - pip
+    - python
+  run:
+    - jupyterlab>=4.0.0
+    - psutil
+    - pynvml>=12.0.0,<13.0.0a0
+    - python
+
+tests:
+  - python:
+      imports:
+        - jupyterlab_nvdashboard
+      pip_check: true
+
+about:
+  homepage: https://github.com/rapidsai/jupyterlab-nvdashboard
+  license: BSD-3-Clause
+  summary: >
+    NVDashboard is a JupyterLab extension for displaying GPU usage dashboards.
+    It enables JupyterLab users to visualize system hardware metrics within the
+    same interactive environment they use for development.
