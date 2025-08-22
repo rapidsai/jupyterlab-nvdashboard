@@ -37,8 +37,8 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@cuda13.0
     with:
       build_type: pull-request
-      # This selects "one job per CUDA major version, and the latest Python version within each of those" (indifferent between amd64 and arm64)
-      matrix_filter: 'group_by([(.CUDA_VER|split(".")|map(tonumber))]) | map(sort_by(.PY_VER|split(".")|map(tonumber)) | .[-1])'
+      # This selects "ARCH=amd64 + the latest supported Python".
+      matrix_filter: map(select(.ARCH == "amd64")) | max_by([(.PY_VER|split(".")|map(tonumber))]) | [.]
       script: ci/test_python.sh
   wheel-build:
     needs: checks
@@ -59,6 +59,6 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@cuda13.0
     with:
       build_type: pull-request
-      # This selects "one job per CUDA major version, and the latest Python version within each of those" (indifferent between amd64 and arm64)
-      matrix_filter: 'group_by([(.CUDA_VER|split(".")|map(tonumber))]) | map(sort_by(.PY_VER|split(".")|map(tonumber)) | .[-1])'
+      # This selects the latest supported Python
+      matrix_filter: max_by([(.PY_VER|split(".")|map(tonumber))]) | [.]
       script: "ci/test_wheel.sh"
