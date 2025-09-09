@@ -8,7 +8,7 @@ channels:
 dependencies:
 - jupyterlab>=4.0.0
 - nodejs=18
-- nvidia-ml-py>=12.560.30
+- nvidia-ml-py>=12
 - pre-commit
 - psutil
 - pytest
