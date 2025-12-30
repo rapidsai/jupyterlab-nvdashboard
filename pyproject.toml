@@ -12,7 +12,6 @@ build-backend = "hatchling.build"
 [project]
 name = "jupyterlab_nvdashboard"
 readme = "README.md"
-license = "BSD-3-Clause"
 license-files = [
     "LICENSE",
 ]
