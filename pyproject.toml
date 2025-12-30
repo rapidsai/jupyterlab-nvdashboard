@@ -12,6 +12,7 @@ build-backend = "hatchling.build"
 [project]
 name = "jupyterlab_nvdashboard"
 readme = "README.md"
+license = "BSD-3-Clause"
 license-files = [
     "LICENSE",
 ]
@@ -22,7 +23,6 @@ classifiers = [
     "Framework :: Jupyter :: JupyterLab :: 4",
     "Framework :: Jupyter :: JupyterLab :: Extensions",
     "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
-    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
