@@ -5,9 +5,11 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { ControlWidget } from './launchWidget';
 import { MainAreaWidget, WidgetTracker } from '@jupyterlab/apputils';
 import { gpuIcon } from './assets/icons';
+import { AcceleratorButtonWidget } from './accelerators/AcceleratorButton';
 import {
   COMMAND_OPEN_SETTINGS,
   COMMAND_OPEN_WIDGET,
@@ -24,12 +26,13 @@ const extension: JupyterFrontEndPlugin<void> = {
   id: PLUGIN_ID,
   description: 'A minimal JupyterLab extension using a React Widget.',
   autoStart: true,
-  requires: [ILabShell, ISettingRegistry],
+  requires: [ILabShell, ISettingRegistry, INotebookTracker],
   optional: [ILayoutRestorer],
   activate: (
     app: JupyterFrontEnd,
     labShell: ILabShell,
     settingRegistry: ISettingRegistry,
+    notebookTracker: INotebookTracker,
     restorer: ILayoutRestorer | null
   ) => {
     const tracker = new WidgetTracker<MainAreaWidget>({
@@ -77,6 +80,22 @@ const extension: JupyterFrontEndPlugin<void> = {
     // If there is a restorer, restore the widget
     // Add control widget to the left area
     labShell.add(controlWidget, 'left', { rank: 200 });
+
+    // Add GPU Accelerator button to notebook toolbars
+    notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
+      const acceleratorButton = new AcceleratorButtonWidget(
+        notebookPanel.sessionContext
+      );
+      
+      // Add button to the notebook toolbar after the 'restart' button
+      notebookPanel.toolbar.insertAfter(
+        'restart',
+        'gpu-accelerator',
+        acceleratorButton
+      );
+      
+      console.log('GPU Accelerator button added to notebook toolbar');
+    });
   }
 };
 
