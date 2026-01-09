@@ -9,7 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { ISessionContext } from '@jupyterlab/apputils';
 import { acceleratorRegistry } from './registry';
-import { IAcceleratorSystemInfo } from './types';
+import { IAcceleratorSystemInfo, IAcceleratorPlugin } from './types';
 
 interface IAcceleratorButtonProps {
   sessionContext: ISessionContext;
@@ -57,7 +57,7 @@ const AcceleratorButton: React.FC<IAcceleratorButtonProps> = ({
   const handleApply = () => {
     const selectedPlugins = Array.from(selectedPluginIds)
       .map(id => acceleratorRegistry.get(id))
-      .filter(p => p !== undefined);
+      .filter((p): p is IAcceleratorPlugin => p !== undefined);
 
     console.log('Apply clicked! Selected accelerators:', selectedPlugins);
     console.log(
