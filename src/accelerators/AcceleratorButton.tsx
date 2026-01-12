@@ -1,33 +1,32 @@
 /**
- * GPU Accelerator Toolbar Button Component
+ * GPU Accelerator Toolbar Selector Component
  * 
- * A split button for the notebook toolbar that allows users to
- * select and activate GPU accelerators (cudf.pandas, cuml.accel, etc.)
+ * A native select dropdown for toggling GPU accelerators (cudf.pandas, cuml.accel, etc.)
  */
 
 import React, { useState, useEffect } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { ISessionContext } from '@jupyterlab/apputils';
+import { HTMLSelect } from '@jupyterlab/ui-components';
+import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 import { acceleratorRegistry } from './registry';
-import { IAcceleratorSystemInfo, IAcceleratorPlugin } from './types';
+import { IAcceleratorSystemInfo } from './types';
 
-interface IAcceleratorButtonProps {
+interface IAcceleratorSelectorProps {
   sessionContext: ISessionContext;
+  translator?: ITranslator;
 }
 
 /**
- * React component for the accelerator button
+ * React component for the accelerator selector
  */
-const AcceleratorButton: React.FC<IAcceleratorButtonProps> = ({
-  sessionContext
+const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
+  sessionContext,
+  translator
 }) => {
-  const [systemInfo, setSystemInfo] = useState<IAcceleratorSystemInfo | null>(
-    null
-  );
-  const [selectedPluginIds, setSelectedPluginIds] = useState<Set<string>>(
-    new Set()
-  );
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const trans = (translator || nullTranslator).load('jupyterlab');
+  const [systemInfo, setSystemInfo] = useState<IAcceleratorSystemInfo | null>(null);
+  const [activePluginIds, setActivePluginIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
 
   // Check system capabilities on mount
@@ -37,188 +36,162 @@ const AcceleratorButton: React.FC<IAcceleratorButtonProps> = ({
       const info = await acceleratorRegistry.checkAvailability();
       setSystemInfo(info);
       setIsLoading(false);
-      console.log('Accelerator system info:', info);
     };
     checkSystem();
   }, []);
 
-  // Handle checkbox toggle
-  const handleTogglePlugin = (pluginId: string) => {
-    const newSelected = new Set(selectedPluginIds);
-    if (newSelected.has(pluginId)) {
-      newSelected.delete(pluginId);
-    } else {
-      newSelected.add(pluginId);
+  /**
+   * Handle change events for the select dropdown
+   */
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+    const value = event.target.value;
+    
+    if (value === '-') {
+      return; // Do nothing for the placeholder
     }
-    setSelectedPluginIds(newSelected);
-  };
-
-  // Handle Apply button click (stub for Phase 1)
-  const handleApply = () => {
-    const selectedPlugins = Array.from(selectedPluginIds)
-      .map(id => acceleratorRegistry.get(id))
-      .filter((p): p is IAcceleratorPlugin => p !== undefined);
-
-    console.log('Apply clicked! Selected accelerators:', selectedPlugins);
-    console.log(
-      'Extension commands to load:',
-      selectedPlugins.map(p => `%load_ext ${p.extensionName}`)
-    );
-
-    // Phase 2 will implement:
-    // - Execute %load_ext commands in kernel
-    // - Show restart dialog
-    // - Update button state
-
-    setIsMenuOpen(false);
+    
+    if (value === 'clear-all') {
+      // Clear all active accelerators
+      setActivePluginIds(new Set());
+      console.log('Cleared all accelerators');
+      // Phase 2: Execute kernel commands to unload extensions
+      return;
+    }
+    
+    // Toggle the selected accelerator
+    const newActive = new Set(activePluginIds);
+    if (newActive.has(value)) {
+      newActive.delete(value);
+      console.log('Deactivated:', value);
+    } else {
+      newActive.add(value);
+      console.log('Activated:', value);
+    }
+    setActivePluginIds(newActive);
+    
+    // Phase 2: Execute kernel commands to load/unload extensions
+    const plugin = acceleratorRegistry.get(value);
+    if (plugin) {
+      console.log(`Would execute: %load_ext ${plugin.extensionName}`);
+    }
   };
 
   // Don't render if no system info yet
   if (isLoading || !systemInfo) {
     return (
-      <div className="jp-AcceleratorButton-container">
-        <button
-          className="jp-AcceleratorButton jp-mod-disabled"
-          disabled={true}
-        >
-          <span className="jp-AcceleratorButton-icon">🚀</span>
-          <span className="jp-AcceleratorButton-label">Loading...</span>
-        </button>
-      </div>
+      <HTMLSelect
+        disabled={true}
+        value="-"
+        aria-label={trans.__('GPU Accelerators')}
+        title={trans.__('Loading GPU accelerators...')}
+      >
+        <option value="-">{trans.__('Loading...')}</option>
+      </HTMLSelect>
     );
   }
 
   // Don't render if no GPU
   if (!systemInfo.has_gpu) {
-    return null; // Button not visible when no GPU
+    return null;
   }
 
   const plugins = acceleratorRegistry.getAll();
   const availablePlugins = plugins.filter(
-    plugin =>
-      acceleratorRegistry.getPluginStatus(plugin.id, systemInfo).available
+    plugin => acceleratorRegistry.getPluginStatus(plugin.id, systemInfo).available
   );
 
   const hasAnyAvailable = availablePlugins.length > 0;
-  const activeCount = selectedPluginIds.size;
+  const activeCount = activePluginIds.size;
+  
+  // Build the label
+  let label = trans.__('GPU Accel');
+  if (activeCount > 0) {
+    label += ` (${activeCount})`;
+  }
+
+  // Build tooltip showing active accelerators with their info
+  let tooltip = trans.__('Select GPU accelerator to toggle');
+  if (activeCount > 0) {
+    const activePlugins = Array.from(activePluginIds)
+      .map(id => acceleratorRegistry.get(id))
+      .filter(p => p !== undefined);
+    
+    tooltip = trans.__('Active accelerators:\n');
+    activePlugins.forEach(plugin => {
+      tooltip += `\n• ${plugin.name}: ${plugin.description}`;
+      if (plugin.documentation) {
+        tooltip += `\n  ${plugin.documentation}`;
+      }
+    });
+    tooltip += '\n\n' + trans.__('Click to toggle accelerators');
+  } else if (!hasAnyAvailable) {
+    tooltip = trans.__('No GPU accelerators installed');
+  }
 
   return (
-    <div className="jp-AcceleratorButton-container">
-      {/* Main button */}
-      <button
-        className={`jp-AcceleratorButton ${!hasAnyAvailable ? 'jp-mod-disabled' : ''} ${activeCount > 0 ? 'jp-mod-active' : ''}`}
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        disabled={!hasAnyAvailable}
-        title={
-          hasAnyAvailable
-            ? `GPU Accelerators (${activeCount} selected)`
-            : 'No GPU accelerators installed'
-        }
-      >
-        <span className="jp-AcceleratorButton-icon">🚀</span>
-        <span className="jp-AcceleratorButton-label">
-          GPU Accel
-          {activeCount > 0 && ` (${activeCount})`}
-        </span>
-        <span className="jp-AcceleratorButton-dropdown">▼</span>
-      </button>
-
-      {/* Dropdown menu */}
-      {isMenuOpen && (
-        <div className="jp-AcceleratorButton-menu">
-          <div className="jp-AcceleratorButton-menu-header">
-            Select GPU Accelerators
-          </div>
-
-          {!hasAnyAvailable ? (
-            // No accelerators available message
-            <div className="jp-AcceleratorButton-menu-empty">
-              <p>No GPU accelerators installed.</p>
-              <p className="jp-AcceleratorButton-menu-hint">
-                Install <code>cudf</code> for pandas acceleration or{' '}
-                <code>cuml</code> for ML acceleration.
-              </p>
-            </div>
-          ) : (
-            // List of available accelerators
-            <>
-              <div className="jp-AcceleratorButton-menu-items">
-                {plugins.map(plugin => {
-                  const status = acceleratorRegistry.getPluginStatus(
-                    plugin.id,
-                    systemInfo
-                  );
-                  const isSelected = selectedPluginIds.has(plugin.id);
-
-                  return (
-                    <div
-                      key={plugin.id}
-                      className={`jp-AcceleratorButton-menu-item ${!status.available ? 'jp-mod-disabled' : ''}`}
-                    >
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          disabled={!status.available}
-                          onChange={() => handleTogglePlugin(plugin.id)}
-                        />
-                        <div className="jp-AcceleratorButton-menu-item-info">
-                          <div className="jp-AcceleratorButton-menu-item-name">
-                            {plugin.name}
-                          </div>
-                          <div className="jp-AcceleratorButton-menu-item-desc">
-                            {plugin.description}
-                          </div>
-                          {!status.available && (
-                            <div className="jp-AcceleratorButton-menu-item-unavailable">
-                              Not installed: <code>{plugin.pythonPackage}</code>
-                            </div>
-                          )}
-                          {status.available && status.version && (
-                            <div className="jp-AcceleratorButton-menu-item-version">
-                              v{status.version}
-                            </div>
-                          )}
-                        </div>
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="jp-AcceleratorButton-menu-footer">
-                <button
-                  className="jp-AcceleratorButton-menu-button-cancel"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="jp-AcceleratorButton-menu-button-apply"
-                  onClick={handleApply}
-                  disabled={selectedPluginIds.size === 0}
-                >
-                  Apply (Phase 2: will load extensions)
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+    <HTMLSelect
+      className="jp-AcceleratorSelector-dropdown"
+      onChange={handleChange}
+      value="-"
+      aria-label={trans.__('GPU Accelerators')}
+      title={tooltip}
+      disabled={!hasAnyAvailable}
+    >
+      <option value="-">{label}</option>
+      {activeCount > 0 && (
+        <option value="clear-all">{trans.__('✓ Clear All')}</option>
       )}
-    </div>
+      {plugins.map(plugin => {
+        const status = acceleratorRegistry.getPluginStatus(plugin.id, systemInfo);
+        const isActive = activePluginIds.has(plugin.id);
+        const checkmark = isActive ? '✓ ' : '';
+        const unavailable = !status.available ? ' (not installed)' : '';
+        
+        // Build tooltip with description and documentation link
+        let tooltip = plugin.description;
+        if (plugin.documentation) {
+          tooltip += `\n\nDocumentation: ${plugin.documentation}`;
+        }
+        if (status.version) {
+          tooltip += `\n\nInstalled version: ${status.version}`;
+        }
+        if (!status.available) {
+          tooltip += `\n\nInstall with: pip or conda install ${plugin.pythonPackage}`;
+        }
+        
+        return (
+          <option
+            key={plugin.id}
+            value={plugin.id}
+            disabled={!status.available}
+            title={tooltip}
+          >
+            {checkmark}{plugin.name}{unavailable}
+          </option>
+        );
+      })}
+    </HTMLSelect>
   );
 };
 
 /**
- * Widget wrapper for the accelerator button
+ * Widget wrapper for the accelerator selector
  */
-export class AcceleratorButtonWidget extends ReactWidget {
-  constructor(private _sessionContext: ISessionContext) {
+export class AcceleratorSelectorWidget extends ReactWidget {
+  constructor(
+    private _sessionContext: ISessionContext,
+    private _translator?: ITranslator
+  ) {
     super();
-    this.addClass('jp-AcceleratorButton-widget');
+    this.addClass('jp-AcceleratorSelector');
   }
 
   render(): JSX.Element {
-    return <AcceleratorButton sessionContext={this._sessionContext} />;
+    return (
+      <AcceleratorSelector 
+        sessionContext={this._sessionContext}
+        translator={this._translator}
+      />
+    );
   }
 }

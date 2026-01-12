@@ -9,7 +9,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { ControlWidget } from './launchWidget';
 import { MainAreaWidget, WidgetTracker } from '@jupyterlab/apputils';
 import { gpuIcon } from './assets/icons';
-import { AcceleratorButtonWidget } from './accelerators/AcceleratorButton';
+import { AcceleratorSelectorWidget } from './accelerators/AcceleratorButton';
 import {
   COMMAND_OPEN_SETTINGS,
   COMMAND_OPEN_WIDGET,
@@ -81,20 +81,18 @@ const extension: JupyterFrontEndPlugin<void> = {
     // Add control widget to the left area
     labShell.add(controlWidget, 'left', { rank: 200 });
 
-    // Add GPU Accelerator button to notebook toolbars
+    // Add GPU Accelerator selector to notebook toolbars
     notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
-      const acceleratorButton = new AcceleratorButtonWidget(
+      const acceleratorSelector = new AcceleratorSelectorWidget(
         notebookPanel.sessionContext
       );
       
-      // Add button to the notebook toolbar after the 'restart' button
+      // Add selector to the notebook toolbar after the 'cellType' dropdown
       notebookPanel.toolbar.insertAfter(
-        'restart',
+        'cellType',
         'gpu-accelerator',
-        acceleratorButton
+        acceleratorSelector
       );
-      
-      console.log('GPU Accelerator button added to notebook toolbar');
     });
   }
 };
