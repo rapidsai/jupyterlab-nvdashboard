@@ -11,7 +11,7 @@ import { IAcceleratorPlugin } from '../types';
 export const cudfpandasPlugin: IAcceleratorPlugin = {
   id: 'cudf-pandas',
   name: 'cuDF pandas',
-  description: 'GPU-accelerated pandas with automatic cpu fallback',
+  description: 'GPU-accelerated pandas',
   pythonPackage: 'cudf',
   extensionName: 'cudf.pandas',
   minimumVersion: '25.12',

@@ -11,7 +11,7 @@ import { IAcceleratorPlugin } from '../types';
 export const cumlaccelPlugin: IAcceleratorPlugin = {
   id: 'cuml-accel',
   name: 'cuML Accelerator',
-  description: 'GPU-accelerated scikit-learn compatible ML',
+  description: 'GPU-accelerated scikit-learn',
   pythonPackage: 'cuml',
   extensionName: 'cuml.accel',
   minimumVersion: '25.12',
