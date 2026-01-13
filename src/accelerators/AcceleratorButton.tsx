@@ -58,6 +58,7 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
   const [systemInfo, setSystemInfo] = useState<IAcceleratorSystemInfo | null>(null);
   const [activePluginIds, setActivePluginIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [isReloadingAccelerators, setIsReloadingAccelerators] = useState(false);
 
   // Check system capabilities on mount
   useEffect(() => {
@@ -103,8 +104,12 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       console.log('[AutoLoad] Saved accelerators from metadata:', savedAccelerators);
       if (savedAccelerators.length === 0) {
         setActivePluginIds(new Set());
+        setIsReloadingAccelerators(false);
         return;
       }
+      
+      // Show loading indicator
+      setIsReloadingAccelerators(true);
       
       // Re-install each saved accelerator
       // Use %load_ext for all accelerators (RAPIDS docs say this is the correct way)
@@ -132,6 +137,7 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       
       console.log('[AutoLoad] Setting active plugins to:', savedAccelerators);
       setActivePluginIds(new Set(savedAccelerators));
+      setIsReloadingAccelerators(false);
       console.log(`[AutoLoad] ✓ Reloaded ${savedAccelerators.length} accelerator(s) after kernel restart`);
     };
     
@@ -141,6 +147,10 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       // When kernel restarts, mark that we need to reload
       if (status === 'restarting' || status === 'starting') {
         needsReload = true;
+        const savedAccelerators = getAcceleratorsFromMetadata(notebookPanel);
+        if (savedAccelerators.length > 0) {
+          setIsReloadingAccelerators(true);
+        }
       }
       
       // When kernel becomes idle, try to load (will only happen once per restart)
@@ -289,13 +299,17 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
   
   // Build the label
   let label = trans.__('GPU Accel');
-  if (activeCount > 0) {
+  if (isReloadingAccelerators) {
+    label += ' ⟳';
+  } else if (activeCount > 0) {
     label += ` (${activeCount})`;
   }
 
   // Build tooltip showing active accelerators with their info
   let tooltip = trans.__('Select GPU accelerator to toggle');
-  if (activeCount > 0) {
+  if (isReloadingAccelerators) {
+    tooltip = trans.__('Loading accelerators after kernel restart...\n\nPlease wait before running code.');
+  } else if (activeCount > 0) {
     const activePlugins = Array.from(activePluginIds)
       .map(id => acceleratorRegistry.get(id))
       .filter((p): p is IAcceleratorPlugin => p !== undefined);
@@ -319,7 +333,7 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       value="-"
       aria-label={trans.__('GPU Accelerators')}
       title={tooltip}
-      disabled={!hasAnyAvailable}
+      disabled={!hasAnyAvailable || isReloadingAccelerators}
     >
       <option value="-">{label}</option>
       {activeCount > 0 && (
