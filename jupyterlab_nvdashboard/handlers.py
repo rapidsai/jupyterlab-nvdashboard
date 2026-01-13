@@ -9,18 +9,18 @@ URL_PATH = "nvdashboard"
 
 class AcceleratorStatusHandler(JupyterHandler):
     """HTTP endpoint to check availability of GPU accelerators."""
-    
+
     @tornado.web.authenticated
     def get(self):
         """Return the availability status of all GPU accelerators."""
         from .accelerator_checker import check_all_accelerators
-        
+
         response = {
-            'has_gpu': apps.gpu.ngpus > 0,
-            'ngpus': apps.gpu.ngpus,
-            'accelerators': check_all_accelerators()
+            "has_gpu": apps.gpu.ngpus > 0,
+            "ngpus": apps.gpu.ngpus,
+            "accelerators": check_all_accelerators(),
         }
-        
+
         self.finish(json.dumps(response))
 
 
@@ -59,7 +59,7 @@ def setup_handlers(web_app):
     route_pattern_cpu_resource = url_path_join(
         base_url, URL_PATH, "cpu_resource"
     )
-    
+
     # HTTP endpoint for checking accelerator availability
     route_pattern_accelerator_status = url_path_join(
         base_url, URL_PATH, "accelerators/check"
