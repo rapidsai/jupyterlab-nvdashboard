@@ -154,7 +154,7 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
             console.warn(`[AutoLoad] Plugin not found: ${pluginId}`);
             continue;
           }
-          loadCommands.push(`%load_ext ${plugin.extensionName}`);
+          loadCommands.push(plugin.activationCode);
           validPlugins.push(pluginId);
         }
 
@@ -276,7 +276,7 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       if (!isActive) {
         // Activate accelerator using %load_ext (proper way per RAPIDS docs)
         const kernel = sessionContext.session.kernel;
-        const code = `%load_ext ${plugin.extensionName}`;
+        const code = plugin.activationCode;
 
         console.log('[Activate] Installing:', plugin.name);
         await kernel.requestExecute({

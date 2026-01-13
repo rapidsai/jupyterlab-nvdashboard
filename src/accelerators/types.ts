@@ -18,8 +18,14 @@ export interface IAcceleratorPlugin {
   /** Python package name to check for availability (e.g., 'cudf') */
   pythonPackage: string;
 
-  /** Extension name for %load_ext command (e.g., 'cudf.pandas') */
-  extensionName: string;
+  /**
+   * Python code to execute when activating this accelerator.
+   * Can be a %load_ext command, %env command, or any code that needs to be executed to activate the accelerator.
+   * Examples:
+   *   - "%load_ext cudf.pandas"
+   *   - "%env NX_CUGRAPH_AUTOCONFIG=True"
+   */
+  activationCode: string;
 
   /** Minimum version required (optional) */
   minimumVersion?: string;

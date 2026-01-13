@@ -16,7 +16,7 @@ React component that renders a dropdown selector in the JupyterLab toolbar.
 
 - Renders dropdown widget in toolbar
 - Manages accelerator state (active/inactive)
-- Communicates with Jupyter kernel to load/unload extensions via `%load_ext`
+- Communicates with Jupyter kernel to execute activation code
 - Persists accelerator choices in notebook metadata
 - Auto-reloads accelerators after kernel restarts
 
@@ -57,7 +57,7 @@ interface IAcceleratorPlugin {
   name: string; // Display name
   description: string; // What it does
   pythonPackage: string; // Package to check for availability
-  extensionName: string; // Name for %load_ext command
+  activationCode: string; // Python code to activate accelerator
   minimumVersion?: string; // Optional version requirement
   documentation?: string; // Link to documentation
 }
@@ -173,7 +173,7 @@ Each plugin is a simple TypeScript object implementing `IAcceleratorPlugin`.
                       ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                   Jupyter Kernel                             │
-│  • Execute: %load_ext {extensionName}                       │
+│  • Execute: {activationCode}                                 │
 │  • Save state to notebook metadata                           │
 │  • Auto-reload after kernel restart                          │
 └─────────────────────────────────────────────────────────────┘
@@ -191,7 +191,7 @@ Each plugin is a simple TypeScript object implementing `IAcceleratorPlugin`.
 ### User Activation
 
 1. User selects accelerator from dropdown
-2. Component executes `%load_ext {extensionName}` in Jupyter kernel
+2. Component executes `activationCode` in Jupyter kernel
 3. Updates active plugin state
 4. Saves selection to notebook metadata (`gpu_accelerators` field)
 5. Prompts user to restart kernel for changes to take effect
@@ -202,7 +202,7 @@ Each plugin is a simple TypeScript object implementing `IAcceleratorPlugin`.
 2. Sets internal flag to trigger reload
 3. When kernel becomes `'idle'`, auto-loads saved accelerators
 4. Reads from notebook metadata
-5. Batch executes all `%load_ext` commands
+5. Batch executes all activation code commands
 6. Updates UI to show active accelerators
 
 ## Adding a New Accelerator
@@ -221,7 +221,7 @@ export const myAccelPlugin: IAcceleratorPlugin = {
   name: 'My Accelerator',
   description: 'GPU-accelerated functionality',
   pythonPackage: 'mypackage',
-  extensionName: 'mypackage.accel',
+  activationCode: '%load_ext mypackage.accel', // or whatever code needed
   minimumVersion: '1.0.0',
   documentation: 'https://example.com/docs'
 };

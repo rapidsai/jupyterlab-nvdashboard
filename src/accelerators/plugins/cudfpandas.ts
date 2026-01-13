@@ -13,7 +13,7 @@ export const cudfpandasPlugin: IAcceleratorPlugin = {
   name: 'cuDF pandas',
   description: 'GPU-accelerated pandas',
   pythonPackage: 'cudf',
-  extensionName: 'cudf.pandas',
+  activationCode: '%load_ext cudf.pandas',
   minimumVersion: '25.12',
   documentation: 'https://docs.rapids.ai/api/cudf/stable/cudf_pandas/'
 };

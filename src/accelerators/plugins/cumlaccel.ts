@@ -13,7 +13,7 @@ export const cumlaccelPlugin: IAcceleratorPlugin = {
   name: 'cuML Accelerator',
   description: 'GPU-accelerated scikit-learn',
   pythonPackage: 'cuml',
-  extensionName: 'cuml.accel',
+  activationCode: '%load_ext cuml.accel',
   minimumVersion: '25.12',
   documentation: 'https://docs.rapids.ai/api/cuml/stable/cuml-accel/'
 };
