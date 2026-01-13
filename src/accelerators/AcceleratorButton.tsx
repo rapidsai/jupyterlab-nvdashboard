@@ -323,7 +323,7 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
     >
       <option value="-">{label}</option>
       {activeCount > 0 && (
-        <option value="clear-all">{trans.__('✓ Clear All')}</option>
+        <option value="clear-all">{trans.__('Clear All')}</option>
       )}
       {plugins.map(plugin => {
         const status = acceleratorRegistry.getPluginStatus(plugin.id, systemInfo);
