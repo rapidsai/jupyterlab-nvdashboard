@@ -84,7 +84,8 @@ const extension: JupyterFrontEndPlugin<void> = {
     // Add GPU Accelerator selector to notebook toolbars
     notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
       const acceleratorSelector = new AcceleratorSelectorWidget(
-        notebookPanel.sessionContext
+        notebookPanel.sessionContext,
+        notebookPanel
       );
       
       // Add selector to the notebook toolbar after the 'cellType' dropdown
