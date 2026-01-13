@@ -102,14 +102,18 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       
       const savedAccelerators = getAcceleratorsFromMetadata(notebookPanel);
       console.log('[AutoLoad] Saved accelerators from metadata:', savedAccelerators);
+      
+      // Show loading indicator even if no accelerators (kernel needs time to fully restart)
+      setIsReloadingAccelerators(true);
+      
       if (savedAccelerators.length === 0) {
+        // Wait a moment for kernel to be fully ready even with no accelerators
+        await new Promise(resolve => setTimeout(resolve, 1000));
         setActivePluginIds(new Set());
         setIsReloadingAccelerators(false);
+        console.log('[AutoLoad] No accelerators to load, kernel ready');
         return;
       }
-      
-      // Show loading indicator
-      setIsReloadingAccelerators(true);
       
       // Re-install each saved accelerator
       // Use %load_ext for all accelerators (RAPIDS docs say this is the correct way)
@@ -147,10 +151,8 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       // When kernel restarts, mark that we need to reload
       if (status === 'restarting' || status === 'starting') {
         needsReload = true;
-        const savedAccelerators = getAcceleratorsFromMetadata(notebookPanel);
-        if (savedAccelerators.length > 0) {
-          setIsReloadingAccelerators(true);
-        }
+        // Always show loading indicator during restart (even for Clear All case)
+        setIsReloadingAccelerators(true);
       }
       
       // When kernel becomes idle, try to load (will only happen once per restart)
