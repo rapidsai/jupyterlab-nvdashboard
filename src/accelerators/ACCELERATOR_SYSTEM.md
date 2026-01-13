@@ -13,6 +13,7 @@ The accelerator plugin system is a modular, extensible framework for enabling GP
 React component that renders a dropdown selector in the JupyterLab toolbar.
 
 **Responsibilities:**
+
 - Renders dropdown widget in toolbar
 - Manages accelerator state (active/inactive)
 - Communicates with Jupyter kernel to load/unload extensions via `%load_ext`
@@ -20,6 +21,7 @@ React component that renders a dropdown selector in the JupyterLab toolbar.
 - Auto-reloads accelerators after kernel restarts
 
 **Key Features:**
+
 - Shows active accelerator count in label
 - Displays checkmarks next to active accelerators
 - Handles kernel lifecycle (restart, status changes)
@@ -31,12 +33,14 @@ React component that renders a dropdown selector in the JupyterLab toolbar.
 Central registry for all accelerator plugins.
 
 **Responsibilities:**
+
 - Maintains map of registered plugins
 - Auto-registers built-in plugins on initialization
 - Queries backend API for system capabilities
 - Maps plugin IDs to availability status
 
 **Key Methods:**
+
 - `register(plugin)` - Register a new plugin
 - `getAll()` - Get all registered plugins
 - `get(id)` - Get specific plugin by ID
@@ -49,23 +53,23 @@ TypeScript interfaces defining the plugin contract:
 
 ```typescript
 interface IAcceleratorPlugin {
-  id: string;                // Unique identifier
-  name: string;              // Display name
-  description: string;       // What it does
-  pythonPackage: string;     // Package to check for availability
-  extensionName: string;     // Name for %load_ext command
-  minimumVersion?: string;   // Optional version requirement
-  documentation?: string;    // Link to documentation
+  id: string; // Unique identifier
+  name: string; // Display name
+  description: string; // What it does
+  pythonPackage: string; // Package to check for availability
+  extensionName: string; // Name for %load_ext command
+  minimumVersion?: string; // Optional version requirement
+  documentation?: string; // Link to documentation
 }
 
 interface IAcceleratorStatus {
-  available: boolean;        // Whether package is installed
-  version: string | null;    // Installed version
+  available: boolean; // Whether package is installed
+  version: string | null; // Installed version
 }
 
 interface IAcceleratorSystemInfo {
-  has_gpu: boolean;          // System has GPUs
-  ngpus: number;             // Number of GPUs
+  has_gpu: boolean; // System has GPUs
+  ngpus: number; // Number of GPUs
   accelerators: Record<string, IAcceleratorStatus>;
 }
 ```
@@ -79,6 +83,7 @@ Provides REST API endpoint for checking accelerator availability.
 **Endpoint:** `GET /nvdashboard/accelerators/check`
 
 **Response Format:**
+
 ```json
 {
   "has_gpu": true,
@@ -101,6 +106,7 @@ Provides REST API endpoint for checking accelerator availability.
 Python module that checks if accelerator packages are installed.
 
 **Key Functions:**
+
 - `check_package_availability(package_name)` - Generic package checker
 - `check_cudf_availability()` - Check cuDF installation
 - `check_cuml_availability()` - Check cuML installation
@@ -111,6 +117,7 @@ Python module that checks if accelerator packages are installed.
 Plugins are stored in `src/accelerators/plugins/` directory.
 
 **Current Plugins:**
+
 - `cudfpandas.ts` - cuDF pandas accelerator
 - `cumlaccel.ts` - cuML accelerator
 - `index.ts` - Plugin exports
@@ -175,12 +182,14 @@ Each plugin is a simple TypeScript object implementing `IAcceleratorPlugin`.
 ## Lifecycle
 
 ### Initialization
+
 1. `AcceleratorRegistry` constructor auto-registers built-in plugins
 2. `AcceleratorButton` component mounts and calls `checkAvailability()`
 3. Backend checks which packages are installed via Python imports
 4. UI filters and displays available accelerators
 
 ### User Activation
+
 1. User selects accelerator from dropdown
 2. Component executes `%load_ext {extensionName}` in Jupyter kernel
 3. Updates active plugin state
@@ -188,6 +197,7 @@ Each plugin is a simple TypeScript object implementing `IAcceleratorPlugin`.
 5. Prompts user to restart kernel for changes to take effect
 
 ### Kernel Restart
+
 1. Button detects kernel status change to `'restarting'`
 2. Sets internal flag to trigger reload
 3. When kernel becomes `'idle'`, auto-loads saved accelerators
@@ -267,12 +277,12 @@ jupyter labextension develop . --overwrite
 ```
 
 The new accelerator will automatically:
+
 - Appear in the dropdown menu
 - Show availability status
 - Display version information
 - Support kernel lifecycle management
 - Persist state in notebook metadata
-
 
 ## File Structure
 
@@ -295,16 +305,18 @@ jupyterlab_nvdashboard/
 ## TODO: Testing Components
 
 ### Backend Tests
+
 - [ ] AcceleratorStatusHandler endpoint (response format, authentication)
 - [ ] accelerator_checker module (package detection, version extraction)
 
 ### Frontend Tests
+
 - [ ] AcceleratorRegistry (plugin registration, API communication)
 - [ ] AcceleratorButton component (rendering, user interactions, state management)
 - [ ] Plugin definitions (structure validation, exports)
 
 ### Integration Tests
+
 - [ ] End-to-end activation flow (selection → kernel load → metadata save)
 - [ ] Kernel restart with auto-reload of saved accelerators
 - [ ] Multi-accelerator scenarios
-

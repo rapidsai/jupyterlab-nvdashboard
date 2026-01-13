@@ -87,7 +87,7 @@ const extension: JupyterFrontEndPlugin<void> = {
         notebookPanel.sessionContext,
         notebookPanel
       );
-      
+
       // Add selector to the notebook toolbar after the 'cellType' dropdown
       notebookPanel.toolbar.insertAfter(
         'cellType',

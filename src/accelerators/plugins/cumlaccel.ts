@@ -17,4 +17,3 @@ export const cumlaccelPlugin: IAcceleratorPlugin = {
   minimumVersion: '25.12',
   documentation: 'https://docs.rapids.ai/api/cuml/stable/cuml-accel/'
 };
-

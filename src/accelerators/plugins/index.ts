@@ -1,6 +1,6 @@
 /**
  * Export all accelerator plugins
- * 
+ *
  * To add a new accelerator plugin:
  * 1. Create a new file in this directory (e.g., newAccel.ts)
  * 2. Define the plugin following the IAcceleratorPlugin interface

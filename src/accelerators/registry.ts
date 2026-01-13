@@ -1,6 +1,6 @@
 /**
  * Accelerator Plugin Registry
- * 
+ *
  * Central registry for managing GPU accelerator plugins.
  * Handles plugin registration and availability checking via backend API.
  */
@@ -52,7 +52,7 @@ export class AcceleratorRegistry {
   /**
    * Check system capabilities and accelerator availability.
    * Calls the backend API: GET /nvdashboard/accelerators/check
-   * 
+   *
    * @returns Promise resolving to system information
    */
   async checkAvailability(): Promise<IAcceleratorSystemInfo> {
@@ -87,7 +87,7 @@ export class AcceleratorRegistry {
 
   /**
    * Get the status of a specific accelerator.
-   * 
+   *
    * @param pluginId - The ID of the plugin to check
    * @param systemInfo - System information from checkAvailability()
    * @returns Status of the accelerator, or unavailable if not found

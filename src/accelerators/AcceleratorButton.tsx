@@ -1,6 +1,6 @@
 /**
  * GPU Accelerator Toolbar Selector Component
- * 
+ *
  * A native select dropdown for toggling GPU accelerators (cudf.pandas, cuml.accel, etc.)
  */
 
@@ -25,7 +25,7 @@ interface IAcceleratorSelectorProps {
 function getAcceleratorsFromMetadata(notebookPanel?: NotebookPanel): string[] {
   const model = notebookPanel?.model;
   if (!model) return [];
-  
+
   const saved = model.getMetadata('gpu_accelerators');
   console.log('[GetMetadata] Raw value:', saved);
   return (Array.isArray(saved) ? saved : []) as string[];
@@ -34,10 +34,13 @@ function getAcceleratorsFromMetadata(notebookPanel?: NotebookPanel): string[] {
 /**
  * Helper to safely save accelerators to notebook metadata
  */
-function saveAcceleratorsToMetadata(notebookPanel: NotebookPanel | undefined, accelerators: string[]): void {
+function saveAcceleratorsToMetadata(
+  notebookPanel: NotebookPanel | undefined,
+  accelerators: string[]
+): void {
   const model = notebookPanel?.model;
   if (!model) return;
-  
+
   console.log('[SaveMetadata] Saving:', accelerators);
   if (accelerators.length > 0) {
     model.setMetadata('gpu_accelerators', accelerators);
@@ -55,8 +58,12 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
   translator
 }) => {
   const trans = (translator || nullTranslator).load('jupyterlab');
-  const [systemInfo, setSystemInfo] = useState<IAcceleratorSystemInfo | null>(null);
-  const [activePluginIds, setActivePluginIds] = useState<Set<string>>(new Set());
+  const [systemInfo, setSystemInfo] = useState<IAcceleratorSystemInfo | null>(
+    null
+  );
+  const [activePluginIds, setActivePluginIds] = useState<Set<string>>(
+    new Set()
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isReloadingAccelerators, setIsReloadingAccelerators] = useState(false);
 
@@ -87,49 +94,52 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
   // Use refs to avoid stale closure issues in event handlers
   const needsReloadRef = useRef(true);
   const loadingKernelIdRef = useRef<string | null>(null);
-  
+
   useEffect(() => {
     if (!sessionContext.session?.kernel || !notebookPanel?.model) {
       return;
     }
-    
+
     const kernel = sessionContext.session.kernel;
-    
+
     const loadSavedAccelerators = async () => {
       // Check if we need to reload and get current kernel
       if (!needsReloadRef.current) return;
-      
+
       const currentKernel = sessionContext.session?.kernel;
       if (!currentKernel) return;
-      
+
       const kernelId = currentKernel.id;
-      
+
       // Prevent duplicate loads for the same kernel (race condition protection)
       if (loadingKernelIdRef.current === kernelId) {
         console.log('[AutoLoad] Already loading for this kernel, skipping');
         return;
       }
-      
+
       try {
         loadingKernelIdRef.current = kernelId;
         needsReloadRef.current = false;
-        
+
         const savedAccelerators = getAcceleratorsFromMetadata(notebookPanel);
-        console.log('[AutoLoad] Saved accelerators from metadata:', savedAccelerators);
-        
+        console.log(
+          '[AutoLoad] Saved accelerators from metadata:',
+          savedAccelerators
+        );
+
         setIsReloadingAccelerators(true);
-        
+
         if (savedAccelerators.length === 0) {
           setActivePluginIds(new Set());
           setIsReloadingAccelerators(false);
           console.log('[AutoLoad] No accelerators to load, kernel ready');
           return;
         }
-        
+
         // Batch load all extensions in a single code block for better reliability
         const loadCommands: string[] = [];
         const validPlugins: string[] = [];
-        
+
         for (const pluginId of savedAccelerators) {
           const plugin = acceleratorRegistry.get(pluginId);
           if (!plugin) {
@@ -139,32 +149,33 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
           loadCommands.push(`%load_ext ${plugin.extensionName}`);
           validPlugins.push(pluginId);
         }
-        
+
         if (loadCommands.length === 0) {
           setIsReloadingAccelerators(false);
           return;
         }
-        
+
         // Execute all load_ext commands together
         const code = loadCommands.join('\n');
         console.log(`[AutoLoad] Executing batch load:\n${code}`);
-        
+
         const result = await currentKernel.requestExecute({
           code: code,
-          silent: false,  // Must be false for extensions to load properly
+          silent: false, // Must be false for extensions to load properly
           store_history: false
         }).done;
-        
+
         // Check if execution was successful
         if (result?.content?.status === 'error') {
           console.error('[AutoLoad] Failed to load accelerators:', result);
           // Still set the active plugins - user can see errors in notebook
           setActivePluginIds(new Set(validPlugins));
         } else {
-          console.log(`[AutoLoad] ✓ Successfully reloaded ${validPlugins.length} accelerator(s)`);
+          console.log(
+            `[AutoLoad] ✓ Successfully reloaded ${validPlugins.length} accelerator(s)`
+          );
           setActivePluginIds(new Set(validPlugins));
         }
-        
       } catch (error) {
         console.error('[AutoLoad] Error during accelerator reload:', error);
         // Reset state on error
@@ -174,30 +185,30 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         loadingKernelIdRef.current = null;
       }
     };
-    
+
     const statusHandler = () => {
       const status = sessionContext.session?.kernel?.status;
-      
+
       // When kernel restarts, mark that we need to reload
       if (status === 'restarting' || status === 'starting') {
         needsReloadRef.current = true;
         setIsReloadingAccelerators(true);
       }
-      
+
       // When kernel becomes idle, trigger reload (if needed)
       if (status === 'idle' && needsReloadRef.current) {
         // Small delay to ensure kernel is fully settled
         setTimeout(() => loadSavedAccelerators(), 300);
       }
     };
-    
+
     sessionContext.statusChanged.connect(statusHandler);
-    
+
     // Load immediately if kernel is already idle
     if (kernel.status === 'idle') {
       loadSavedAccelerators();
     }
-    
+
     return () => {
       sessionContext.statusChanged.disconnect(statusHandler);
     };
@@ -206,13 +217,15 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
   /**
    * Handle change events for the select dropdown
    */
-  const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>): Promise<void> => {
+  const handleChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ): Promise<void> => {
     const value = event.target.value;
-    
+
     if (value === '-') {
       return;
     }
-    
+
     if (!sessionContext.session?.kernel) {
       void showDialog({
         title: trans.__('No Kernel'),
@@ -221,14 +234,16 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       });
       return;
     }
-    
+
     if (value === 'clear-all') {
       saveAcceleratorsToMetadata(notebookPanel, []);
       setActivePluginIds(new Set());
-      
+
       const result = await showDialog({
         title: trans.__('Accelerators Cleared'),
-        body: trans.__('All accelerators have been cleared.\n\nThe kernel will be restarted for changes to take effect.'),
+        body: trans.__(
+          'All accelerators have been cleared.\n\nThe kernel will be restarted for changes to take effect.'
+        ),
         buttons: [
           Dialog.cancelButton({ label: trans.__('Cancel') }),
           Dialog.warnButton({ label: trans.__('Restart Kernel') })
@@ -240,42 +255,45 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       }
       return;
     }
-    
+
     const plugin = acceleratorRegistry.get(value);
     if (!plugin) {
       console.error(`Plugin not found: ${value}`);
       return;
     }
-    
+
     const isActive = activePluginIds.has(value);
-    
+
     try {
       if (!isActive) {
         // Activate accelerator using %load_ext (proper way per RAPIDS docs)
         const kernel = sessionContext.session.kernel;
         const code = `%load_ext ${plugin.extensionName}`;
-        
+
         console.log('[Activate] Installing:', plugin.name);
         await kernel.requestExecute({
           code: code,
-          silent: false,  // Changed to false so extension loads properly
+          silent: false, // Changed to false so extension loads properly
           store_history: false
         }).done;
-        
+
         // Update UI state
         const newActive = new Set(activePluginIds);
         newActive.add(value);
-        console.log('[Activate] Setting active plugins to:', Array.from(newActive));
+        console.log(
+          '[Activate] Setting active plugins to:',
+          Array.from(newActive)
+        );
         setActivePluginIds(newActive);
-        
+
         // Save to metadata (for kernel restart within same session)
         saveAcceleratorsToMetadata(notebookPanel, Array.from(newActive));
-        
+
         const result = await showDialog({
           title: trans.__(`${plugin.name} Installed`),
           body: trans.__(
             `${plugin.name} has been installed.\n\n` +
-            `The kernel will be restarted for changes to take effect.`
+              `The kernel will be restarted for changes to take effect.`
           ),
           buttons: [
             Dialog.cancelButton({ label: trans.__('Cancel') }),
@@ -286,22 +304,24 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         if (result.button.accept) {
           await sessionContext.restartKernel();
         }
-        
       } else {
         // Deactivate accelerator
         const newActive = new Set(activePluginIds);
         newActive.delete(value);
-        console.log('[Deactivate] Setting active plugins to:', Array.from(newActive));
+        console.log(
+          '[Deactivate] Setting active plugins to:',
+          Array.from(newActive)
+        );
         setActivePluginIds(newActive);
-        
+
         // Save to metadata (for kernel restart within same session)
         saveAcceleratorsToMetadata(notebookPanel, Array.from(newActive));
-        
+
         const result = await showDialog({
           title: trans.__(`${plugin.name} Removed`),
           body: trans.__(
             `${plugin.name} has been removed.\n\n` +
-            `The kernel will be restarted for changes to take effect.`
+              `The kernel will be restarted for changes to take effect.`
           ),
           buttons: [
             Dialog.cancelButton({ label: trans.__('Cancel') }),
@@ -317,7 +337,11 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       console.error(`Failed to toggle ${plugin.name}:`, error);
       void showDialog({
         title: trans.__('Error'),
-        body: trans.__(`Failed to ${isActive ? 'deactivate' : 'activate'} ${plugin.name}.\n\nError: ${error}`),
+        body: trans.__(
+          `Failed to ${isActive ? 'deactivate' : 'activate'} ${
+            plugin.name
+          }.\n\nError: ${error}`
+        ),
         buttons: [Dialog.okButton()]
       });
     }
@@ -344,12 +368,13 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
 
   const plugins = acceleratorRegistry.getAll();
   const availablePlugins = plugins.filter(
-    plugin => acceleratorRegistry.getPluginStatus(plugin.id, systemInfo).available
+    plugin =>
+      acceleratorRegistry.getPluginStatus(plugin.id, systemInfo).available
   );
 
   const hasAnyAvailable = availablePlugins.length > 0;
   const activeCount = activePluginIds.size;
-  
+
   // Build the label
   let label = trans.__('GPU Accel');
   if (isReloadingAccelerators) {
@@ -361,12 +386,14 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
   // Build tooltip showing active accelerators with their info
   let tooltip = trans.__('Select GPU accelerator to toggle');
   if (isReloadingAccelerators) {
-    tooltip = trans.__('Loading accelerators after kernel restart...\n\nPlease wait before running code.');
+    tooltip = trans.__(
+      'Loading accelerators after kernel restart...\n\nPlease wait before running code.'
+    );
   } else if (activeCount > 0) {
     const activePlugins = Array.from(activePluginIds)
       .map(id => acceleratorRegistry.get(id))
       .filter((p): p is IAcceleratorPlugin => p !== undefined);
-    
+
     tooltip = trans.__('Active accelerators:\n');
     activePlugins.forEach(plugin => {
       tooltip += `\n• ${plugin.name}: ${plugin.description}`;
@@ -393,11 +420,14 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         <option value="clear-all">{trans.__('Clear All')}</option>
       )}
       {plugins.map(plugin => {
-        const status = acceleratorRegistry.getPluginStatus(plugin.id, systemInfo);
+        const status = acceleratorRegistry.getPluginStatus(
+          plugin.id,
+          systemInfo
+        );
         const isActive = activePluginIds.has(plugin.id);
         const checkmark = isActive ? '✓ ' : '';
         const unavailable = !status.available ? ' (not installed)' : '';
-        
+
         // Build tooltip with description and documentation link
         let tooltip = plugin.description;
         if (plugin.documentation) {
@@ -409,7 +439,7 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         if (!status.available) {
           tooltip += `\n\nInstall with: pip or conda install ${plugin.pythonPackage}`;
         }
-        
+
         return (
           <option
             key={plugin.id}
@@ -417,7 +447,9 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
             disabled={!status.available}
             title={tooltip}
           >
-            {checkmark}{plugin.name}{unavailable}
+            {checkmark}
+            {plugin.name}
+            {unavailable}
           </option>
         );
       })}
@@ -440,7 +472,7 @@ export class AcceleratorSelectorWidget extends ReactWidget {
 
   render(): JSX.Element {
     return (
-      <AcceleratorSelector 
+      <AcceleratorSelector
         sessionContext={this._sessionContext}
         notebookPanel={this._notebookPanel}
         translator={this._translator}

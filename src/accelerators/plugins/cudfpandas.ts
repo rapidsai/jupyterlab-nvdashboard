@@ -17,4 +17,3 @@ export const cudfpandasPlugin: IAcceleratorPlugin = {
   minimumVersion: '25.12',
   documentation: 'https://docs.rapids.ai/api/cudf/stable/cudf_pandas/'
 };
-
