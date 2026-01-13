@@ -24,7 +24,9 @@ interface IAcceleratorSelectorProps {
  */
 function getAcceleratorsFromMetadata(notebookPanel?: NotebookPanel): string[] {
   const model = notebookPanel?.model;
-  if (!model) return [];
+  if (!model) {
+    return [];
+  }
 
   const saved = model.getMetadata('gpu_accelerators');
   console.log('[GetMetadata] Raw value:', saved);
@@ -39,7 +41,9 @@ function saveAcceleratorsToMetadata(
   accelerators: string[]
 ): void {
   const model = notebookPanel?.model;
-  if (!model) return;
+  if (!model) {
+    return;
+  }
 
   console.log('[SaveMetadata] Saving:', accelerators);
   if (accelerators.length > 0) {
@@ -104,10 +108,14 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
 
     const loadSavedAccelerators = async () => {
       // Check if we need to reload and get current kernel
-      if (!needsReloadRef.current) return;
+      if (!needsReloadRef.current) {
+        return;
+      }
 
       const currentKernel = sessionContext.session?.kernel;
-      if (!currentKernel) return;
+      if (!currentKernel) {
+        return;
+      }
 
       const kernelId = currentKernel.id;
 
@@ -293,7 +301,7 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
           title: trans.__(`${plugin.name} Installed`),
           body: trans.__(
             `${plugin.name} has been installed.\n\n` +
-              `The kernel will be restarted for changes to take effect.`
+              'The kernel will be restarted for changes to take effect.'
           ),
           buttons: [
             Dialog.cancelButton({ label: trans.__('Cancel') }),
@@ -321,7 +329,7 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
           title: trans.__(`${plugin.name} Removed`),
           body: trans.__(
             `${plugin.name} has been removed.\n\n` +
-              `The kernel will be restarted for changes to take effect.`
+              'The kernel will be restarted for changes to take effect.'
           ),
           buttons: [
             Dialog.cancelButton({ label: trans.__('Cancel') }),
