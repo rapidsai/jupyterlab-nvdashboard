@@ -226,11 +226,18 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       saveAcceleratorsToMetadata(notebookPanel, []);
       setActivePluginIds(new Set());
       
-      void showDialog({
+      const result = await showDialog({
         title: trans.__('Accelerators Cleared'),
-        body: trans.__('All accelerators have been cleared.\n\nPlease restart the kernel manually for changes to take effect.'),
-        buttons: [Dialog.okButton({ label: trans.__('OK') })]
+        body: trans.__('All accelerators have been cleared.\n\nThe kernel will be restarted for changes to take effect.'),
+        buttons: [
+          Dialog.cancelButton({ label: trans.__('Cancel') }),
+          Dialog.warnButton({ label: trans.__('Restart Kernel') })
+        ]
       });
+
+      if (result.button.accept) {
+        await sessionContext.restartKernel();
+      }
       return;
     }
     
@@ -264,14 +271,21 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         // Save to metadata (for kernel restart within same session)
         saveAcceleratorsToMetadata(notebookPanel, Array.from(newActive));
         
-        void showDialog({
+        const result = await showDialog({
           title: trans.__(`${plugin.name} Installed`),
           body: trans.__(
             `${plugin.name} has been installed.\n\n` +
-            `Please restart the kernel manually for changes to take effect.`
+            `The kernel will be restarted for changes to take effect.`
           ),
-          buttons: [Dialog.okButton({ label: trans.__('OK') })]
+          buttons: [
+            Dialog.cancelButton({ label: trans.__('Cancel') }),
+            Dialog.warnButton({ label: trans.__('Restart Kernel') })
+          ]
         });
+
+        if (result.button.accept) {
+          await sessionContext.restartKernel();
+        }
         
       } else {
         // Deactivate accelerator
@@ -283,14 +297,21 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         // Save to metadata (for kernel restart within same session)
         saveAcceleratorsToMetadata(notebookPanel, Array.from(newActive));
         
-        void showDialog({
+        const result = await showDialog({
           title: trans.__(`${plugin.name} Removed`),
           body: trans.__(
             `${plugin.name} has been removed.\n\n` +
-            `Please restart the kernel manually for changes to take effect.`
+            `The kernel will be restarted for changes to take effect.`
           ),
-          buttons: [Dialog.okButton({ label: trans.__('OK') })]
+          buttons: [
+            Dialog.cancelButton({ label: trans.__('Cancel') }),
+            Dialog.warnButton({ label: trans.__('Restart Kernel') })
+          ]
         });
+
+        if (result.button.accept) {
+          await sessionContext.restartKernel();
+        }
       }
     } catch (error) {
       console.error(`Failed to toggle ${plugin.name}:`, error);
