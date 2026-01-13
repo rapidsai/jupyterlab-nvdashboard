@@ -84,65 +84,95 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
   }, [notebookPanel?.model]);
 
   // Auto-load saved accelerators when kernel starts or restarts
+  // Use refs to avoid stale closure issues in event handlers
+  const needsReloadRef = useRef(true);
+  const loadingKernelIdRef = useRef<string | null>(null);
+  
   useEffect(() => {
     if (!sessionContext.session?.kernel || !notebookPanel?.model) {
       return;
     }
     
     const kernel = sessionContext.session.kernel;
-    let needsReload = true; // Flag to reload only once per kernel session
     
     const loadSavedAccelerators = async () => {
-      if (!needsReload) return;
+      // Check if we need to reload and get current kernel
+      if (!needsReloadRef.current) return;
       
       const currentKernel = sessionContext.session?.kernel;
-      if (!currentKernel || currentKernel.status !== 'idle') return;
+      if (!currentKernel) return;
       
-      needsReload = false; // Mark as loaded
+      const kernelId = currentKernel.id;
       
-      const savedAccelerators = getAcceleratorsFromMetadata(notebookPanel);
-      console.log('[AutoLoad] Saved accelerators from metadata:', savedAccelerators);
-      
-      // Show loading indicator even if no accelerators (kernel needs time to fully restart)
-      setIsReloadingAccelerators(true);
-      
-      if (savedAccelerators.length === 0) {
-        // Wait a moment for kernel to be fully ready even with no accelerators
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setActivePluginIds(new Set());
-        setIsReloadingAccelerators(false);
-        console.log('[AutoLoad] No accelerators to load, kernel ready');
+      // Prevent duplicate loads for the same kernel (race condition protection)
+      if (loadingKernelIdRef.current === kernelId) {
+        console.log('[AutoLoad] Already loading for this kernel, skipping');
         return;
       }
       
-      // Re-install each saved accelerator
-      // Use %load_ext for all accelerators (RAPIDS docs say this is the correct way)
-      for (const pluginId of savedAccelerators) {
-        const plugin = acceleratorRegistry.get(pluginId);
-        if (!plugin) {
-          console.warn(`[AutoLoad] Plugin not found: ${pluginId}`);
-          continue;
+      try {
+        loadingKernelIdRef.current = kernelId;
+        needsReloadRef.current = false;
+        
+        const savedAccelerators = getAcceleratorsFromMetadata(notebookPanel);
+        console.log('[AutoLoad] Saved accelerators from metadata:', savedAccelerators);
+        
+        setIsReloadingAccelerators(true);
+        
+        if (savedAccelerators.length === 0) {
+          setActivePluginIds(new Set());
+          setIsReloadingAccelerators(false);
+          console.log('[AutoLoad] No accelerators to load, kernel ready');
+          return;
         }
         
-        const code = `%load_ext ${plugin.extensionName}`;
-        console.log(`[AutoLoad] Executing: ${code}`);
+        // Batch load all extensions in a single code block for better reliability
+        const loadCommands: string[] = [];
+        const validPlugins: string[] = [];
         
-        try {
-          const result = await currentKernel.requestExecute({
-            code: code,
-            silent: false,  // Changed to false so extension loads properly
-            store_history: false
-          }).done;
-          console.log(`[AutoLoad] Successfully loaded ${plugin.name}`, result);
-        } catch (error) {
-          console.error(`[AutoLoad] Failed to restore ${plugin.name}:`, error);
+        for (const pluginId of savedAccelerators) {
+          const plugin = acceleratorRegistry.get(pluginId);
+          if (!plugin) {
+            console.warn(`[AutoLoad] Plugin not found: ${pluginId}`);
+            continue;
+          }
+          loadCommands.push(`%load_ext ${plugin.extensionName}`);
+          validPlugins.push(pluginId);
         }
+        
+        if (loadCommands.length === 0) {
+          setIsReloadingAccelerators(false);
+          return;
+        }
+        
+        // Execute all load_ext commands together
+        const code = loadCommands.join('\n');
+        console.log(`[AutoLoad] Executing batch load:\n${code}`);
+        
+        const result = await currentKernel.requestExecute({
+          code: code,
+          silent: false,  // Must be false for extensions to load properly
+          store_history: false
+        }).done;
+        
+        // Check if execution was successful
+        if (result?.content?.status === 'error') {
+          console.error('[AutoLoad] Failed to load accelerators:', result);
+          // Still set the active plugins - user can see errors in notebook
+          setActivePluginIds(new Set(validPlugins));
+        } else {
+          console.log(`[AutoLoad] ✓ Successfully reloaded ${validPlugins.length} accelerator(s)`);
+          setActivePluginIds(new Set(validPlugins));
+        }
+        
+      } catch (error) {
+        console.error('[AutoLoad] Error during accelerator reload:', error);
+        // Reset state on error
+        setActivePluginIds(new Set());
+      } finally {
+        setIsReloadingAccelerators(false);
+        loadingKernelIdRef.current = null;
       }
-      
-      console.log('[AutoLoad] Setting active plugins to:', savedAccelerators);
-      setActivePluginIds(new Set(savedAccelerators));
-      setIsReloadingAccelerators(false);
-      console.log(`[AutoLoad] ✓ Reloaded ${savedAccelerators.length} accelerator(s) after kernel restart`);
     };
     
     const statusHandler = () => {
@@ -150,14 +180,14 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       
       // When kernel restarts, mark that we need to reload
       if (status === 'restarting' || status === 'starting') {
-        needsReload = true;
-        // Always show loading indicator during restart (even for Clear All case)
+        needsReloadRef.current = true;
         setIsReloadingAccelerators(true);
       }
       
-      // When kernel becomes idle, try to load (will only happen once per restart)
-      if (status === 'idle' && needsReload) {
-        setTimeout(loadSavedAccelerators, 500);
+      // When kernel becomes idle, trigger reload (if needed)
+      if (status === 'idle' && needsReloadRef.current) {
+        // Small delay to ensure kernel is fully settled
+        setTimeout(() => loadSavedAccelerators(), 300);
       }
     };
     
