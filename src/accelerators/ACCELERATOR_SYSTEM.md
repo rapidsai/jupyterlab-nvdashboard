@@ -24,9 +24,12 @@ React component that renders a dropdown selector in the JupyterLab toolbar.
 
 - Shows active accelerator count in label
 - Displays checkmarks next to active accelerators
+- "Select All" option to enable all available accelerators at once
+- "Clear All" option to disable all active accelerators
 - Handles kernel lifecycle (restart, status changes)
 - Provides tooltips with accelerator info
 - Disables unavailable accelerators
+- Batch execution of multiple accelerators for better reliability
 
 #### AcceleratorRegistry (`src/accelerators/registry.ts`)
 
@@ -132,8 +135,11 @@ Each plugin is a simple TypeScript object implementing `IAcceleratorPlugin`.
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │  AcceleratorButton Component                          │  │
 │  │    [GPU Accel (2) ▼]                                  │  │
-│  │      • ✓ cuDF pandas                                  │  │
-│  │      • ✓ cuML Accelerator                             │  │
+│  │      • GPU Accel (2)        [disabled label]          │  │
+│  │      • Select All           [batch enable all]        │  │
+│  │      • Clear All            [batch disable all]       │  │
+│  │      • ✓ cuDF pandas        [toggle individual]       │  │
+│  │      • ✓ cuML Accelerator   [toggle individual]       │  │
 │  └───────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
                       │
@@ -190,11 +196,29 @@ Each plugin is a simple TypeScript object implementing `IAcceleratorPlugin`.
 
 ### User Activation
 
+#### Individual Accelerator Toggle
+
 1. User selects accelerator from dropdown
 2. Component executes `activationCode` in Jupyter kernel
 3. Updates active plugin state
 4. Saves selection to notebook metadata (`gpu_accelerators` field)
 5. Prompts user to restart kernel for changes to take effect
+
+#### Select All Accelerators
+
+1. User selects "Select All" option from dropdown
+2. Component collects activation codes for all available (installed) accelerators
+3. Batch executes all activation codes in a single kernel request for reliability
+4. Updates active plugin state for all accelerators
+5. Saves all selections to notebook metadata
+6. Prompts user to restart kernel for changes to take effect
+
+#### Clear All Accelerators
+
+1. User selects "Clear All" option from dropdown
+2. Component clears all active accelerators from state
+3. Clears notebook metadata
+4. Prompts user to restart kernel for changes to take effect
 
 ### Kernel Restart
 
