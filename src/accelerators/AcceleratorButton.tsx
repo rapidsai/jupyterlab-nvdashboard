@@ -264,6 +264,69 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       return;
     }
 
+    if (value === 'select-all') {
+      const plugins = acceleratorRegistry.getAll();
+      const availablePlugins = plugins.filter(
+        plugin =>
+          acceleratorRegistry.getPluginStatus(plugin.id, systemInfo!).available
+      );
+
+      const newActive = new Set(availablePlugins.map(p => p.id));
+
+      // Batch load all extensions in a single code block
+      const loadCommands: string[] = [];
+      for (const plugin of availablePlugins) {
+        if (!activePluginIds.has(plugin.id)) {
+          loadCommands.push(plugin.activationCode);
+        }
+      }
+
+      if (loadCommands.length === 0) {
+        return; // All already active
+      }
+
+      try {
+        const kernel = sessionContext.session.kernel;
+        const code = loadCommands.join('\n');
+
+        console.log('[SelectAll] Activating all accelerators');
+        await kernel.requestExecute({
+          code: code,
+          silent: false,
+          store_history: false
+        }).done;
+
+        setActivePluginIds(newActive);
+        saveAcceleratorsToMetadata(notebookPanel, Array.from(newActive));
+
+        const result = await showDialog({
+          title: trans.__('All Accelerators Enabled'),
+          body: trans.__(
+            `All ${availablePlugins.length} available accelerator(s) have been enabled.\n\n` +
+              'The kernel will be restarted for changes to take effect.'
+          ),
+          buttons: [
+            Dialog.cancelButton({ label: trans.__('Cancel') }),
+            Dialog.warnButton({ label: trans.__('Restart Kernel') })
+          ]
+        });
+
+        if (result.button.accept) {
+          await sessionContext.restartKernel();
+        }
+      } catch (error) {
+        console.error('Failed to enable all accelerators:', error);
+        void showDialog({
+          title: trans.__('Error'),
+          body: trans.__(
+            `Failed to enable all accelerators.\n\nError: ${error}`
+          ),
+          buttons: [Dialog.okButton()]
+        });
+      }
+      return;
+    }
+
     const plugin = acceleratorRegistry.get(value);
     if (!plugin) {
       console.error(`Plugin not found: ${value}`);
@@ -424,6 +487,9 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       disabled={!hasAnyAvailable || isReloadingAccelerators}
     >
       <option value="-">{label}</option>
+      {activeCount < availablePlugins.length && availablePlugins.length > 0 && (
+        <option value="select-all">{trans.__('Select All')}</option>
+      )}
       {activeCount > 0 && (
         <option value="clear-all">{trans.__('Clear All')}</option>
       )}
