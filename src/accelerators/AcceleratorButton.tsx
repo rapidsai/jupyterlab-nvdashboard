@@ -486,7 +486,9 @@ const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       title={tooltip}
       disabled={!hasAnyAvailable || isReloadingAccelerators}
     >
-      <option value="-">{label}</option>
+      <option value="-" disabled>
+        {label}
+      </option>
       {activeCount < availablePlugins.length && availablePlugins.length > 0 && (
         <option value="select-all">{trans.__('Select All')}</option>
       )}
