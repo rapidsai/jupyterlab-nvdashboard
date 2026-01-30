@@ -23,5 +23,9 @@ repos:
     hooks:
       - id: rapids-dependency-file-generator
         args: ['--clean']
+  - repo: https://github.com/rapidsai/pre-commit-hooks
+    rev: v1.3.3
+    hooks:
+      - id: verify-pyproject-license
 default_language_version:
   python: python3
