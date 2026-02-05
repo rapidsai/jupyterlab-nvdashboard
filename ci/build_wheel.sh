@@ -7,8 +7,6 @@ set -euo pipefail
 # Configure sccache and set the date string
 source rapids-configure-sccache
 source rapids-date-string
-RAPIDS_INIT_PIP_REMOVE_NVIDIA_INDEX="true"
-export RAPIDS_INIT_PIP_REMOVE_NVIDIA_INDEX
 source rapids-init-pip
 
 rapids-logger "Install Node.js required for building the extension front-end"
