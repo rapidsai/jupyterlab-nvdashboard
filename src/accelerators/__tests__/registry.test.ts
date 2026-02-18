@@ -1,0 +1,410 @@
+/**
+ * Tests for AcceleratorRegistry
+ */
+
+import fetchMock from 'jest-fetch-mock';
+import { AcceleratorRegistry } from '../registry';
+import { IAcceleratorPlugin, IAcceleratorSystemInfo } from '../types';
+
+// Mock JupyterLab modules
+jest.mock('@jupyterlab/coreutils', () => ({
+  URLExt: {
+    join: (...parts: string[]) => parts.join('/')
+  }
+}));
+
+jest.mock('@jupyterlab/services', () => ({
+  ServerConnection: {
+    makeSettings: () => ({
+      baseUrl: 'http://localhost:8888'
+    })
+  }
+}));
+
+describe('AcceleratorRegistry', () => {
+  let registry: AcceleratorRegistry;
+
+  beforeEach(() => {
+    // Create a new registry instance for each test
+    registry = new AcceleratorRegistry();
+    fetchMock.resetMocks();
+  });
+
+  describe('Plugin Registration', () => {
+    /**
+     * Verifies that the registry automatically registers built-in plugins
+     * (cudf-pandas and cuml-accel) when instantiated.
+     */
+    it('should auto-register built-in plugins on construction', () => {
+      const plugins = registry.getAll();
+      expect(plugins).toHaveLength(2);
+      expect(plugins.map(p => p.id)).toContain('cudf-pandas');
+      expect(plugins.map(p => p.id)).toContain('cuml-accel');
+    });
+
+    /**
+     * Tests manual plugin registration - verifies a new plugin can be
+     * registered and then retrieved by ID.
+     */
+    it('should register a new plugin', () => {
+      const newPlugin: IAcceleratorPlugin = {
+        id: 'test-accel',
+        name: 'Test Accelerator',
+        description: 'Test description',
+        pythonPackage: 'testpackage',
+        activationCode: '%load_ext testpackage'
+      };
+
+      registry.register(newPlugin);
+
+      const plugin = registry.get('test-accel');
+      expect(plugin).toBeDefined();
+      expect(plugin?.id).toBe('test-accel');
+      expect(plugin?.name).toBe('Test Accelerator');
+    });
+
+    /**
+     * Verifies getAll() returns an array of all registered plugins
+     * and that each plugin has all required properties.
+     */
+    it('should get all registered plugins', () => {
+      const plugins = registry.getAll();
+      expect(Array.isArray(plugins)).toBe(true);
+      expect(plugins.length).toBeGreaterThanOrEqual(2); // At least built-ins
+
+      // Verify all plugins have required fields
+      plugins.forEach(plugin => {
+        expect(plugin).toHaveProperty('id');
+        expect(plugin).toHaveProperty('name');
+        expect(plugin).toHaveProperty('description');
+        expect(plugin).toHaveProperty('pythonPackage');
+        expect(plugin).toHaveProperty('activationCode');
+      });
+    });
+
+    /**
+     * Validates that all plugins conform to the IAcceleratorPlugin interface:
+     * - Required string fields are non-empty
+     * - Optional fields (if present) are valid (e.g., documentation is a URL)
+     */
+    it('should validate all plugins match IAcceleratorPlugin interface', () => {
+      const plugins = registry.getAll();
+
+      plugins.forEach(plugin => {
+        // Check required string fields are non-empty
+        expect(typeof plugin.id).toBe('string');
+        expect(plugin.id.length).toBeGreaterThan(0);
+        expect(typeof plugin.name).toBe('string');
+        expect(plugin.name.length).toBeGreaterThan(0);
+        expect(typeof plugin.description).toBe('string');
+        expect(plugin.description.length).toBeGreaterThan(0);
+        expect(typeof plugin.pythonPackage).toBe('string');
+        expect(plugin.pythonPackage.length).toBeGreaterThan(0);
+        expect(typeof plugin.activationCode).toBe('string');
+        expect(plugin.activationCode.length).toBeGreaterThan(0);
+
+        // Check optional fields if present
+        if (plugin.minimumVersion !== undefined) {
+          expect(typeof plugin.minimumVersion).toBe('string');
+          expect(plugin.minimumVersion.length).toBeGreaterThan(0);
+        }
+        if (plugin.documentation !== undefined) {
+          expect(typeof plugin.documentation).toBe('string');
+          expect(plugin.documentation).toMatch(/^https?:\/\//); // Should be a URL
+        }
+      });
+    });
+
+    /**
+     * Ensures no duplicate plugin IDs exist in the registry.
+     * This prevents conflicts when registering or retrieving plugins.
+     */
+    it('should have unique plugin IDs', () => {
+      const plugins = registry.getAll();
+      const ids = plugins.map(p => p.id);
+      const uniqueIds = new Set(ids);
+      expect(uniqueIds.size).toBe(ids.length); // No duplicates
+    });
+
+    /**
+     * Tests retrieving a specific plugin by its ID.
+     * Verifies the correct plugin is returned with expected properties.
+     */
+    it('should get a specific plugin by ID', () => {
+      const plugin = registry.get('cudf-pandas');
+      expect(plugin).toBeDefined();
+      expect(plugin?.id).toBe('cudf-pandas');
+      expect(plugin?.name).toBe('cuDF pandas');
+    });
+
+    /**
+     * Verifies that requesting a non-existent plugin returns undefined
+     * rather than throwing an error.
+     */
+    it('should return undefined for non-existent plugin', () => {
+      const plugin = registry.get('non-existent');
+      expect(plugin).toBeUndefined();
+    });
+
+    /**
+     * Tests that registering a plugin with an existing ID overwrites
+     * the previous plugin rather than creating a duplicate.
+     */
+    it('should overwrite existing plugin when registering with same ID', () => {
+      const originalPlugin = registry.get('cudf-pandas');
+      expect(originalPlugin).toBeDefined();
+
+      const newPlugin: IAcceleratorPlugin = {
+        id: 'cudf-pandas',
+        name: 'Updated cuDF pandas',
+        description: 'Updated description',
+        pythonPackage: 'cudf',
+        activationCode: '%load_ext cudf.pandas'
+      };
+
+      registry.register(newPlugin);
+
+      const updatedPlugin = registry.get('cudf-pandas');
+      expect(updatedPlugin?.name).toBe('Updated cuDF pandas');
+      expect(updatedPlugin?.description).toBe('Updated description');
+    });
+  });
+
+  describe('checkAvailability()', () => {
+    /**
+     * Tests successful API call - verifies the registry correctly fetches
+     * system information from the backend and returns the expected structure.
+     */
+    it('should successfully fetch and return system info', async () => {
+      const mockSystemInfo: IAcceleratorSystemInfo = {
+        has_gpu: true,
+        ngpus: 2,
+        accelerators: {
+          'cudf-pandas': {
+            available: true,
+            version: '25.12.0'
+          },
+          'cuml-accel': {
+            available: true,
+            version: '25.12.0'
+          }
+        }
+      };
+
+      fetchMock.mockResponseOnce(JSON.stringify(mockSystemInfo), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const result = await registry.checkAvailability();
+
+      expect(result).toEqual(mockSystemInfo);
+      expect(result.has_gpu).toBe(true);
+      expect(result.ngpus).toBe(2);
+      expect(result.accelerators).toHaveProperty('cudf-pandas');
+      expect(result.accelerators['cudf-pandas'].available).toBe(true);
+    });
+
+    /**
+     * Tests error handling for HTTP errors (e.g., 404).
+     * Verifies the registry returns a safe default instead of throwing.
+     */
+    it('should handle HTTP errors and return safe default', async () => {
+      fetchMock.mockResponseOnce('Not Found', {
+        status: 404,
+        headers: { 'Content-Type': 'text/plain' }
+      });
+
+      const result = await registry.checkAvailability();
+
+      expect(result).toEqual({
+        has_gpu: false,
+        ngpus: 0,
+        accelerators: {}
+      });
+    });
+
+    /**
+     * Tests error handling for network failures (e.g., connection refused).
+     * Verifies the registry gracefully handles network errors.
+     */
+    it('should handle network errors and return safe default', async () => {
+      fetchMock.mockRejectOnce(new Error('Network error'));
+
+      const result = await registry.checkAvailability();
+
+      expect(result).toEqual({
+        has_gpu: false,
+        ngpus: 0,
+        accelerators: {}
+      });
+    });
+
+    /**
+     * Tests error handling for malformed JSON responses.
+     * Ensures the registry doesn't crash on invalid API responses.
+     */
+    it('should handle invalid JSON response and return safe default', async () => {
+      fetchMock.mockResponseOnce('Invalid JSON', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const result = await registry.checkAvailability();
+
+      expect(result).toEqual({
+        has_gpu: false,
+        ngpus: 0,
+        accelerators: {}
+      });
+    });
+
+    /**
+     * Verifies the registry constructs the correct API endpoint URL
+     * and uses the proper HTTP method and headers.
+     */
+    it('should construct correct API URL', async () => {
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          has_gpu: false,
+          ngpus: 0,
+          accelerators: {}
+        })
+      );
+
+      await registry.checkAvailability();
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://localhost:8888/nvdashboard/accelerators/check',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+    });
+  });
+
+  describe('getPluginStatus()', () => {
+    /**
+     * Tests retrieving status for an available plugin.
+     * Verifies correct status (available: true, version) is returned.
+     */
+    it('should return status for available plugin', () => {
+      const systemInfo: IAcceleratorSystemInfo = {
+        has_gpu: true,
+        ngpus: 1,
+        accelerators: {
+          'cudf-pandas': {
+            available: true,
+            version: '25.12.0'
+          }
+        }
+      };
+
+      const status = registry.getPluginStatus('cudf-pandas', systemInfo);
+
+      expect(status).toEqual({
+        available: true,
+        version: '25.12.0'
+      });
+    });
+
+    /**
+     * Tests retrieving status for a plugin that doesn't exist in system info.
+     * Verifies it returns unavailable status (available: false, version: null).
+     */
+    it('should return unavailable status for non-existent plugin', () => {
+      const systemInfo: IAcceleratorSystemInfo = {
+        has_gpu: true,
+        ngpus: 1,
+        accelerators: {
+          'cudf-pandas': {
+            available: true,
+            version: '25.12.0'
+          }
+        }
+      };
+
+      const status = registry.getPluginStatus('non-existent', systemInfo);
+
+      expect(status).toEqual({
+        available: false,
+        version: null
+      });
+    });
+
+    /**
+     * Tests retrieving status for a plugin that exists but is unavailable.
+     * Verifies it correctly returns the unavailable status from system info.
+     */
+    it('should return unavailable status for unavailable plugin', () => {
+      const systemInfo: IAcceleratorSystemInfo = {
+        has_gpu: true,
+        ngpus: 1,
+        accelerators: {
+          'cuml-accel': {
+            available: false,
+            version: null
+          }
+        }
+      };
+
+      const status = registry.getPluginStatus('cuml-accel', systemInfo);
+
+      expect(status).toEqual({
+        available: false,
+        version: null
+      });
+    });
+
+    /**
+     * Tests edge case where system info has no accelerators data.
+     * Verifies the method returns unavailable status gracefully.
+     */
+    it('should handle empty accelerators object', () => {
+      const systemInfo: IAcceleratorSystemInfo = {
+        has_gpu: false,
+        ngpus: 0,
+        accelerators: {}
+      };
+
+      const status = registry.getPluginStatus('cudf-pandas', systemInfo);
+
+      expect(status).toEqual({
+        available: false,
+        version: null
+      });
+    });
+
+    /**
+     * Tests that getPluginStatus() correctly handles multiple plugins
+     * with different availability statuses in the same system info.
+     */
+    it('should handle multiple plugins correctly', () => {
+      const systemInfo: IAcceleratorSystemInfo = {
+        has_gpu: true,
+        ngpus: 2,
+        accelerators: {
+          'cudf-pandas': {
+            available: true,
+            version: '25.12.0'
+          },
+          'cuml-accel': {
+            available: false,
+            version: null
+          }
+        }
+      };
+
+      const cudfStatus = registry.getPluginStatus('cudf-pandas', systemInfo);
+      const cumlStatus = registry.getPluginStatus('cuml-accel', systemInfo);
+
+      expect(cudfStatus.available).toBe(true);
+      expect(cudfStatus.version).toBe('25.12.0');
+      expect(cumlStatus.available).toBe(false);
+      expect(cumlStatus.version).toBeNull();
+    });
+  });
+});
