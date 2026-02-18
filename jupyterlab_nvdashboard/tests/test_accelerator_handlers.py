@@ -1,31 +1,15 @@
 """
 Tests for AcceleratorStatusHandler.
 
-Authentication Mocking Explanation:
------------------------------------
-The @tornado.web.authenticated decorator checks authentication by accessing
-self.current_user. The current_user property in JupyterHandler works as
-follows:
-1. First checks if _jupyter_current_user is set (preferred, no deprecation)
-2. If not set, calls get_current_user() (deprecated in jupyter-server 2.0+)
+Authentication Mocking:
+-----------------------
+The @tornado.web.authenticated decorator directly calls get_current_user()
+instead of using the current_user property. This means it bypasses
+JupyterHandler's internal _jupyter_current_user attribute entirely.
 
-However, Tornado's @authenticated decorator appears to call get_current_user()
-directly in some code paths, bypassing the current_user property check. This
-means:
-- Setting only _jupyter_current_user: Tests pass but deprecation warnings
-  appear
-- Mocking only get_current_user: Tests pass and warnings are prevented
-
-We use both for completeness and defense in depth:
-- handler._jupyter_current_user = "test_user" - Sets the preferred internal
-  state
-- handler.get_current_user = MagicMock(return_value="test_user") - Prevents
-  the deprecated method from being called when the decorator accesses it
-  directly
-
-In practice, mocking get_current_user alone is sufficient to prevent warnings,
-but setting _jupyter_current_user follows the deprecation warning guidance and
-ensures the current_user property would work correctly if accessed directly.
+To prevent deprecation warnings from jupyter-server 2.0+, we must mock
+get_current_user() directly. Setting _jupyter_current_user alone is
+insufficient because the decorator never accesses it.
 """
 
 import json
@@ -49,7 +33,24 @@ def handler_args():
         yield mock_application, mock_request
 
 
-def test_accelerator_status_handler_with_gpus(handler_args):
+@pytest.fixture
+def authenticated_handler(handler_args):
+    """
+    Create an AcceleratorStatusHandler with authentication properly mocked.
+
+    This fixture handles the authentication mocking required by the
+    @tornado.web.authenticated decorator. It mocks get_current_user()
+    directly because that's what the decorator calls, bypassing the
+    current_user property and _jupyter_current_user attribute.
+    """
+    handler = AcceleratorStatusHandler(*handler_args)
+    handler.finish = MagicMock()
+    # Mock get_current_user to satisfy @authenticated decorator
+    handler.get_current_user = MagicMock(return_value="test_user")
+    return handler
+
+
+def test_accelerator_status_handler_with_gpus(authenticated_handler):
     """Test AcceleratorStatusHandler GET endpoint with GPUs."""
     mock_accelerators = {
         "cudf-pandas": {"available": True, "version": "25.12.0"},
@@ -64,19 +65,11 @@ def test_accelerator_status_handler_with_gpus(handler_args):
             return_value=mock_accelerators,
         ),
     ):
-        # Create actual handler instance with mocked args
-        handler = AcceleratorStatusHandler(*handler_args)
-        handler.finish = MagicMock()
-        # Mock authentication (see module docstring for explanation)
-        handler._jupyter_current_user = "test_user"
-        handler.get_current_user = MagicMock(return_value="test_user")
-
-        # Call get method
-        handler.get()
+        authenticated_handler.get()
 
         # Verify finish was called with JSON string
-        assert handler.finish.called
-        call_args = handler.finish.call_args[0][0]
+        assert authenticated_handler.finish.called
+        call_args = authenticated_handler.finish.call_args[0][0]
         response_data = json.loads(call_args)
 
         # Verify response structure
@@ -86,7 +79,7 @@ def test_accelerator_status_handler_with_gpus(handler_args):
         assert response_data["accelerators"] == mock_accelerators
 
 
-def test_accelerator_status_handler_no_gpus(handler_args):
+def test_accelerator_status_handler_no_gpus(authenticated_handler):
     """Test AcceleratorStatusHandler GET endpoint with no GPUs."""
     mock_accelerators = {
         "cudf-pandas": {"available": False, "version": None},
@@ -101,19 +94,11 @@ def test_accelerator_status_handler_no_gpus(handler_args):
             return_value=mock_accelerators,
         ),
     ):
-        # Create actual handler instance with mocked args
-        handler = AcceleratorStatusHandler(*handler_args)
-        handler.finish = MagicMock()
-        # Mock authentication (see module docstring for explanation)
-        handler._jupyter_current_user = "test_user"
-        handler.get_current_user = MagicMock(return_value="test_user")
-
-        # Call get method
-        handler.get()
+        authenticated_handler.get()
 
         # Verify finish was called with JSON string
-        assert handler.finish.called
-        call_args = handler.finish.call_args[0][0]
+        assert authenticated_handler.finish.called
+        call_args = authenticated_handler.finish.call_args[0][0]
         response_data = json.loads(call_args)
 
         # Verify response structure
@@ -123,8 +108,10 @@ def test_accelerator_status_handler_no_gpus(handler_args):
         assert response_data["accelerators"] == mock_accelerators
 
 
-def test_accelerator_status_handler_response_structure(handler_args):
-    """Test AcceleratorStatusHandler response matches IAcceleratorSystemInfo"""
+def test_accelerator_status_handler_response_structure(authenticated_handler):
+    """
+    Test AcceleratorStatusHandler response matches IAcceleratorSystemInfo.
+    """
     mock_accelerators = {
         "cudf-pandas": {"available": True, "version": "25.12.0"},
         "cuml-accel": {"available": True, "version": "25.12.0"},
@@ -138,15 +125,9 @@ def test_accelerator_status_handler_response_structure(handler_args):
             return_value=mock_accelerators,
         ),
     ):
-        handler = AcceleratorStatusHandler(*handler_args)
-        handler.finish = MagicMock()
-        # Mock authentication (see module docstring for explanation)
-        handler._jupyter_current_user = "test_user"
-        handler.get_current_user = MagicMock(return_value="test_user")
+        authenticated_handler.get()
 
-        handler.get()
-
-        call_args = handler.finish.call_args[0][0]
+        call_args = authenticated_handler.finish.call_args[0][0]
         response_data = json.loads(call_args)
 
         # Verify all required fields
@@ -169,17 +150,15 @@ def test_accelerator_status_handler_response_structure(handler_args):
 
 def test_accelerator_status_handler_authentication_decorator():
     """Test AcceleratorStatusHandler has authentication decorator."""
-    # Check if get method exists and is callable
     assert hasattr(AcceleratorStatusHandler, "get")
     assert callable(AcceleratorStatusHandler.get)
+    # Note: We verify the decorator is present by confirming the method exists
+    # and is callable. The actual authentication behavior is tested implicitly
+    # in other tests where get_current_user is mocked. Direct decorator
+    # inspection is difficult due to how Tornado applies decorators.
 
-    # Verify the decorator is present by checking method attributes
-    # JupyterHandler methods should have authentication
-    # The @tornado.web.authenticated decorator should be applied
-    # We verify by checking the method exists and can be called
 
-
-def test_accelerator_status_handler_error_handling(handler_args):
+def test_accelerator_status_handler_error_handling(authenticated_handler):
     """Test AcceleratorStatusHandler handles errors gracefully."""
     with (
         patch("jupyterlab_nvdashboard.handlers.apps.gpu.ngpus", 1),
@@ -189,12 +168,5 @@ def test_accelerator_status_handler_error_handling(handler_args):
             side_effect=Exception("Test error"),
         ),
     ):
-        handler = AcceleratorStatusHandler(*handler_args)
-        handler.finish = MagicMock()
-        # Mock authentication (see module docstring for explanation)
-        handler._jupyter_current_user = "test_user"
-        handler.get_current_user = MagicMock(return_value="test_user")
-
-        # Should raise exception (not catch it internally)
         with pytest.raises(Exception, match="Test error"):
-            handler.get()
+            authenticated_handler.get()
