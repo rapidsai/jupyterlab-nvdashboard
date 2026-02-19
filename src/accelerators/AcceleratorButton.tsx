@@ -55,8 +55,19 @@ function saveAcceleratorsToMetadata(
 
 /**
  * React component for the accelerator selector
+ *
+ * Exported for testing purposes. This allows tests to directly test the component's
+ * behavior without requiring the widget wrapper (AcceleratorSelectorWidget), which
+ * is just a thin wrapper that calls render(). Testing the component directly:
+ * - Simplifies test setup and maintenance
+ * - Allows better isolation of component logic
+ * - Is a common pattern in React testing (used by Material-UI, Ant Design, etc.)
+ * - Still tests behavior, not implementation details
+ *
+ * The widget wrapper adds minimal logic (just CSS class and render call), so testing
+ * the component directly provides the same coverage with less complexity.
  */
-const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
+export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
   sessionContext,
   notebookPanel,
   translator
