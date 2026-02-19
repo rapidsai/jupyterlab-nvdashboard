@@ -390,8 +390,10 @@ describe('AcceleratorSelector Component', () => {
      * Test flow:
      * 1. Render component with multiple available accelerators
      * 2. Simulate user selecting "Select All" option
-     * 3. Verify kernel.execute() was called (with batch activation code)
-     * 4. Component should activate all available accelerators at once
+     * 3. Verify kernel.execute() was called with exact batch activation code
+     * 4. Verify metadata was saved with all accelerators
+     * 5. Verify dialog was shown with correct message
+     * 6. Component should activate all available accelerators at once
      */
     it('should handle select all accelerators', async () => {
       const user = userEvent.setup();
@@ -414,9 +416,34 @@ describe('AcceleratorSelector Component', () => {
       // This should batch-activate all available accelerators
       await user.selectOptions(select, 'select-all');
 
-      // Verify kernel.execute() was called (with combined activation codes)
+      // Verify kernel.execute() was called with exact batch activation code
+      // The batch code should combine all activation codes with newlines
       await waitFor(() => {
-        expect(mockKernel.requestExecute).toHaveBeenCalled();
+        expect(mockKernel.requestExecute).toHaveBeenCalledWith({
+          code: '%load_ext cudf.pandas\n%load_ext cuml.accel',
+          silent: false, // Must be false for extensions to load properly
+          store_history: false
+        });
+      });
+
+      // Verify metadata was saved with both accelerators
+      // The component saves all active accelerator IDs to notebook metadata
+      await waitFor(() => {
+        expect(mockNotebookModel.setMetadata).toHaveBeenCalledWith(
+          'gpu_accelerators',
+          ['cudf-pandas', 'cuml-accel']
+        );
+      });
+
+      // Verify dialog was shown with correct message
+      // The dialog should indicate all accelerators were enabled
+      await waitFor(() => {
+        expect(mockShowDialog).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'All Accelerators Enabled',
+            body: expect.stringContaining('2 available accelerator(s)')
+          })
+        );
       });
     });
 
