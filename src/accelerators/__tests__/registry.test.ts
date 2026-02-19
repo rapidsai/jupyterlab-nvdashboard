@@ -149,8 +149,13 @@ describe('AcceleratorRegistry', () => {
     /**
      * Tests that registering a plugin with an existing ID overwrites
      * the previous plugin rather than creating a duplicate.
+     * Also verifies that a warning is logged when overwriting.
      */
     it('should overwrite existing plugin when registering with same ID', () => {
+      const consoleWarnSpy = jest
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+
       const originalPlugin = registry.get('cudf-pandas');
       expect(originalPlugin).toBeDefined();
 
@@ -164,9 +169,16 @@ describe('AcceleratorRegistry', () => {
 
       registry.register(newPlugin);
 
+      // Verify warning was logged
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Overwriting existing plugin: cudf-pandas. Previous plugin will be replaced.'
+      );
+
       const updatedPlugin = registry.get('cudf-pandas');
       expect(updatedPlugin?.name).toBe('Updated cuDF pandas');
       expect(updatedPlugin?.description).toBe('Updated description');
+
+      consoleWarnSpy.mockRestore();
     });
   });
 

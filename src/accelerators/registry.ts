@@ -30,8 +30,14 @@ export class AcceleratorRegistry {
 
   /**
    * Register a new accelerator plugin.
+   * Warns if overwriting an existing plugin with the same ID.
    */
   register(plugin: IAcceleratorPlugin): void {
+    if (this.plugins.has(plugin.id)) {
+      console.warn(
+        `Overwriting existing plugin: ${plugin.id}. Previous plugin will be replaced.`
+      );
+    }
     this.plugins.set(plugin.id, plugin);
   }
 
