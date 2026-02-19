@@ -172,6 +172,29 @@ describe('AcceleratorRegistry', () => {
 
   describe('checkAvailability()', () => {
     /**
+     * Suppress console.error output during error-handling tests (Jest equivalent
+     * of pytest's context manager pattern: `with pytest.warns(UserWarning):`).
+     *
+     * The spy is kept available for debugging. If a test fails, inspect:
+     *   - consoleSpy.mock.calls - All console.error calls
+     *   - consoleSpy.mock.calls[0][1].message - Error message
+     *
+     * To verify error logging, uncomment the expect(consoleSpy) assertion in tests.
+     */
+    let consoleSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      // Suppress console.error output but keep spy for debugging
+      // The spy captures all calls so we can inspect them if tests fail
+      consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      // Restore original console.error after each test
+      consoleSpy.mockRestore();
+    });
+
+    /**
      * Tests successful API call - verifies the registry correctly fetches
      * system information from the backend and returns the expected structure.
      */
@@ -208,6 +231,10 @@ describe('AcceleratorRegistry', () => {
     /**
      * Tests error handling for HTTP errors (e.g., 404).
      * Verifies the registry returns a safe default instead of throwing.
+     *
+     * If this test fails, you can debug by inspecting the spy:
+     *   console.log('Error calls:', consoleSpy.mock.calls);
+     *   console.log('Error message:', consoleSpy.mock.calls[0]?.[1]?.message);
      */
     it('should handle HTTP errors and return safe default', async () => {
       fetchMock.mockResponseOnce('Not Found', {
@@ -222,6 +249,12 @@ describe('AcceleratorRegistry', () => {
         ngpus: 0,
         accelerators: {}
       });
+
+      // Optional: Verify error was logged (uncomment if you want to test logging behavior)
+      // expect(consoleSpy).toHaveBeenCalledWith(
+      //   'Error checking accelerator availability:',
+      //   expect.any(Error)
+      // );
     });
 
     /**
