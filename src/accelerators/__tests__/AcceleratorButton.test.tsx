@@ -230,6 +230,10 @@ describe('AcceleratorSelector Component', () => {
 
       // Wait for async checkAvailability to complete, then verify nothing rendered
       await waitFor(() => {
+        // container is the root DOM element created by React Testing Library's render()
+        // When a component returns null, React renders nothing, so container has no children
+        // container.firstChild will be null if nothing was rendered, which is what we expect
+        // when the component detects no GPU is available
         expect(container.firstChild).toBeNull();
       });
     });
@@ -267,13 +271,31 @@ describe('AcceleratorSelector Component', () => {
      * are being reloaded after kernel restart.
      *
      * Test flow:
-     * 1. Render component with kernel available
-     * 2. Component connects to kernel status changes
-     * 3. Verify component renders (reload indicator logic is tested implicitly
-     *    through component rendering - the ⟳ symbol appears when isReloadingAccelerators is true)
+     * 1. Set up saved accelerators in metadata (simulates previous selection)
+     * 2. Make requestExecute return a delayed promise (simulates slow kernel execution)
+     * 3. Render component - triggers auto-load of saved accelerators
+     * 4. Verify reload indicator (⟳) appears in label while loading
+     * 5. Verify dropdown is disabled during reload
+     * 6. Verify tooltip changes to show loading message
      */
     it('should show reload indicator when reloading accelerators', async () => {
-      // Render component - it will connect to kernel and may show reload state
+      // Set up saved accelerators in metadata (simulates previous selection)
+      mockNotebookModel.getMetadata.mockReturnValue(['cudf-pandas']);
+
+      // Create a promise that we can control - delay resolution to keep reload state active
+      let resolveExecute: (value: { content: { status: string } }) => void;
+      const executePromise = new Promise<{ content: { status: string } }>(
+        resolve => {
+          resolveExecute = resolve;
+        }
+      );
+
+      // Mock requestExecute to return a delayed promise (simulates slow kernel execution)
+      mockKernel.requestExecute.mockReturnValue({
+        done: executePromise
+      });
+
+      // Render component - it will detect saved accelerators and start loading them
       render(
         <AcceleratorSelector
           sessionContext={mockSessionContext}
@@ -281,10 +303,37 @@ describe('AcceleratorSelector Component', () => {
         />
       );
 
-      // Verify component renders successfully
+      // Wait for component to finish initial loading and start reloading accelerators
       await waitFor(() => {
         const select = screen.getByTestId('accelerator-select');
         expect(select).toBeInTheDocument();
+      });
+
+      // Now verify the reload indicator appears while accelerators are being loaded
+      await waitFor(() => {
+        // Verify the ⟳ symbol appears in the label
+        expect(screen.getByText(/GPU Accel ⟳/)).toBeInTheDocument();
+      });
+
+      const select = screen.getByTestId('accelerator-select');
+
+      // Verify dropdown is disabled during reload
+      expect(select).toBeDisabled();
+
+      // Verify tooltip changes to show loading message
+      expect(select).toHaveAttribute(
+        'title',
+        'Loading accelerators after kernel restart...\n\nPlease wait before running code.'
+      );
+
+      // Resolve the promise to complete the loading (cleanup)
+      resolveExecute!({
+        content: { status: 'ok' }
+      });
+
+      // Wait for reload to complete
+      await waitFor(() => {
+        expect(select).not.toBeDisabled();
       });
     });
   });
