@@ -236,8 +236,16 @@ describe('AcceleratorRegistry', () => {
       expect(result).toEqual(mockSystemInfo);
       expect(result.has_gpu).toBe(true);
       expect(result.ngpus).toBe(2);
+
+      // Verify cudf-pandas accelerator
       expect(result.accelerators).toHaveProperty('cudf-pandas');
       expect(result.accelerators['cudf-pandas'].available).toBe(true);
+      expect(result.accelerators['cudf-pandas'].version).toBe('25.12.0');
+
+      // Verify cuml-accel accelerator
+      expect(result.accelerators).toHaveProperty('cuml-accel');
+      expect(result.accelerators['cuml-accel'].available).toBe(true);
+      expect(result.accelerators['cuml-accel'].version).toBe('25.12.0');
     });
 
     /**
