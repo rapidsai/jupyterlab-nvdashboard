@@ -9543,6 +9543,7 @@ __metadata:
     "@lumino/widgets": ^2.0.0
     "@rjsf/core": 5.17.0
     "@rjsf/utils": 5.17.0
+    "@testing-library/dom": ^9.0.0
     "@testing-library/jest-dom": ^6.1.0
     "@testing-library/react": ^14.0.0
     "@testing-library/user-event": ^14.5.0
@@ -9581,6 +9582,7 @@ __metadata:
     stylelint-prettier: ^4.0.0
     ts-jest: ^29.1.0
     typescript: ~5.0.2
+    webpack: ^5.76.0
     yjs: ^13.5.0
   languageName: unknown
   linkType: soft
@@ -13242,7 +13244,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.76.1":
+"webpack@npm:5.88.2":
   version: 5.88.2
   resolution: "webpack@npm:5.88.2"
   dependencies:
