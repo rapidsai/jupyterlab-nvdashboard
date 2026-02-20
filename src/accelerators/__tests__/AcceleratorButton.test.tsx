@@ -761,9 +761,9 @@ describe('AcceleratorSelector Component', () => {
      * Test flow:
      * 1. Set up system info with mix of available/unavailable accelerators
      * 2. Render component
-     * 3. Component checks plugin status for each accelerator
-     * 4. Verify getPluginStatus() was called (component checks availability)
-     * 5. Unavailable accelerators should be disabled in dropdown (tested implicitly)
+     * 3. Wait for dropdown to be populated
+     * 4. Assert the unavailable option (cudf-pandas) is disabled in the DOM
+     * 5. Assert the available option (cuml-accel) is not disabled
      */
     it('should disable unavailable accelerators', async () => {
       // Create system info with one unavailable accelerator
@@ -787,7 +787,7 @@ describe('AcceleratorSelector Component', () => {
         unavailableInfo
       );
 
-      // Render component - it should check status of each plugin
+      // Render component - it should check status and disable unavailable options
       render(
         <AcceleratorSelector
           sessionContext={mockSessionContext}
@@ -799,9 +799,20 @@ describe('AcceleratorSelector Component', () => {
         expect(screen.getByTestId('accelerator-select')).toBeInTheDocument();
       });
 
-      // Verify component checked plugin status (to determine which to disable)
-      // The component should disable 'cudf-pandas' since it's unavailable
-      expect(mockAcceleratorRegistry.getPluginStatus).toHaveBeenCalled();
+      const select = screen.getByTestId('accelerator-select');
+      const cudfOption = select.querySelector<HTMLOptionElement>(
+        'option[value="cudf-pandas"]'
+      );
+      const cumlOption = select.querySelector<HTMLOptionElement>(
+        'option[value="cuml-accel"]'
+      );
+
+      expect(cudfOption).toBeTruthy();
+      expect(cumlOption).toBeTruthy();
+      // Unavailable accelerator must be disabled so users cannot select it
+      expect(cudfOption).toBeDisabled();
+      // Available accelerator must remain selectable
+      expect(cumlOption).not.toBeDisabled();
     });
   });
 });
