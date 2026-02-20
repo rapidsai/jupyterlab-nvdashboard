@@ -13,6 +13,7 @@ jobs:
       - checks
       - conda-python-build
       - conda-python-tests
+      - conda-frontend-tests
       - wheel-build
       - wheel-tests
     secrets: inherit # zizmor: ignore[secrets-inherit]
@@ -65,6 +66,14 @@ jobs:
       id-token: write
       packages: read
       pull-requests: read
+  conda-frontend-tests:
+    needs: conda-python-build
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-25.10
+    with:
+      build_type: pull-request
+      matrix_filter: map(select(.ARCH == "amd64")) | max_by([(.PY_VER|split(".")|map(tonumber))]) | [.]
+      script: ci/test_frontend.sh
   wheel-build:
     needs: checks
     secrets: inherit # zizmor: ignore[secrets-inherit]
