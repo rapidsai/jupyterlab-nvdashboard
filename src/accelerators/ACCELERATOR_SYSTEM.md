@@ -17,11 +17,13 @@ React component that renders a dropdown selector in the JupyterLab toolbar.
 - Renders dropdown widget in toolbar
 - Manages accelerator state (active/inactive)
 - Communicates with Jupyter kernel to execute activation code
-- Persists accelerator choices in notebook metadata
+- Persists accelerator choices in notebook metadata (`gpu_accelerators`); persistence is **within-session** (saved choices are auto-reloaded after kernel restarts)
+- Clears saved accelerators from metadata when a notebook is first opened (re-opening the same notebook starts with no accelerators selected)
 - Auto-reloads accelerators after kernel restarts
 
 **Key Features:**
 
+- Hidden when the system has no GPUs
 - Shows active accelerator count in label
 - Displays checkmarks next to active accelerators
 - "Select All" option to enable all available accelerators at once
@@ -207,8 +209,8 @@ Each plugin is a simple TypeScript object implementing `IAcceleratorPlugin`.
 #### Select All Accelerators
 
 1. User selects "Select All" option from dropdown
-2. Component collects activation codes for all available (installed) accelerators
-3. Batch executes all activation codes in a single kernel request for reliability
+2. Component collects activation codes for all available (installed) accelerators that are **not already active**
+3. Batch executes those activation codes in a single kernel request for reliability
 4. Updates active plugin state for all accelerators
 5. Saves all selections to notebook metadata
 6. Prompts user to restart kernel for changes to take effect
@@ -222,7 +224,7 @@ Each plugin is a simple TypeScript object implementing `IAcceleratorPlugin`.
 
 ### Kernel Restart
 
-1. Button detects kernel status change to `'restarting'`
+1. Button detects kernel status change to `'restarting'` or `'starting'` (e.g. first kernel start)
 2. Sets internal flag to trigger reload
 3. When kernel becomes `'idle'`, auto-loads saved accelerators
 4. Reads from notebook metadata
