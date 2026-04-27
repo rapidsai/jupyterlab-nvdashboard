@@ -98,8 +98,13 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
   const hasInitialized = useRef(false);
   useEffect(() => {
     if (notebookPanel?.model && !hasInitialized.current) {
-      console.log('[Init] Clearing accelerator metadata from previous session');
-      saveAcceleratorsToMetadata(notebookPanel, []);
+      const existing = getAcceleratorsFromMetadata(notebookPanel);
+      if (existing.length > 0) {
+        console.log(
+          '[Init] Clearing accelerator metadata from previous session'
+        );
+        saveAcceleratorsToMetadata(notebookPanel, []);
+      }
       setActivePluginIds(new Set());
       hasInitialized.current = true;
     }
