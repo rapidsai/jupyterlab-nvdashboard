@@ -73,8 +73,8 @@ dependencies:
         packages:
           - jupyterlab>=4.0.0
           - psutil
-          # 'nvidia-ml-py' provides the 'pynvml' module
-          - nvidia-ml-py>=12
+          - cuda-bindings>=12.9.6,!=13.0.*,!=13.1.*
+          - cuda-core @ git+https://github.com/nvidia/cuda-python@main#subdirectory=cuda_core
   test_python:
     common:
       - output_types: [conda, requirements, pyproject]

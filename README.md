@@ -60,7 +60,8 @@ JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later ve
 ## Requirements
 
 - JupyterLab >=4
-- pynvml
+- cuda-core >= 0.8.0
+- cuda-bindings 12.9.6 or later, 13.2.0 or later
 - psutil
 
 ## Installation

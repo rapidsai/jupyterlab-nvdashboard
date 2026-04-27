@@ -8,7 +8,7 @@ def setup_handlers(web_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
     handlers = []
-    if apps.gpu.ngpus > 0:
+    if len(apps.gpu.gpus) > 0:
         # Prepend the base_url so that it works in a JupyterHub setting
         route_pattern_gpu_util = url_path_join(
             base_url, URL_PATH, "gpu_utilization"

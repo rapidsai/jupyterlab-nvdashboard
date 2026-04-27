@@ -5,9 +5,10 @@ channels:
 - rapidsai-nightly
 - conda-forge
 dependencies:
+- cuda-bindings>=12.9.6,!=13.0.*,!=13.1.*
+- cuda-core @ git+https://github.com/nvidia/cuda-python@main#subdirectory=cuda_core
 - jupyterlab>=4.0.0
 - nodejs=18
-- nvidia-ml-py>=12
 - pre-commit
 - psutil
 - pytest
