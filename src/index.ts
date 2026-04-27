@@ -26,14 +26,14 @@ const extension: JupyterFrontEndPlugin<void> = {
   id: PLUGIN_ID,
   description: 'A minimal JupyterLab extension using a React Widget.',
   autoStart: true,
-  requires: [ILabShell, ISettingRegistry, INotebookTracker],
-  optional: [ILayoutRestorer],
+  requires: [ILabShell, ISettingRegistry],
+  optional: [ILayoutRestorer, INotebookTracker],
   activate: (
     app: JupyterFrontEnd,
     labShell: ILabShell,
     settingRegistry: ISettingRegistry,
-    notebookTracker: INotebookTracker,
-    restorer: ILayoutRestorer | null
+    restorer: ILayoutRestorer | null,
+    notebookTracker: INotebookTracker | null
   ) => {
     const tracker = new WidgetTracker<MainAreaWidget>({
       namespace: WIDGET_TRACKER_NAME
@@ -82,19 +82,21 @@ const extension: JupyterFrontEndPlugin<void> = {
     labShell.add(controlWidget, 'left', { rank: 200 });
 
     // Add GPU Accelerator selector to notebook toolbars
-    notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
-      const acceleratorSelector = new AcceleratorSelectorWidget(
-        notebookPanel.sessionContext,
-        notebookPanel
-      );
+    if (notebookTracker) {
+      notebookTracker.widgetAdded.connect((_sender, notebookPanel) => {
+        const acceleratorSelector = new AcceleratorSelectorWidget(
+          notebookPanel.sessionContext,
+          notebookPanel
+        );
 
-      // Add selector to the notebook toolbar after the 'cellType' dropdown
-      notebookPanel.toolbar.insertAfter(
-        'cellType',
-        'gpu-accelerator',
-        acceleratorSelector
-      );
-    });
+        // Add selector to the notebook toolbar after the 'cellType' dropdown
+        notebookPanel.toolbar.insertAfter(
+          'cellType',
+          'gpu-accelerator',
+          acceleratorSelector
+        );
+      });
+    }
   }
 };
 
