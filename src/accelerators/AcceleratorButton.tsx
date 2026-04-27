@@ -318,8 +318,8 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         const result = await showDialog({
           title: trans.__('All Accelerators Enabled'),
           body: trans.__(
-            `All ${availablePlugins.length} available accelerator(s) have been enabled.\n\n` +
-              'The kernel will be restarted for changes to take effect.'
+            'All %1 available accelerator(s) have been enabled.\n\nThe kernel will be restarted for changes to take effect.',
+            availablePlugins.length
           ),
           buttons: [
             Dialog.cancelButton({ label: trans.__('Cancel') }),
@@ -335,7 +335,8 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         void showDialog({
           title: trans.__('Error'),
           body: trans.__(
-            `Failed to enable all accelerators.\n\nError: ${error}`
+            'Failed to enable all accelerators.\n\nError: %1',
+            error
           ),
           buttons: [Dialog.okButton()]
         });
@@ -377,10 +378,10 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         saveAcceleratorsToMetadata(notebookPanel, Array.from(newActive));
 
         const result = await showDialog({
-          title: trans.__(`${plugin.name} Installed`),
+          title: trans.__('%1 Installed', plugin.name),
           body: trans.__(
-            `${plugin.name} has been installed.\n\n` +
-              'The kernel will be restarted for changes to take effect.'
+            '%1 has been installed.\n\nThe kernel will be restarted for changes to take effect.',
+            plugin.name
           ),
           buttons: [
             Dialog.cancelButton({ label: trans.__('Cancel') }),
@@ -405,10 +406,10 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         saveAcceleratorsToMetadata(notebookPanel, Array.from(newActive));
 
         const result = await showDialog({
-          title: trans.__(`${plugin.name} Removed`),
+          title: trans.__('%1 Removed', plugin.name),
           body: trans.__(
-            `${plugin.name} has been removed.\n\n` +
-              'The kernel will be restarted for changes to take effect.'
+            '%1 has been removed.\n\nThe kernel will be restarted for changes to take effect.',
+            plugin.name
           ),
           buttons: [
             Dialog.cancelButton({ label: trans.__('Cancel') }),
@@ -425,9 +426,10 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
       void showDialog({
         title: trans.__('Error'),
         body: trans.__(
-          `Failed to ${isActive ? 'deactivate' : 'activate'} ${
-            plugin.name
-          }.\n\nError: ${error}`
+          'Failed to %1 %2.\n\nError: %3',
+          isActive ? 'deactivate' : 'activate',
+          plugin.name,
+          error
         ),
         buttons: [Dialog.okButton()]
       });
