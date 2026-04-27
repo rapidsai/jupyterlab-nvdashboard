@@ -2,7 +2,7 @@
  * Tests for AcceleratorRegistry
  */
 
-import fetchMock from 'jest-fetch-mock';
+import { ServerConnection } from '@jupyterlab/services';
 import { AcceleratorRegistry } from '../registry';
 import { IAcceleratorPlugin, IAcceleratorSystemInfo } from '../types';
 
@@ -17,17 +17,32 @@ jest.mock('@jupyterlab/services', () => ({
   ServerConnection: {
     makeSettings: () => ({
       baseUrl: 'http://localhost:8888'
-    })
+    }),
+    makeRequest: jest.fn(),
+    ResponseError: class ResponseError extends Error {
+      response: Response;
+      constructor(response: Response) {
+        super(`${response.status}`);
+        this.response = response;
+      }
+    }
   }
 }));
+
+function mockJsonResponse(body: unknown, status = 200): Response {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    json: () => Promise.resolve(body)
+  } as Response;
+}
 
 describe('AcceleratorRegistry', () => {
   let registry: AcceleratorRegistry;
 
   beforeEach(() => {
-    // Create a new registry instance for each test
     registry = new AcceleratorRegistry();
-    fetchMock.resetMocks();
+    (ServerConnection.makeRequest as jest.Mock).mockReset();
   });
 
   describe('Plugin Registration', () => {
@@ -226,10 +241,9 @@ describe('AcceleratorRegistry', () => {
         }
       };
 
-      fetchMock.mockResponseOnce(JSON.stringify(mockSystemInfo), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      (ServerConnection.makeRequest as jest.Mock).mockResolvedValueOnce(
+        mockJsonResponse(mockSystemInfo)
+      );
 
       const result = await registry.checkAvailability();
 
@@ -257,10 +271,9 @@ describe('AcceleratorRegistry', () => {
      *   console.log('Error message:', consoleSpy.mock.calls[0]?.[1]?.message);
      */
     it('should handle HTTP errors and return safe default', async () => {
-      fetchMock.mockResponseOnce('Not Found', {
-        status: 404,
-        headers: { 'Content-Type': 'text/plain' }
-      });
+      (ServerConnection.makeRequest as jest.Mock).mockResolvedValueOnce(
+        mockJsonResponse('Not Found', 404)
+      );
 
       const result = await registry.checkAvailability();
 
@@ -282,7 +295,9 @@ describe('AcceleratorRegistry', () => {
      * Verifies the registry gracefully handles network errors.
      */
     it('should handle network errors and return safe default', async () => {
-      fetchMock.mockRejectOnce(new Error('Network error'));
+      (ServerConnection.makeRequest as jest.Mock).mockRejectedValueOnce(
+        new Error('Network error')
+      );
 
       const result = await registry.checkAvailability();
 
@@ -298,10 +313,11 @@ describe('AcceleratorRegistry', () => {
      * Ensures the registry doesn't crash on invalid API responses.
      */
     it('should handle invalid JSON response and return safe default', async () => {
-      fetchMock.mockResponseOnce('Invalid JSON', {
+      (ServerConnection.makeRequest as jest.Mock).mockResolvedValueOnce({
+        ok: true,
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
+        json: () => Promise.reject(new SyntaxError('Unexpected token'))
+      } as Response);
 
       const result = await registry.checkAvailability();
 
@@ -317,24 +333,16 @@ describe('AcceleratorRegistry', () => {
      * and uses the proper HTTP method and headers.
      */
     it('should construct correct API URL', async () => {
-      fetchMock.mockResponseOnce(
-        JSON.stringify({
-          has_gpu: false,
-          ngpus: 0,
-          accelerators: {}
-        })
+      (ServerConnection.makeRequest as jest.Mock).mockResolvedValueOnce(
+        mockJsonResponse({ has_gpu: false, ngpus: 0, accelerators: {} })
       );
 
       await registry.checkAvailability();
 
-      expect(fetchMock).toHaveBeenCalledWith(
+      expect(ServerConnection.makeRequest).toHaveBeenCalledWith(
         'http://localhost:8888/nvdashboard/accelerators/check',
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
+        {},
+        expect.objectContaining({ baseUrl: 'http://localhost:8888' })
       );
     });
   });

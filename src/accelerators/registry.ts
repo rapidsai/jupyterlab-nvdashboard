@@ -67,15 +67,10 @@ export class AcceleratorRegistry {
     const url = URLExt.join(baseUrl, 'nvdashboard', 'accelerators', 'check');
 
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await ServerConnection.makeRequest(url, {}, settings);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new ServerConnection.ResponseError(response);
       }
 
       const data: IAcceleratorSystemInfo = await response.json();
