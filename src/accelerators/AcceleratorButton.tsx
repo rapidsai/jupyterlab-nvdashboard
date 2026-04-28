@@ -29,7 +29,6 @@ function getAcceleratorsFromMetadata(notebookPanel?: NotebookPanel): string[] {
   }
 
   const saved = model.getMetadata('gpu_accelerators');
-  console.log('[GetMetadata] Raw value:', saved);
   return (Array.isArray(saved) ? saved : []) as string[];
 }
 
@@ -45,7 +44,6 @@ function saveAcceleratorsToMetadata(
     return;
   }
 
-  console.log('[SaveMetadata] Saving:', accelerators);
   if (accelerators.length > 0) {
     model.setMetadata('gpu_accelerators', accelerators);
   } else {
@@ -100,9 +98,6 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
     if (notebookPanel?.model && !hasInitialized.current) {
       const existing = getAcceleratorsFromMetadata(notebookPanel);
       if (existing.length > 0) {
-        console.log(
-          '[Init] Clearing accelerator metadata from previous session'
-        );
         saveAcceleratorsToMetadata(notebookPanel, []);
       }
       setActivePluginIds(new Set());
@@ -137,7 +132,6 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
 
       // Prevent duplicate loads for the same kernel (race condition protection)
       if (loadingKernelIdRef.current === kernelId) {
-        console.log('[AutoLoad] Already loading for this kernel, skipping');
         return;
       }
 
@@ -146,17 +140,12 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         needsReloadRef.current = false;
 
         const savedAccelerators = getAcceleratorsFromMetadata(notebookPanel);
-        console.log(
-          '[AutoLoad] Saved accelerators from metadata:',
-          savedAccelerators
-        );
 
         setIsReloadingAccelerators(true);
 
         if (savedAccelerators.length === 0) {
           setActivePluginIds(new Set());
           setIsReloadingAccelerators(false);
-          console.log('[AutoLoad] No accelerators to load, kernel ready');
           return;
         }
 
@@ -181,7 +170,6 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
 
         // Execute all load_ext commands together
         const code = loadCommands.join('\n');
-        console.log(`[AutoLoad] Executing batch load:\n${code}`);
 
         const result = await currentKernel.requestExecute({
           code: code,
@@ -195,9 +183,6 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
           // Still set the active plugins - user can see errors in notebook
           setActivePluginIds(new Set(validPlugins));
         } else {
-          console.log(
-            `[AutoLoad] ✓ Successfully reloaded ${validPlugins.length} accelerator(s)`
-          );
           setActivePluginIds(new Set(validPlugins));
         }
       } catch (error) {
@@ -304,7 +289,6 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         const kernel = sessionContext.session.kernel;
         const code = loadCommands.join('\n');
 
-        console.log('[SelectAll] Activating all accelerators');
         await kernel.requestExecute({
           code: code,
           silent: false,
@@ -357,7 +341,6 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         const kernel = sessionContext.session.kernel;
         const code = plugin.activationCode;
 
-        console.log('[Activate] Installing:', plugin.name);
         await kernel.requestExecute({
           code: code,
           silent: false, // Changed to false so extension loads properly
@@ -367,10 +350,6 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         // Update UI state
         const newActive = new Set(activePluginIds);
         newActive.add(value);
-        console.log(
-          '[Activate] Setting active plugins to:',
-          Array.from(newActive)
-        );
         setActivePluginIds(newActive);
 
         // Save to metadata (for kernel restart within same session)
@@ -395,10 +374,6 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         // Deactivate accelerator
         const newActive = new Set(activePluginIds);
         newActive.delete(value);
-        console.log(
-          '[Deactivate] Setting active plugins to:',
-          Array.from(newActive)
-        );
         setActivePluginIds(newActive);
 
         // Save to metadata (for kernel restart within same session)
