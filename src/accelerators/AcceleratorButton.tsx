@@ -221,8 +221,7 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
 
       // When kernel becomes idle, trigger reload (if needed)
       if (status === 'idle' && needsReloadRef.current) {
-        // Small delay to ensure kernel is fully settled
-        setTimeout(() => loadSavedAccelerators(), 300);
+        void loadSavedAccelerators();
       }
     };
 
