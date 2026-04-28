@@ -42,7 +42,11 @@ jest.mock('@jupyterlab/ui-components', () => ({
 jest.mock('@jupyterlab/translation', () => ({
   nullTranslator: {
     load: () => ({
-      __: (str: string) => str
+      __: (str: string, ...args: unknown[]) =>
+        args.reduce(
+          (s, arg, i) => (s as string).replace(`%${i + 1}`, String(arg)),
+          str
+        )
     })
   }
 }));
