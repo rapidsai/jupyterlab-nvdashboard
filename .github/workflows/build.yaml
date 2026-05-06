@@ -1,5 +1,4 @@
 name: build
-
 on:
   push:
     branches:
@@ -27,11 +26,10 @@ on:
         description: "build_type: one of [branch, nightly, pull-request]"
         type: string
         default: nightly
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
-
+permissions: {}
 jobs:
   conda-python-build:
     secrets: inherit
@@ -44,6 +42,12 @@ jobs:
       sha: ${{ inputs.sha }}
       # Package is pure Python and only ever requires one build.
       matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   upload-conda:
     needs: conda-python-build
     secrets: inherit
@@ -53,6 +57,12 @@ jobs:
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-build:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.10
@@ -68,6 +78,12 @@ jobs:
       package-type: python
       pure-wheel: true
       append-cuda-suffix: false
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-publish:
     needs: wheel-build
     secrets: inherit
@@ -79,3 +95,9 @@ jobs:
       date: ${{ inputs.date }}
       package-name: jupyterlab-nvdashboard
       publish_to_pypi: true
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read

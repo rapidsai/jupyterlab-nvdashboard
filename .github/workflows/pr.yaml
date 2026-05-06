@@ -1,14 +1,12 @@
 name: pr
-
 on:
   push:
     branches:
       - "pull-request/[0-9]+"
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
+permissions: {}
 jobs:
   pr-builder:
     needs:
@@ -19,9 +17,21 @@ jobs:
       - wheel-tests
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@branch-25.10
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   checks:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@branch-25.10
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   conda-python-build:
     needs: checks
     secrets: inherit
@@ -31,6 +41,12 @@ jobs:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
       matrix_filter: map(select(.ARCH == "amd64")) | max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]) | [.]
       script: ci/build_python.sh
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   conda-python-tests:
     needs: conda-python-build
     secrets: inherit
@@ -40,6 +56,12 @@ jobs:
       # This selects "ARCH=amd64 + the latest supported Python".
       matrix_filter: map(select(.ARCH == "amd64")) | max_by([(.PY_VER|split(".")|map(tonumber))]) | [.]
       script: ci/test_python.sh
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-build:
     needs: checks
     secrets: inherit
@@ -53,6 +75,12 @@ jobs:
       package-type: python
       pure-wheel: true
       append-cuda-suffix: false
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-tests:
     needs: wheel-build
     secrets: inherit
@@ -62,3 +90,9 @@ jobs:
       # This selects the latest supported Python
       matrix_filter: max_by([(.PY_VER|split(".")|map(tonumber))]) | [.]
       script: "ci/test_wheel.sh"
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
