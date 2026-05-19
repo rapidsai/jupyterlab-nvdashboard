@@ -73,18 +73,8 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
             stats["gpu_memory_total"] += mem / (1024 * 1024)
 
             if pci_gen is not None:
-                tx = (
-                    device.pci_info.get_throughput(
-                        system.PcieUtilCounter.PCIE_UTIL_TX_BYTES
-                    )
-                    * 1024
-                )
-                rx = (
-                    device.pci_info.get_throughput(
-                        system.PcieUtilCounter.PCIE_UTIL_RX_BYTES
-                    )
-                    * 1024
-                )
+                tx = device.pci_info.tx_throughput * 1024
+                rx = device.pci_info.rx_throughput * 1024
                 stats["rx_total"] += rx
                 stats["tx_total"] += tx
             stats["gpu_utilization_individual"].append(gpu)
@@ -181,21 +171,8 @@ class PCIStatsWebSocketHandler(CustomWebSocketHandler):
         # Max PCIe Throughput = BW-per-lane * Width
         max_rxtx_tp = pci_width * pci_bw[pci_gen]
 
-        pci_tx = [
-            device.pci_info.get_throughput(
-                system.PcieUtilCounter.PCIE_UTIL_TX_BYTES
-            )
-            * 1024
-            for device in gpus
-        ]
-
-        pci_rx = [
-            device.pci_info.get_throughput(
-                system.PcieUtilCounter.PCIE_UTIL_RX_BYTES
-            )
-            * 1024
-            for device in gpus
-        ]
+        pci_tx = [device.pci_info.tx_throughput * 1024 for device in gpus]
+        pci_rx = [device.pci_info.rx_throughput * 1024 for device in gpus]
 
         stats = {
             "pci_tx": pci_tx,

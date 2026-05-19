@@ -74,7 +74,7 @@ dependencies:
           - jupyterlab>=4.0.0
           - psutil
           - cuda-bindings>=12.9.6,!=13.0.*,!=13.1.*
-          - cuda-core @ git+https://github.com/nvidia/cuda-python@main#subdirectory=cuda_core
+          - cuda-core>=1.0.0
   test_python:
     common:
       - output_types: [conda, requirements, pyproject]
