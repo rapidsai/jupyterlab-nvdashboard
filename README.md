@@ -13,16 +13,23 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
 
 ## Table of Contents
 
-- [New Features](#new-features)
-  - [Brush for Time Series Charts](#brush-for-time-series-charts)
-  - [Synced Tooltips](#synced-tooltips)
-  - [Theme Compatibility](#theme-compatibility)
-- [Version Compatibility](#version-compatibility)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Troubleshoot](#troubleshoot)
-- [Contributing](#contributing-developers-guide)
-- [Future Improvements](#future-improvements)
+- [JupyterLab NVdashboard](#jupyterlab-nvdashboard)
+  - [Demo](#demo)
+  - [Table of Contents](#table-of-contents)
+  - [New Features](#new-features)
+    - [Brush for Time Series Charts](#brush-for-time-series-charts)
+    - [Synced Tooltips](#synced-tooltips)
+    - [Theme Compatibility](#theme-compatibility)
+      - [Light Theme](#light-theme)
+      - [Dark Theme](#dark-theme)
+  - [Version Compatibility](#version-compatibility)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+    - [Conda](#conda)
+    - [PyPI](#pypi)
+  - [Troubleshoot](#troubleshoot)
+  - [Contributing Developers Guide](#contributing-developers-guide)
+  - [Future Improvements](#future-improvements)
 
 ## New Features
 
@@ -60,7 +67,7 @@ JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later ve
 ## Requirements
 
 - JupyterLab >=4
-- cuda-core >= 0.8.0
+- cuda-core >= 1.0.0
 - cuda-bindings 12.9.6 or later, 13.2.0 or later
 - psutil
 

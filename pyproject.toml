@@ -48,10 +48,6 @@ test = [
 [tool.hatch.version]
 source = "nodejs"
 
-[tool.hatch.metadata]
-# TODO: Remove me when cuda-core 1.0 is released
-allow-direct-references = true
-
 [tool.hatch.metadata.hooks.nodejs]
 fields = ["license", "description", "authors", "urls"]
 
