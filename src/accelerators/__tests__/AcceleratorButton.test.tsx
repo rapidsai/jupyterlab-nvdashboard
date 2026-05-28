@@ -140,6 +140,16 @@ describe('AcceleratorSelector Component', () => {
     fetchMock.resetMocks();
     jest.clearAllMocks();
 
+    // Reset kernel.requestExecute to the default OK response.
+    // clearAllMocks only clears call records, not mockReturnValue overrides
+    // set by individual tests - so without this, an error-status override
+    // from one test would leak into subsequent tests.
+    mockKernel.requestExecute.mockImplementation(() => ({
+      done: Promise.resolve({
+        content: { status: 'ok' }
+      })
+    }));
+
     // Setup default mocks
     mockAcceleratorRegistry.checkAvailability.mockResolvedValue(
       defaultSystemInfo
@@ -502,6 +512,144 @@ describe('AcceleratorSelector Component', () => {
     });
 
     /**
+     * Verifies that when the kernel replies with an error during individual
+     * activation (e.g., non-Python kernel, missing package, broken install),
+     * the accelerator is NOT marked active and is NOT saved to notebook
+     * metadata. The user should see an error dialog instead.
+     */
+    it('should not activate or persist individual accelerator when kernel returns error', async () => {
+      const user = userEvent.setup();
+
+      // Mock kernel to reply with an error status (e.g., ModuleNotFoundError)
+      mockKernel.requestExecute.mockReturnValue({
+        done: Promise.resolve({
+          content: {
+            status: 'error',
+            ename: 'ModuleNotFoundError',
+            evalue: "No module named 'cudf'"
+          }
+        })
+      });
+
+      render(
+        <AcceleratorSelector
+          sessionContext={mockSessionContext}
+          notebookPanel={mockNotebookPanel}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('accelerator-select')).toBeInTheDocument();
+      });
+
+      const select = screen.getByTestId('accelerator-select');
+      await user.selectOptions(select, 'cudf-pandas');
+
+      // Kernel was asked to load the extension
+      await waitFor(() => {
+        expect(mockKernel.requestExecute).toHaveBeenCalledWith({
+          code: '%load_ext cudf.pandas',
+          silent: false,
+          store_history: false
+        });
+      });
+
+      // Error dialog was shown to the user
+      await waitFor(() => {
+        expect(mockShowDialog).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: expect.stringContaining('Failed to activate')
+          })
+        );
+      });
+
+      // Metadata was NOT updated to include the failed accelerator.
+      // (setMetadata may still have been called during component init to
+      // clear stale metadata - but never with the failed plugin id in the array.)
+      const metadataCalls = mockNotebookModel.setMetadata.mock.calls;
+      const sawFailedActivation = metadataCalls.some(
+        ([key, value]) =>
+          key === 'gpu_accelerators' &&
+          Array.isArray(value) &&
+          value.includes('cudf-pandas')
+      );
+      expect(sawFailedActivation).toBe(false);
+
+      // The "Installed / Restart Kernel" dialog should NOT have been shown
+      const installedDialogShown = mockShowDialog.mock.calls.some(
+        ([opts]) =>
+          (opts as { title?: string })?.title?.includes('Installed') ?? false
+      );
+      expect(installedDialogShown).toBe(false);
+    });
+
+    /**
+     * Same contract as the individual-toggle test above, but for the
+     * "Select All" batch activation path. A kernel error must leave UI and
+     * metadata untouched.
+     */
+    it('should not activate or persist select-all when kernel returns error', async () => {
+      const user = userEvent.setup();
+
+      mockKernel.requestExecute.mockReturnValue({
+        done: Promise.resolve({
+          content: {
+            status: 'error',
+            ename: 'ModuleNotFoundError',
+            evalue: "No module named 'cudf'"
+          }
+        })
+      });
+
+      render(
+        <AcceleratorSelector
+          sessionContext={mockSessionContext}
+          notebookPanel={mockNotebookPanel}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('accelerator-select')).toBeInTheDocument();
+      });
+
+      const select = screen.getByTestId('accelerator-select');
+      await user.selectOptions(select, 'select-all');
+
+      // Batch load was attempted
+      await waitFor(() => {
+        expect(mockKernel.requestExecute).toHaveBeenCalledWith({
+          code: '%load_ext cudf.pandas\n%load_ext cuml.accel',
+          silent: false,
+          store_history: false
+        });
+      });
+
+      // Error dialog was shown
+      await waitFor(() => {
+        expect(mockShowDialog).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Failed to enable accelerators'
+          })
+        );
+      });
+
+      // Metadata was NOT updated to include either accelerator
+      const metadataCalls = mockNotebookModel.setMetadata.mock.calls;
+      const sawAnyActivation = metadataCalls.some(
+        ([key, value]) =>
+          key === 'gpu_accelerators' && Array.isArray(value) && value.length > 0
+      );
+      expect(sawAnyActivation).toBe(false);
+
+      // The success "All Accelerators Enabled" dialog should NOT have been shown
+      const successDialogShown = mockShowDialog.mock.calls.some(
+        ([opts]) =>
+          (opts as { title?: string })?.title === 'All Accelerators Enabled'
+      );
+      expect(successDialogShown).toBe(false);
+    });
+
+    /**
      * Verifies the component shows an error dialog when trying to
      * use accelerators without a kernel running.
      *
@@ -715,18 +863,12 @@ describe('AcceleratorSelector Component', () => {
     });
 
     /**
-     * Verifies the component handles kernel execution errors gracefully.
-     * Errors should not crash the component.
-     *
-     * Test flow:
-     * 1. Mock kernel to return error response (simulates execution failure)
-     * 2. Render component
-     * 3. Simulate user selecting accelerator
-     * 4. Kernel execution fails
-     * 5. Verify component doesn't crash (error is caught and handled)
-     * 6. Component should show error dialog or handle silently
+     * Verifies the component handles kernel execution errors gracefully:
+     * does not crash, and (critically) does not mark the accelerator as
+     * active or persist it to notebook metadata when the kernel reports an
+     * error status.
      */
-    it('should handle kernel execution errors', async () => {
+    it('should handle kernel execution errors without persisting state', async () => {
       const user = userEvent.setup();
       // Mock kernel to return error (simulates activation code failing)
       mockKernel.requestExecute.mockReturnValue({
@@ -751,11 +893,20 @@ describe('AcceleratorSelector Component', () => {
       // Try to activate accelerator - kernel execution will fail
       await user.selectOptions(select, 'cudf-pandas');
 
-      // Verify kernel.execute() was called (component attempted activation)
-      // Component should handle the error gracefully without crashing
+      // Kernel was asked to load the extension
       await waitFor(() => {
         expect(mockKernel.requestExecute).toHaveBeenCalled();
       });
+
+      // Metadata must NOT contain the failed accelerator
+      const metadataCalls = mockNotebookModel.setMetadata.mock.calls;
+      const sawFailedActivation = metadataCalls.some(
+        ([key, value]) =>
+          key === 'gpu_accelerators' &&
+          Array.isArray(value) &&
+          value.includes('cudf-pandas')
+      );
+      expect(sawFailedActivation).toBe(false);
     });
 
     /**

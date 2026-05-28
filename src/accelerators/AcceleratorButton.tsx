@@ -289,11 +289,31 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         const kernel = sessionContext.session.kernel;
         const code = loadCommands.join('\n');
 
-        await kernel.requestExecute({
+        const executeResult = await kernel.requestExecute({
           code: code,
           silent: false,
           store_history: false
         }).done;
+
+        // If the kernel replied with an error (e.g., non-Python kernel,
+        // kernel env missing the package, broken install), do not mark any
+        // accelerators as active or persist them to notebook metadata.
+        if (executeResult?.content?.status === 'error') {
+          const errContent = executeResult.content as {
+            ename?: string;
+            evalue?: string;
+          };
+          void showDialog({
+            title: trans.__('Failed to enable accelerators'),
+            body: trans.__(
+              'One or more accelerators failed to activate.\n\n%1: %2',
+              errContent.ename || 'Error',
+              errContent.evalue || 'Unknown error'
+            ),
+            buttons: [Dialog.okButton()]
+          });
+          return;
+        }
 
         setActivePluginIds(newActive);
         saveAcceleratorsToMetadata(notebookPanel, Array.from(newActive));
@@ -341,11 +361,32 @@ export const AcceleratorSelector: React.FC<IAcceleratorSelectorProps> = ({
         const kernel = sessionContext.session.kernel;
         const code = plugin.activationCode;
 
-        await kernel.requestExecute({
+        const executeResult = await kernel.requestExecute({
           code: code,
           silent: false, // Changed to false so extension loads properly
           store_history: false
         }).done;
+
+        // If the kernel replied with an error (e.g., non-Python kernel,
+        // kernel env missing the package, broken install), leave the
+        // accelerator inactive and do not persist it to notebook metadata.
+        if (executeResult?.content?.status === 'error') {
+          const errContent = executeResult.content as {
+            ename?: string;
+            evalue?: string;
+          };
+          void showDialog({
+            title: trans.__('Failed to activate %1', plugin.name),
+            body: trans.__(
+              '%1 could not be activated.\n\n%2: %3',
+              plugin.name,
+              errContent.ename || 'Error',
+              errContent.evalue || 'Unknown error'
+            ),
+            buttons: [Dialog.okButton()]
+          });
+          return;
+        }
 
         // Update UI state
         const newActive = new Set(activePluginIds);
