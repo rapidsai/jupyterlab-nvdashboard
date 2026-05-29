@@ -1,7 +1,27 @@
 from jupyter_server.utils import url_path_join
+from jupyter_server.base.handlers import JupyterHandler
+import tornado
+import json
 from . import apps
 
 URL_PATH = "nvdashboard"
+
+
+class AcceleratorStatusHandler(JupyterHandler):
+    """HTTP endpoint to check availability of GPU accelerators."""
+
+    @tornado.web.authenticated
+    def get(self):
+        """Return the availability status of all GPU accelerators."""
+        from .accelerator_checker import check_all_accelerators
+
+        response = {
+            "has_gpu": apps.gpu.ngpus > 0,
+            "ngpus": apps.gpu.ngpus,
+            "accelerators": check_all_accelerators(),
+        }
+
+        self.finish(json.dumps(response))
 
 
 def setup_handlers(web_app):
@@ -40,8 +60,14 @@ def setup_handlers(web_app):
         base_url, URL_PATH, "cpu_resource"
     )
 
+    # HTTP endpoint for checking accelerator availability
+    route_pattern_accelerator_status = url_path_join(
+        base_url, URL_PATH, "accelerators/check"
+    )
+
     handlers += [
         (route_pattern_cpu_resource, apps.cpu.CPUResourceWebSocketHandler),
+        (route_pattern_accelerator_status, AcceleratorStatusHandler),
     ]
 
     web_app.add_handlers(host_pattern, handlers)

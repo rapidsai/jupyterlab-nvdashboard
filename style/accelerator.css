@@ -1,0 +1,15 @@
+/**
+ * Styles for GPU Accelerator Selector
+ */
+
+/* Widget wrapper - matches JupyterLab's cell type selector */
+.jp-AcceleratorSelector {
+  display: flex;
+  align-items: center;
+}
+
+/* Dropdown select - inherits most styles from JupyterLab's HTMLSelect */
+.jp-AcceleratorSelector-dropdown {
+  /* Styling is handled by JupyterLab's HTMLSelect component */
+  /* No custom positioning needed - native select handles dropdown automatically */
+}

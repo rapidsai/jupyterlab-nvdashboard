@@ -17,6 +17,7 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
   - [Brush for Time Series Charts](#brush-for-time-series-charts)
   - [Synced Tooltips](#synced-tooltips)
   - [Theme Compatibility](#theme-compatibility)
+  - [GPU Accelerators](#gpu-accelerators)
 - [Version Compatibility](#version-compatibility)
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -52,6 +53,10 @@ Seamless integration with JupyterLab themes is now a reality. The extension adap
 #### Dark Theme
 
 ![JupyterLab-nvdashboard Demo2](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screenshot1.png)
+
+### GPU Accelerators
+
+A GPU accelerator activator button that lets you enable GPU-backed execution with **zero code changes**. When active, your existing **pandas** code runs on the GPU (via cudf-pandas), and/or your **scikit-learn** code runs on the GPU (via cuml-accel). Accelerators are shown only when the corresponding dependencies are installed: **cuDF** for pandas acceleration and **cuML** for scikit-learn acceleration.
 
 ## Version Compatibility
 
@@ -103,7 +108,7 @@ jupyter labextension list
 
 ## Contributing Developers Guide
 
-For more details, check out the [contributing guide](./CONTRIBUTING.md).
+For more details, check out the [contributing guide](./CONTRIBUTING.md). Accelerator-related tests (frontend Jest and backend pytest) are described in [Accelerator Testing](src/accelerators/TESTING.md).
 
 ## Future Improvements
 
