@@ -14,6 +14,10 @@ rapids-generate-version > ./VERSION
 RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION)
 export RAPIDS_PACKAGE_VERSION
 
+# Update the version field in package.json (this is read by hatch-nodejs-version)
+jq -e --arg tag "$(head -1 ./VERSION)" '.version=$tag' ./package.json > ./package.json.tmp
+mv package.json.tmp package.json
+
 # populates `RATTLER_CHANNELS` array and `RATTLER_ARGS` array
 source rapids-rattler-channel-string
 
