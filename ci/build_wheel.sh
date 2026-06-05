@@ -30,6 +30,6 @@ rapids-logger "Begin py build"
 python -m pip install build
 
 # Build the Python package
-python -m build -s -w --outdir "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
+python -m build --wheel --outdir "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 
 ci/validate_wheel.sh "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
