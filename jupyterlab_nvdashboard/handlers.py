@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
 from jupyter_server.utils import url_path_join
 from jupyter_server.base.handlers import JupyterHandler
 import tornado

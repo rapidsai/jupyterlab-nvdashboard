@@ -1,4 +1,5 @@
-# Copyright (c) 2023, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
+# SPDX-License-Identifier: BSD-3-Clause
 
 repos:
   - repo: https://github.com/psf/black
@@ -18,13 +19,28 @@ repos:
     rev: v0.11.0.1
     hooks:
       - id: shellcheck
+  - repo: https://github.com/rapidsai/pre-commit-hooks
+    rev: v1.4.1
+    hooks:
+      - id: verify-copyright
+        name: verify-copyright
+        args: [--fix, --spdx, "--spdx-license-identifier=BSD-3-Clause"]
+        files: |
+          (?x)
+            [.](flake8|js|py|sh|toml|yaml|yml)$
+        # TODO: include CSS and TypeScript files when https://github.com/rapidsai/pre-commit-hooks/pull/127 is merged
+        exclude: |
+          (?x)^(
+            [.](css|ts|tsx)$|
+            ^conda/environments/|
+          )
   - repo: https://github.com/rapidsai/dependency-file-generator
-    rev: v1.20.2
+    rev: v1.20.3
     hooks:
       - id: rapids-dependency-file-generator
         args: ['--clean']
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.24.1
+    rev: v1.25.2
     hooks:
       - id: zizmor
   - repo: https://github.com/pre-commit/mirrors-prettier

@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2025, NVIDIA CORPORATION.
+# Copyright (c) 2023-2025, NVIDIA CORPORATION
 
 [build-system]
 requires = [
@@ -15,7 +15,7 @@ readme = "README.md"
 license-files = [
     "LICENSE",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",

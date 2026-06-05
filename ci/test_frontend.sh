@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2023-2025, NVIDIA CORPORATION.
+# Copyright (c) 2023-2025, NVIDIA CORPORATION
 # Run frontend (Jest) tests. Does not require GPU.
 
 set -euo pipefail

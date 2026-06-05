@@ -1,4 +1,7 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
 ########################
 #   Version Updater    #
 ########################
@@ -14,6 +17,8 @@ NEXT_FULL_TAG=$1
 CURRENT_TAG=$(git tag --merged HEAD | grep -xE '^v.*' | sort --version-sort | tail -n 1 | tr -d 'v')
 
 echo "Preparing release $CURRENT_TAG => $NEXT_FULL_TAG"
+
+echo "${NEXT_FULL_TAG}" > ./VERSION
 
 # Inplace sed replace; workaround for Linux and Mac
 function sed_runner() {

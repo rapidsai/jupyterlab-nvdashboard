@@ -13,6 +13,6 @@ dependencies:
 - pytest
 - pytest-asyncio
 - pytest-jupyter-server>=0.6.0
-- python>=3.8
+- python>=3.11
 - websockets
 name: all_arch-any

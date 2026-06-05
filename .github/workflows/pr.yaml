@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
 name: pr
 on:
   push:
@@ -28,8 +31,8 @@ jobs:
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@main
     with:
-      enable_check_version_files_changed: false
-      enable_check_version_against_tag: false
+      enable_check_version_files_changed: true
+      enable_check_version_against_tag: true
     permissions:
       actions: read
       contents: read

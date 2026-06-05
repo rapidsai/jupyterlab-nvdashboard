@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2023, NVIDIA CORPORATION.
+# Copyright (c) 2023, NVIDIA CORPORATION
 
 # Exit script if any command fails
 set -euo pipefail
