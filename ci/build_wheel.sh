@@ -21,8 +21,10 @@ nvm install 18 && nvm use 18
 
 rapids-generate-version > ./VERSION
 
-# Update the version field in package.json (this is read by hatch-nodejs-version)
-jq -e --arg tag "$(head -1 ./VERSION)" '.version=$tag' ./package.json > ./package.json.tmp
+# Update the version field in package.json.
+# This is read by hatch-nodejs-version, which does not like 'a' in versions (so we replace with '-').
+node_version=$(head -1 ./VERSION | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
+jq -e --arg tag "${node_version}" '.version=$tag' ./package.json > ./package.json.tmp
 mv package.json.tmp package.json
 
 rapids-logger "Begin py build"
