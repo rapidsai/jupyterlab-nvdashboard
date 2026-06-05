@@ -1,6 +1,6 @@
 import json
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from jupyterlab_nvdashboard.apps.gpu import (
     GPUUtilizationWebSocketHandler,
@@ -19,20 +19,6 @@ def mock_handler(monkeypatch):
         mock,
     )
     return mock
-
-
-@pytest.fixture
-def handler_args():
-    with (
-        patch("tornado.web.Application") as mock_application,
-        patch("tornado.httputil.HTTPServerRequest") as mock_request,
-    ):
-        # Mock the settings to return appropriate values
-        mock_settings = {
-            "base_url": "/",
-        }
-        mock_application.settings = mock_settings
-        yield mock_application, mock_request
 
 
 def test_gpu_utilization_handler(mock_handler, handler_args):

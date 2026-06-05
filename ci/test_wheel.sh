@@ -3,14 +3,17 @@
 
 set -eou pipefail
 
+source rapids-init-pip
+
 # Set the package name
 package_name="jupyterlab-nvdashboard"
 
 rapids-logger "Downloading artifacts from previous jobs"
-RAPIDS_PY_WHEEL_NAME="${package_name}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-s3 ./dist
+WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
 
 # echo to expand wildcard before adding `[extra]` required for pip
-python -m pip install $(echo ./dist/jupyterlab_nvdashboard*.whl)[test]
+python -m pip install \
+    "$(echo "${WHEELHOUSE}"/jupyterlab_nvdashboard*.whl)[test]"
 
 rapids-logger "Check GPU usage"
 nvidia-smi

@@ -18,5 +18,5 @@
     "strictNullChecks": true,
     "target": "ES2018"
   },
-  "include": ["src/*", "src/assets/svg.d.ts"]
+  "include": ["src/**/*", "src/assets/svg.d.ts"]
 }
