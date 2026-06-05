@@ -21,9 +21,6 @@ nvm install 18 && nvm use 18
 
 rapids-generate-version > ./VERSION
 
-RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION)
-export RAPIDS_PACKAGE_VERSION
-
 rapids-logger "Begin py build"
 
 # Install build tools for Python
