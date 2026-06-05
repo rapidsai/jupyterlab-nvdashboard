@@ -1,5 +1,6 @@
 #!/bin/bash
-# Copyright (c) 2023, NVIDIA CORPORATION
+# SPDX-FileCopyrightText: Copyright (c) 2023, NVIDIA CORPORATION
+# SPDX-License-Identifier: BSD-3-Clause
 
 set -euo pipefail
 

@@ -9,7 +9,6 @@ source rapids-date-string
 
 rapids-print-env
 
-# Generate version and replace any letter with a hyphen
 rapids-generate-version > ./VERSION
 
 RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION)

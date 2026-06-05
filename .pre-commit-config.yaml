@@ -32,7 +32,7 @@ repos:
         exclude: |
           (?x)^(
             [.](css|ts|tsx)$|
-            ^conda/environments/|
+            ^conda/environments/
           )
   - repo: https://github.com/rapidsai/dependency-file-generator
     rev: v1.20.3

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Copyright (c) 2023, NVIDIA CORPORATION
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION
+# SPDX-License-Identifier: BSD-3-Clause
 
 # Exit script if any command fails
 set -euo pipefail
@@ -18,16 +19,11 @@ export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 # Install Node.js required for building the extension front-end
 nvm install 18 && nvm use 18
 
-# Generate version and replace any letter with a hyphen
-version=$(rapids-generate-version)
-node_version=$(echo "$version" | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
+rapids-generate-version > ./VERSION
 
-# Log message: Update the version field in package.json
-rapids-logger "Updating version in package.json to $node_version"
-jq -e --arg tag "$node_version" '.version=$tag' package.json > package.json.tmp
-mv package.json.tmp package.json
+RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION)
+export RAPIDS_PACKAGE_VERSION
 
-# Log message: Begin py build
 rapids-logger "Begin py build"
 
 # Install build tools for Python
