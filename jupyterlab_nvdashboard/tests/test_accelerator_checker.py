@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
 from unittest.mock import patch, MagicMock
 from jupyterlab_nvdashboard.accelerator_checker import (
     check_package_availability,

@@ -12,6 +12,6 @@ dependencies:
 - psutil
 - pytest
 - pytest-jupyter-server>=0.6.0
-- python>=3.8
+- python>=3.11
 - tornado
 name: all_arch-any

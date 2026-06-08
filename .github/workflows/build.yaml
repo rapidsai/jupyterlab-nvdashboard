@@ -1,11 +1,13 @@
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
 name: build
 on:
   push:
     branches:
-      - "branch-*"
+      - "main"
     tags:
-      - "v**"
-      - "!v**a"
+      - v[0-9]+.[0-9]+.[0-9]+
   workflow_dispatch:
     inputs:
       branch:

@@ -40,13 +40,24 @@ By default, the `jlpm run build` command generates the source maps for this exte
 jupyter lab build --minimize=False
 ```
 
-### Uninstall
+### Releasing
 
-```bash
-pip uninstall jupyterlab-nvdashboard
+Releases are published automatically to the `rapidsai` conda channel and to `pypi.org` by CI workflows.
+
+To cut a new release:
+
+1. push a tag matching the pattern `v[0-9]+.[0-9]+.[0-9]+` (e.g. `v0.14.0`) to the commit you want to release
+2. watch for a CI job at https://github.com/rapidsai/jupyterlab-nvdashboard/actions/workflows/build.yaml (triggered by that tag) to complete, confirm that it pushed to all the expected places
+3. open a PR updating the version in `package.json` to the likely next version (e.g. `0.15.0`)
+4. merge that PR
+5. tag the resulting commit on `main` like this:
+
+```shell
+git checkout main
+TAG="$(jq -r '."version"' < ./package.json)a"
+git tag "${TAG}"
+git push upstream "${TAG}"
 ```
-
-Releases for both packages are handled by [gpuCI](https://gpuci.gpuopenanalytics.com/job/rapidsai/job/gpuci/job/jupyterlab-nvdashboard/). Nightly builds are triggered when a push to a versioned branch occurs (i.e. `branch-0.10`). Stable builds are triggered when a push to the `main` branch occurs.
 
 ## Contributions
 
