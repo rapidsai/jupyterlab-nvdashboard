@@ -5,6 +5,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    # 0 = "only get security fixes"
     open-pull-requests-limit: 0
     cooldown:
       default-days: 15
