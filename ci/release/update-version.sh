@@ -18,12 +18,9 @@ CURRENT_TAG=$(git tag --merged HEAD | grep -xE '^v.*' | sort --version-sort | ta
 
 echo "Preparing release $CURRENT_TAG => $NEXT_FULL_TAG"
 
+# VERSION file
 echo "${NEXT_FULL_TAG}" > ./VERSION
 
-# Inplace sed replace; workaround for Linux and Mac
-function sed_runner() {
-    sed -i.bak ''"$1"'' "$2" && rm -f "${2}".bak
-}
-
+# package.json
 jq --indent 4 -e --arg tag "$NEXT_FULL_TAG" '.version=$tag' package.json > package.json.tmp
 mv package.json.tmp package.json
