@@ -54,13 +54,13 @@ dependencies:
           - hatch-jupyter-builder>=0.5
           - hatch-nodejs-version>=0.3.2
           - hatchling>=1.27.0
-          - jupyterlab>=4.0.0
+          - &jupyterlab jupyterlab>=4.0.0
   checks:
     common:
-      - output_types: [conda, requirements]
+      - output_types: [conda]
         packages:
           - pre-commit
-          - jupyterlab>=4.0.0
+          - *jupyterlab
           - nodejs=18
   py_version:
     common:
@@ -71,17 +71,16 @@ dependencies:
     common:
       - output_types: [conda, requirements, pyproject]
         packages:
-          - jupyterlab>=4.0.0
+          - *jupyterlab
           - psutil
           # 'nvidia-ml-py' provides the 'pynvml' module
           - nvidia-ml-py>=12
+          - tornado
   test_python:
     common:
       - output_types: [conda, requirements, pyproject]
         packages:
           - pytest
-          - pytest-asyncio
-          - websockets
       - output_types: [requirements, pyproject]
         packages:
           - pytest-jupyter[server]>=0.6.0

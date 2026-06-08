@@ -11,8 +11,7 @@ dependencies:
 - pre-commit
 - psutil
 - pytest
-- pytest-asyncio
 - pytest-jupyter-server>=0.6.0
 - python>=3.8
-- websockets
+- tornado
 name: all_arch-any

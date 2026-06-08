@@ -33,10 +33,11 @@ requirements:
     - python
   run:
     - jupyterlab>=4.0.0
-    - psutil
     # 'nvidia-ml-py' provides the 'pynvml' module
     - nvidia-ml-py>=12
+    - psutil
     - python
+    - tornado
 
 tests:
   - python:
