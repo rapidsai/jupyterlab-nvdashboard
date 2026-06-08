@@ -2,6 +2,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION
 # SPDX-License-Identifier: BSD-3-Clause
 
+#!/bin/bash
+# Copyright (c) 2023-2025, NVIDIA CORPORATION.
+
 # Exit script if any command fails
 set -euo pipefail
 
@@ -9,15 +12,17 @@ source rapids-date-string
 
 rapids-print-env
 
+# Generate version and replace any letter with a hyphen (hatch-nodejs-version does not like pre-release versions)
 rapids-generate-version > ./VERSION
+version=$(HEAD -1 ./VERSION)
+node_version=$(echo "$version" | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
 
-RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION)
+RAPIDS_PACKAGE_VERSION=$version
 export RAPIDS_PACKAGE_VERSION
 
-# Update the version field in package.json.
-# This is read by hatch-nodejs-version, which does not like 'a' in versions (so we replace with '-').
-node_version=$(head -1 ./VERSION | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
-jq -e --arg tag "${node_version}" '.version=$tag' ./package.json > ./package.json.tmp
+# Update the version field in package.json
+rapids-logger "Updating version in package.json to $node_version"
+jq -e --arg tag "$node_version" '.version=$tag' package.json > package.json.tmp
 mv package.json.tmp package.json
 
 # populates `RATTLER_CHANNELS` array and `RATTLER_ARGS` array
