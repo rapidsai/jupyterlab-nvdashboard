@@ -1,0 +1,16 @@
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    # 0 = "only get security fixes"
+    open-pull-requests-limit: 0
+    cooldown:
+      default-days: 15
+    groups:
+      npm-and-yarn:
+        applies-to: security-updates
+        patterns:
+          - "*"
