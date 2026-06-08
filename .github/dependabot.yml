@@ -11,6 +11,6 @@ updates:
       default-days: 15
     groups:
       npm-and-yarn:
-        applies-to: version-updates
+        applies-to: security-updates
         patterns:
           - "*"
