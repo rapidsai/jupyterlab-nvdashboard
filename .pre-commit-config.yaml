@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause
 
 repos:
@@ -25,18 +25,16 @@ repos:
     hooks:
       - id: shellcheck
   - repo: https://github.com/rapidsai/pre-commit-hooks
-    rev: v1.4.1
+    rev: v1.5.0
     hooks:
       - id: verify-copyright
         name: verify-copyright
         args: [--fix, --spdx, "--spdx-license-identifier=BSD-3-Clause"]
         files: |
           (?x)
-            [.](flake8|js|py|sh|toml|yaml|yml)$
-        # TODO: include CSS and TypeScript files when https://github.com/rapidsai/pre-commit-hooks/pull/127 is merged
+            [.](css|flake8|js|py|sh|toml|ts|tsx|yaml|yml)$
         exclude: |
           (?x)^(
-            [.](css|ts|tsx)$|
             ^conda/environments/
           )
   - repo: https://github.com/rapidsai/dependency-file-generator

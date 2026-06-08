@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+// blegh
 import React, { useState } from 'react';
 import { ReactWidget, Button } from '@jupyterlab/ui-components';
 import AutoSizer from 'react-virtualized-auto-sizer';
