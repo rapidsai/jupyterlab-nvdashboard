@@ -13,8 +13,7 @@ source rapids-date-string
 rapids-print-env
 
 # Generate version and replace any letter with a hyphen (hatch-nodejs-version does not like pre-release versions)
-rapids-generate-version > ./VERSION
-version=$(head -1 ./VERSION)
+version=$(rapids-generate-version)
 node_version=$(echo "$version" | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
 
 RAPIDS_PACKAGE_VERSION=$version
