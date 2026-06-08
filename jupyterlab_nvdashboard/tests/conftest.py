@@ -2,10 +2,6 @@ import pytest
 from unittest.mock import patch
 
 
-def pytest_configure(config):
-    config.addinivalue_line("markers", "asyncio: mark test as asyncio")
-
-
 @pytest.fixture
 def handler_args():
     """Fixture to provide mock application and request for handler init."""
