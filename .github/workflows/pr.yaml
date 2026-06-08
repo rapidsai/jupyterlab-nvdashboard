@@ -31,9 +31,9 @@ jobs:
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@main
     with:
-      # TODO: flip this to 'true' once VERSION is up on 'main'
-      enable_check_version_files_changed: false
       enable_check_version_against_tag: true
+      # allow VERSION to be changed on PRs
+      enable_check_version_files_changed: false
     permissions:
       actions: read
       contents: read
