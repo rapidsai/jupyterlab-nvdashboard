@@ -25,9 +25,7 @@ class CustomWebSocketHandler(JupyterHandler, WebSocketHandler):
         new_frequency = message_data["updateFrequency"]
         if hasattr(self, "callback"):
             self.callback.stop()
-            self.callback = tornado.ioloop.PeriodicCallback(
-                self.send_data, new_frequency
-            )
+            self.callback = tornado.ioloop.PeriodicCallback(self.send_data, new_frequency)
             if not message_data["isPaused"]:
                 self.callback.start()
 
