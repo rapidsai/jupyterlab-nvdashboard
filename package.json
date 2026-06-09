@@ -142,6 +142,7 @@
         "@lumino/domutils": "^2.0.0",
         "@lumino/keyboard": "^2.0.0",
         "@lumino/polling": "^2.0.0",
+        "jest-junit": "^17.0.0",
         "@jupyterlab/apputils": "^4.0.0",
         "@jupyterlab/ui-components": "^4.0.0",
         "@jupyterlab/docregistry": "^4.0.0",
