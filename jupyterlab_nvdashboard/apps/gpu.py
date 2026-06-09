@@ -22,16 +22,10 @@ else:
             if hasattr(pynvml, f"NVML_FI_DEV_NVLINK_SPEED_MBPS_L{i}")
         ]
 
-        bandwidth = [
-            pynvml.nvmlDeviceGetFieldValues(handle, links)
-            for handle in gpu_handles
-        ]
+        bandwidth = [pynvml.nvmlDeviceGetFieldValues(handle, links) for handle in gpu_handles]
 
         # Maximum bandwidth is bidirectional, divide by 2 for separate RX & TX
-        max_bw = (
-            max(sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth)
-            / 2
-        )
+        max_bw = max(sum(i.value.ullVal for i in bw) * 1024**2 for bw in bandwidth) / 2
     except (IndexError, pynvml.NVMLError_NotSupported):
         nvlink_ver = None
         max_bw = []
@@ -43,30 +37,17 @@ else:
 
 class GPUUtilizationWebSocketHandler(CustomWebSocketHandler):
     def send_data(self):
-        gpu_utilization = [
-            pynvml.nvmlDeviceGetUtilizationRates(gpu_handles[i]).gpu
-            for i in range(ngpus)
-        ]
+        gpu_utilization = [pynvml.nvmlDeviceGetUtilizationRates(gpu_handles[i]).gpu for i in range(ngpus)]
         self.write_message(json.dumps({"gpu_utilization": gpu_utilization}))
 
 
 class GPUUsageWebSocketHandler(CustomWebSocketHandler):
     def send_data(self):
-        memory_usage = [
-            pynvml.nvmlDeviceGetMemoryInfo(handle).used
-            for handle in gpu_handles
-        ]
+        memory_usage = [pynvml.nvmlDeviceGetMemoryInfo(handle).used for handle in gpu_handles]
 
-        total_memory = [
-            pynvml.nvmlDeviceGetMemoryInfo(handle).total
-            for handle in gpu_handles
-        ]
+        total_memory = [pynvml.nvmlDeviceGetMemoryInfo(handle).total for handle in gpu_handles]
 
-        self.write_message(
-            json.dumps(
-                {"memory_usage": memory_usage, "total_memory": total_memory}
-            )
-        )
+        self.write_message(json.dumps({"memory_usage": memory_usage, "total_memory": total_memory}))
 
 
 class GPUResourceWebSocketHandler(CustomWebSocketHandler):
@@ -81,10 +62,7 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
             "gpu_memory_individual": [],
             "gpu_utilization_individual": [],
         }
-        memory_list = [
-            pynvml.nvmlDeviceGetMemoryInfo(handle).total / (1024 * 1024)
-            for handle in gpu_handles
-        ]
+        memory_list = [pynvml.nvmlDeviceGetMemoryInfo(handle).total / (1024 * 1024) for handle in gpu_handles]
         gpu_mem_sum = sum(memory_list)
 
         for i in range(ngpus):
@@ -94,27 +72,15 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
             stats["gpu_memory_total"] += mem / (1024 * 1024)
 
             if pci_gen is not None:
-                tx = (
-                    pynvml.nvmlDeviceGetPcieThroughput(
-                        gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
-                    )
-                    * 1024
-                )
-                rx = (
-                    pynvml.nvmlDeviceGetPcieThroughput(
-                        gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
-                    )
-                    * 1024
-                )
+                tx = pynvml.nvmlDeviceGetPcieThroughput(gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES) * 1024
+                rx = pynvml.nvmlDeviceGetPcieThroughput(gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES) * 1024
                 stats["rx_total"] += rx
                 stats["tx_total"] += tx
             stats["gpu_utilization_individual"].append(gpu)
             stats["gpu_memory_individual"].append(mem)
 
         stats["gpu_utilization_total"] /= ngpus
-        stats["gpu_memory_total"] = round(
-            (stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2
-        )
+        stats["gpu_memory_total"] = round((stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2)
         self.write_message(json.dumps(stats))
 
 
@@ -142,17 +108,14 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
             # Calculate the change since the last request
             throughput_change = [
                 [
-                    throughput[i][j].value.ullVal
-                    - self.prev_throughput[i][j].value.ullVal
+                    throughput[i][j].value.ullVal - self.prev_throughput[i][j].value.ullVal
                     for j in range(len(throughput[i]))
                 ]
                 for i in range(len(throughput))
             ]
         else:
             # If no previous throughput is available, set change to zero
-            throughput_change = [
-                [0] * len(throughput[i]) for i in range(len(throughput))
-            ]
+            throughput_change = [[0] * len(throughput[i]) for i in range(len(throughput))]
 
         # Store the current throughput for the next request
         self.prev_throughput = throughput
@@ -162,21 +125,11 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
             json.dumps(
                 {
                     "nvlink_rx": [
-                        sum(
-                            throughput_change[i][
-                                : pynvml.NVML_NVLINK_MAX_LINKS
-                            ]
-                        )
-                        * 1024
+                        sum(throughput_change[i][: pynvml.NVML_NVLINK_MAX_LINKS]) * 1024
                         for i in range(len(throughput_change))
                     ],
                     "nvlink_tx": [
-                        sum(
-                            throughput_change[i][
-                                pynvml.NVML_NVLINK_MAX_LINKS :
-                            ]
-                        )
-                        * 1024
+                        sum(throughput_change[i][pynvml.NVML_NVLINK_MAX_LINKS :]) * 1024
                         for i in range(len(throughput_change))
                     ],
                     "max_rxtx_bw": max_bw,
@@ -203,18 +156,12 @@ class PCIStatsWebSocketHandler(CustomWebSocketHandler):
         max_rxtx_tp = pci_width * pci_bw[pci_gen]
 
         pci_tx = [
-            pynvml.nvmlDeviceGetPcieThroughput(
-                gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES
-            )
-            * 1024
+            pynvml.nvmlDeviceGetPcieThroughput(gpu_handles[i], pynvml.NVML_PCIE_UTIL_TX_BYTES) * 1024
             for i in range(ngpus)
         ]
 
         pci_rx = [
-            pynvml.nvmlDeviceGetPcieThroughput(
-                gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES
-            )
-            * 1024
+            pynvml.nvmlDeviceGetPcieThroughput(gpu_handles[i], pynvml.NVML_PCIE_UTIL_RX_BYTES) * 1024
             for i in range(ngpus)
         ]
 
