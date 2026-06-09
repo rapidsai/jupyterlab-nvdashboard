@@ -59,7 +59,7 @@ repos:
           - '@typescript-eslint/eslint-plugin@6.1.0'
           - '@typescript-eslint/parser@6.1.0'
           - typescript@5.0.2
-  # NOTE: As long as these hook all use the same 'additional_dependencies' and 'language'
+  # NOTE: As long as these hooks all use the same 'additional_dependencies' and 'language'
   #       they'll be able to share the same conda environment. Keep them in sync.
   - repo: local
     hooks:
