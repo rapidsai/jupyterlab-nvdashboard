@@ -74,7 +74,7 @@ repos:
       - id: yarn-lockfile-dedupe
         name: yarn-lockfile-dedupe
         language: conda
-        entry: bash -c 'jlpm run "dedupe:check" || { jlpm run dedupe && exit 1; }'
+        entry: bash -c 'jlpm install --immutable && jlpm run "dedupe:check" || { jlpm run dedupe && exit 1; }'
         pass_filenames: false
         additional_dependencies:
           - jupyterlab>=4.0.0
