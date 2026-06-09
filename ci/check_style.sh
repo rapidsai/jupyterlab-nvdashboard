@@ -19,7 +19,19 @@ rapids-logger "Run pre-commit checks - Python backend"
 # Run pre-commit checks
 pre-commit run --hook-stage manual --all-files --show-diff-on-failure
 
+# yarn version needs to be consistent between what 'jlpm' wraps and what is declared
+# in 'package.json', so automated dependency updates work as expected
+rapids-logger "checking yarn versions"
+JLPM_VERSION=$(jlpm --version 2>/dev/null)
+PACKAGE_JSON_VERSION=$(jq -r '."packageManager"' < ./package.json | cut -d@ -f2)
+if [[ "${JLPM_VERSION}" != "${PACKAGE_JSON_VERSION}" ]]; then
+  echo "error: yarn version from 'jlpm --version' (${JLPM_VERSION}) and 'packageManager' field in package.json (${PACKAGE_JSON_VERSION}) do not match."
+  exit 1
+fi
+
+
 rapids-logger "eslint:check - TS frontend"
+
 # Run eslint checks
 jlpm install
 jlpm run eslint:check

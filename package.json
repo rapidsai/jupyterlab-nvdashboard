@@ -120,6 +120,7 @@
         "style/index.js"
     ],
     "styleModule": "style/index.js",
+    "packageManager": "yarn@3.5.0",
     "publishConfig": {
         "access": "public"
     },
