@@ -48,8 +48,7 @@ def test_accelerator_status_handler_with_gpus(authenticated_handler):
     with (
         patch("jupyterlab_nvdashboard.handlers.apps.gpu.ngpus", 2),
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_all_accelerators",
+            "jupyterlab_nvdashboard.accelerator_checker.check_all_accelerators",
             return_value=mock_accelerators,
         ),
     ):
@@ -77,8 +76,7 @@ def test_accelerator_status_handler_no_gpus(authenticated_handler):
     with (
         patch("jupyterlab_nvdashboard.handlers.apps.gpu.ngpus", 0),
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_all_accelerators",
+            "jupyterlab_nvdashboard.accelerator_checker.check_all_accelerators",
             return_value=mock_accelerators,
         ),
     ):
@@ -108,8 +106,7 @@ def test_accelerator_status_handler_response_structure(authenticated_handler):
     with (
         patch("jupyterlab_nvdashboard.handlers.apps.gpu.ngpus", 1),
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_all_accelerators",
+            "jupyterlab_nvdashboard.accelerator_checker.check_all_accelerators",
             return_value=mock_accelerators,
         ),
     ):
@@ -127,13 +124,11 @@ def test_accelerator_status_handler_response_structure(authenticated_handler):
         assert isinstance(response_data["accelerators"], dict)
 
         # Verify accelerators structure
-        for accel_id, accel_status in response_data["accelerators"].items():
+        for _, accel_status in response_data["accelerators"].values():
             assert "available" in accel_status
             assert isinstance(accel_status["available"], bool)
             assert "version" in accel_status
-            assert accel_status["version"] is None or isinstance(
-                accel_status["version"], str
-            )
+            assert accel_status["version"] is None or isinstance(accel_status["version"], str)
 
 
 def test_accelerator_status_handler_authentication_decorator():
@@ -151,10 +146,9 @@ def test_accelerator_status_handler_error_handling(authenticated_handler):
     with (
         patch("jupyterlab_nvdashboard.handlers.apps.gpu.ngpus", 1),
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_all_accelerators",
+            "jupyterlab_nvdashboard.accelerator_checker.check_all_accelerators",
             side_effect=Exception("Test error"),
         ),
+        pytest.raises(Exception, match="Test error"),
     ):
-        with pytest.raises(Exception, match="Test error"):
-            authenticated_handler.get()
+        authenticated_handler.get()

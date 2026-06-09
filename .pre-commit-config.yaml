@@ -7,19 +7,12 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-  - repo: https://github.com/psf/black
-    rev: 25.12.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.16
     hooks:
-      - id: black
-        files: jupyterlab_nvdashboard/.*
-        # Explicitly specify the pyproject.toml at the repo root, not per-project.
-        args: ['--config', 'pyproject.toml']
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.3.0
-    hooks:
-      - id: flake8
-        args: ['--config=.flake8']
-        files: jupyterlab_nvdashboard/.*$
+      - id: ruff-check
+        args: ["--fix"]
+      - id: ruff-format
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
     hooks:
@@ -32,7 +25,7 @@ repos:
         args: [--fix, --spdx, "--spdx-license-identifier=BSD-3-Clause"]
         files: |
           (?x)
-            [.](css|flake8|js|py|sh|toml|ts|tsx|yaml|yml)$
+            [.](css|js|py|sh|toml|ts|tsx|yaml|yml)$
         exclude: |
           (?x)^(
             ^conda/environments/
@@ -53,7 +46,7 @@ repos:
         types_or: [javascript, jsx, ts, tsx, json, css]
         files: ^(src|style)/.*$
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v10.0.0-rc.0
+    rev: v10.4.1
     hooks:
       - id: eslint
         files: ^src/.*\.(ts|tsx)$
