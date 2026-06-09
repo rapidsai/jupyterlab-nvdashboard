@@ -124,7 +124,7 @@ def test_accelerator_status_handler_response_structure(authenticated_handler):
         assert isinstance(response_data["accelerators"], dict)
 
         # Verify accelerators structure
-        for _, accel_status in response_data["accelerators"].values():
+        for accel_id, accel_status in response_data["accelerators"].items():  # noqa: B007,PERF102
             assert "available" in accel_status
             assert isinstance(accel_status["available"], bool)
             assert "version" in accel_status
