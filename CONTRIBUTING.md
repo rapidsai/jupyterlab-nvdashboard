@@ -40,7 +40,27 @@ By default, the `jlpm run build` command generates the source maps for this exte
 jupyter lab build --minimize=False
 ```
 
-### Releasing
+## Linting
+
+Run static analysis / linting via `pre-commit`
+
+```shell
+pre-commit run --all-files
+```
+
+## Automated Dependency Updates
+
+Bots like `dependabot` may be used to update dependencies automatically.
+
+These may modify `package.json` and `yarn.lock` but leave them in a state that's failing some other CI checks.
+
+To resolve that:
+
+1. pull the branch created by the bot
+2. run `pre-commit run --all-files` locally
+3. commit and push the changes
+
+## Releasing
 
 Releases are published automatically to the `rapidsai` conda channel and to `pypi.org` by CI workflows.
 
