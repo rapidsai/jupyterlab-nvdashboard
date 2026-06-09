@@ -70,15 +70,15 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - jupyterlab>=4.0.0
-          - nodejs>=18
+          - nodejs=18
       - id: yarn-lockfile-dedupe
-        name: yarn lockfile dedupe
+        name: yarn-lockfile-dedupe
         language: conda
         entry: bash -c 'jlpm run "dedupe:check" || { jlpm run dedupe && exit 1; }'
         pass_filenames: false
         additional_dependencies:
           - jupyterlab>=4.0.0
-          - nodejs>=18
+          - nodejs=18
       - id: check-frontend
         name: check-frontend
         language: conda
@@ -86,7 +86,7 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - jupyterlab>=4.0.0
-          - nodejs>=18
+          - nodejs=18
 
 default_language_version:
   python: python3

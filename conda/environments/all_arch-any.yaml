@@ -7,7 +7,7 @@ channels:
 dependencies:
 - identify>=1.4.20
 - jupyterlab>=4.0.0
-- nodejs>=18
+- nodejs=18
 - nvidia-ml-py>=12
 - pre-commit
 - psutil
