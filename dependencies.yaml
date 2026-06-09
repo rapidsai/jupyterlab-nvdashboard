@@ -12,6 +12,10 @@ files:
       - py_version
       - run
       - test_python
+  test_frontend:
+    output: none
+    includes:
+      - test_frontend
   test_python:
     output: none
     includes:
@@ -76,7 +80,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - nodejs=18
+          - &nodejs nodejs=18
       - output_types: [conda, requirements, pyproject]
         packages:
           - *jupyterlab
@@ -84,6 +88,12 @@ dependencies:
           # 'nvidia-ml-py' provides the 'pynvml' module
           - nvidia-ml-py>=12
           - tornado
+  test_frontend:
+    common:
+      - output_types: [conda]
+        packages:
+          - *jupyterlab
+          - *nodejs
   test_python:
     common:
       - output_types: [conda, requirements, pyproject]
