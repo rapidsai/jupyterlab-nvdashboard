@@ -66,6 +66,7 @@ dependencies:
           # ref: https://github.com/pre-commit/pre-commit/issues/3698
           - identify>=1.4.20
           - pre-commit
+          - nodejs=18
   py_version:
     common:
       - output_types: conda
