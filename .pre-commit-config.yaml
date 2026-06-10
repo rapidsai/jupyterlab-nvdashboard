@@ -59,5 +59,34 @@ repos:
           - '@typescript-eslint/eslint-plugin@6.1.0'
           - '@typescript-eslint/parser@6.1.0'
           - typescript@5.0.2
+  # NOTE: As long as these hooks all use the same 'additional_dependencies' and 'language'
+  #       they'll be able to share the same conda environment. Keep them in sync.
+  - repo: local
+    hooks:
+      - id: check-yarn-version
+        name: check-yarn-version
+        language: conda
+        entry: ./ci/check-yarn-version.sh
+        pass_filenames: false
+        additional_dependencies:
+          - jupyterlab>=4.0.0
+          - nodejs=18
+      - id: yarn-lockfile-dedupe
+        name: yarn-lockfile-dedupe
+        language: conda
+        entry: bash -c 'jlpm install && jlpm run "dedupe:check" || { jlpm run dedupe && exit 1; }'
+        pass_filenames: false
+        additional_dependencies:
+          - jupyterlab>=4.0.0
+          - nodejs=18
+      - id: check-frontend
+        name: check-frontend
+        language: conda
+        entry: bash -c 'jlpm install && jlpm run eslint:check'
+        pass_filenames: false
+        additional_dependencies:
+          - jupyterlab>=4.0.0
+          - nodejs=18
+
 default_language_version:
   python: python3

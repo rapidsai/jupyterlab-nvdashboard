@@ -12,6 +12,10 @@ files:
       - py_version
       - run
       - test_python
+  test_frontend:
+    output: none
+    includes:
+      - test_frontend
   test_python:
     output: none
     includes:
@@ -61,8 +65,11 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
+          # 'identify' floor ensures pre-commit hooks that support 'jupyter' files can run
+          #
+          # ref: https://github.com/pre-commit/pre-commit/issues/3698
+          - identify>=1.4.20
           - pre-commit
-          - *jupyterlab
           - nodejs=18
   py_version:
     common:
@@ -71,6 +78,9 @@ dependencies:
           - python>=3.11
   run:
     common:
+      - output_types: [conda]
+        packages:
+          - &nodejs nodejs=18
       - output_types: [conda, requirements, pyproject]
         packages:
           - *jupyterlab
@@ -78,6 +88,12 @@ dependencies:
           # 'nvidia-ml-py' provides the 'pynvml' module
           - nvidia-ml-py>=12
           - tornado
+  test_frontend:
+    common:
+      - output_types: [conda]
+        packages:
+          - *jupyterlab
+          - *nodejs
   test_python:
     common:
       - output_types: [conda, requirements, pyproject]
