@@ -1,6 +1,6 @@
 #!/bin/bash
-# Copyright (c) 2023-2025, NVIDIA CORPORATION.
-# Run frontend (Jest) tests. Does not require GPU.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
 
 set -euo pipefail
 
@@ -9,7 +9,7 @@ set -euo pipefail
 rapids-logger "Generate frontend testing dependencies"
 rapids-dependency-file-generator \
   --output conda \
-  --file-key checks \
+  --file-key test_frontend \
   --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" | tee env.yaml
 
 rapids-mamba-retry env create --yes -f env.yaml -n test_frontend

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
 # This file controls which features from the `ops-bot` repository below are enabled.
 # - https://github.com/rapidsai/ops-bot
 

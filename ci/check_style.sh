@@ -1,5 +1,6 @@
 #!/bin/bash
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
 
 set -euo pipefail
 
@@ -17,8 +18,3 @@ conda activate checks
 rapids-logger "Run pre-commit checks - Python backend"
 # Run pre-commit checks
 pre-commit run --hook-stage manual --all-files --show-diff-on-failure
-
-rapids-logger "eslint:check - TS frontend"
-# Run eslint checks
-jlpm install
-jlpm run eslint:check

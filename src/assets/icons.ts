@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
 import { LabIcon } from '@jupyterlab/ui-components';
 import gpuIconStr from '../../style/icons/expansion-card.svg';
 import hBarIconStr from '../../style/icons/horizontal-bar-chart.svg';

@@ -1,9 +1,8 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
 import pytest
 from unittest.mock import patch
-
-
-def pytest_configure(config):
-    config.addinivalue_line("markers", "asyncio: mark test as asyncio")
 
 
 @pytest.fixture

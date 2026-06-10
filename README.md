@@ -13,6 +13,25 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
 
 ## Table of Contents
 
+<<<<<<< HEAD
+- [JupyterLab NVdashboard](#jupyterlab-nvdashboard)
+  - [Demo](#demo)
+  - [Table of Contents](#table-of-contents)
+  - [New Features](#new-features)
+    - [Brush for Time Series Charts](#brush-for-time-series-charts)
+    - [Synced Tooltips](#synced-tooltips)
+    - [Theme Compatibility](#theme-compatibility)
+      - [Light Theme](#light-theme)
+      - [Dark Theme](#dark-theme)
+  - [Version Compatibility](#version-compatibility)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+    - [Conda](#conda)
+    - [PyPI](#pypi)
+  - [Troubleshoot](#troubleshoot)
+  - [Contributing Developers Guide](#contributing-developers-guide)
+  - [Future Improvements](#future-improvements)
+=======
 - [New Features](#new-features)
   - [Brush for Time Series Charts](#brush-for-time-series-charts)
   - [Synced Tooltips](#synced-tooltips)
@@ -24,6 +43,7 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
 - [Troubleshoot](#troubleshoot)
 - [Contributing](#contributing-developers-guide)
 - [Future Improvements](#future-improvements)
+>>>>>>> upstream/main
 
 ## New Features
 
@@ -65,7 +85,8 @@ JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later ve
 ## Requirements
 
 - JupyterLab >=4
-- pynvml
+- cuda-core >= 1.0.0
+- cuda-bindings 12.9.6 or later, 13.2.0 or later
 - psutil
 
 ## Installation
@@ -73,21 +94,21 @@ JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later ve
 ### Conda
 
 ```bash
-# nightly version (for jupyterlab>=4)
+# nightly version
 conda install -c rapidsai-nightly -c conda-forge jupyterlab-nvdashboard
 
-# stable version (for jupyterlab<4)
+# stable version
 conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard
 ```
 
 ### PyPI
 
 ```bash
-# nightly version (for jupyterlab>=4)
-pip install --extra-index-url https://pypi.anaconda.org/rapidsai-wheels-nightly/simple --pre jupyterlab_nvdashboard
+# nightly version
+pip install --extra-index-url https://pypi.anaconda.org/rapidsai-wheels-nightly/simple 'jupyterlab-nvdashboard>=0.14.0a0'
 
-# stable version (for jupyterlab<4)
-pip install jupyterlab_nvdashboard
+# stable version
+pip install jupyterlab-nvdashboard
 ```
 
 ## Troubleshoot
@@ -108,8 +129,4 @@ jupyter labextension list
 
 ## Contributing Developers Guide
 
-For more details, check out the [contributing guide](./CONTRIBUTING.md). Accelerator-related tests (frontend Jest and backend pytest) are described in [Accelerator Testing](src/accelerators/TESTING.md).
-
-## Future Improvements
-
-While we've introduced a range of exciting features in this release, we understand that there are always opportunities for improvement. We have noted a request to add cell execution markers to the charts. Due to the complexities associated with asynchronous cells, we have decided to defer this feature to a future update. Rest assured, we will explore this enhancement in subsequent releases.
+For more details, check out the [contributing guide](./CONTRIBUTING.md).

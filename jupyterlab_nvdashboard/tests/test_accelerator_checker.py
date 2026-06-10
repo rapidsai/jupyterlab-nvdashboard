@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
 from unittest.mock import patch, MagicMock
 from jupyterlab_nvdashboard.accelerator_checker import (
     check_package_availability,
@@ -43,10 +46,7 @@ def test_check_package_availability_no_version():
 
 def test_check_cudf_availability():
     """Test check_cudf_availability calls check_package_availability."""
-    with patch(
-        "jupyterlab_nvdashboard.accelerator_checker."
-        "check_package_availability"
-    ) as mock_check:
+    with patch("jupyterlab_nvdashboard.accelerator_checker.check_package_availability") as mock_check:
         mock_check.return_value = {"available": True, "version": "25.12.0"}
         result = check_cudf_availability()
 
@@ -56,10 +56,7 @@ def test_check_cudf_availability():
 
 def test_check_cuml_availability():
     """Test check_cuml_availability calls check_package_availability."""
-    with patch(
-        "jupyterlab_nvdashboard.accelerator_checker."
-        "check_package_availability"
-    ) as mock_check:
+    with patch("jupyterlab_nvdashboard.accelerator_checker.check_package_availability") as mock_check:
         mock_check.return_value = {"available": True, "version": "25.12.0"}
         result = check_cuml_availability()
 
@@ -71,13 +68,11 @@ def test_check_all_accelerators_structure():
     """Test check_all_accelerators returns correct structure."""
     with (
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_cudf_availability",
+            "jupyterlab_nvdashboard.accelerator_checker.check_cudf_availability",
             return_value={"available": True, "version": "25.12.0"},
         ),
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_cuml_availability",
+            "jupyterlab_nvdashboard.accelerator_checker.check_cuml_availability",
             return_value={"available": False, "version": None},
         ),
     ):
@@ -101,13 +96,11 @@ def test_check_all_accelerators_all_installed():
     """Test check_all_accelerators when all packages are installed."""
     with (
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_cudf_availability",
+            "jupyterlab_nvdashboard.accelerator_checker.check_cudf_availability",
             return_value={"available": True, "version": "25.12.0"},
         ),
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_cuml_availability",
+            "jupyterlab_nvdashboard.accelerator_checker.check_cuml_availability",
             return_value={"available": True, "version": "25.12.0"},
         ),
     ):
@@ -121,13 +114,11 @@ def test_check_all_accelerators_none_installed():
     """Test check_all_accelerators when no packages are installed."""
     with (
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_cudf_availability",
+            "jupyterlab_nvdashboard.accelerator_checker.check_cudf_availability",
             return_value={"available": False, "version": None},
         ),
         patch(
-            "jupyterlab_nvdashboard.accelerator_checker."
-            "check_cuml_availability",
+            "jupyterlab_nvdashboard.accelerator_checker.check_cuml_availability",
             return_value={"available": False, "version": None},
         ),
     ):

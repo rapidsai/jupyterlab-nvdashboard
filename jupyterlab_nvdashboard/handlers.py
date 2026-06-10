@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
 from jupyter_server.utils import url_path_join
 from jupyter_server.base.handlers import JupyterHandler
 import tornado
@@ -28,23 +30,13 @@ def setup_handlers(web_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
     handlers = []
-    if apps.gpu.ngpus > 0:
+    if len(apps.gpu.gpus) > 0:
         # Prepend the base_url so that it works in a JupyterHub setting
-        route_pattern_gpu_util = url_path_join(
-            base_url, URL_PATH, "gpu_utilization"
-        )
-        route_pattern_gpu_usage = url_path_join(
-            base_url, URL_PATH, "gpu_usage"
-        )
-        route_pattern_gpu_resource = url_path_join(
-            base_url, URL_PATH, "gpu_resource"
-        )
-        route_pattern_pci_stats = url_path_join(
-            base_url, URL_PATH, "pci_stats"
-        )
-        route_pattern_nvlink_throughput = url_path_join(
-            base_url, URL_PATH, "nvlink_throughput"
-        )
+        route_pattern_gpu_util = url_path_join(base_url, URL_PATH, "gpu_utilization")
+        route_pattern_gpu_usage = url_path_join(base_url, URL_PATH, "gpu_usage")
+        route_pattern_gpu_resource = url_path_join(base_url, URL_PATH, "gpu_resource")
+        route_pattern_pci_stats = url_path_join(base_url, URL_PATH, "pci_stats")
+        route_pattern_nvlink_throughput = url_path_join(base_url, URL_PATH, "nvlink_throughput")
         handlers += [
             (route_pattern_gpu_util, apps.gpu.GPUUtilizationWebSocketHandler),
             (route_pattern_gpu_usage, apps.gpu.GPUUsageWebSocketHandler),
@@ -56,14 +48,10 @@ def setup_handlers(web_app):
             ),
         ]
 
-    route_pattern_cpu_resource = url_path_join(
-        base_url, URL_PATH, "cpu_resource"
-    )
+    route_pattern_cpu_resource = url_path_join(base_url, URL_PATH, "cpu_resource")
 
     # HTTP endpoint for checking accelerator availability
-    route_pattern_accelerator_status = url_path_join(
-        base_url, URL_PATH, "accelerators/check"
-    )
+    route_pattern_accelerator_status = url_path_join(base_url, URL_PATH, "accelerators/check")
 
     handlers += [
         (route_pattern_cpu_resource, apps.cpu.CPUResourceWebSocketHandler),

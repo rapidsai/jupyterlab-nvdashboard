@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    # 0 = "only get security fixes"
+    open-pull-requests-limit: 0
+    cooldown:
+      default-days: 15
+    groups:
+      npm-and-yarn:
+        applies-to: security-updates
+        patterns:
+          - "*"

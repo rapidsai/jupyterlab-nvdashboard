@@ -2,7 +2,6 @@
 *                        @rapidsai/jupyterlab-nvdashboard-write
 
 # CI code owners
-.flake8                  @rapidsai/ci-codeowners @rapidsai/packaging-codeowners
 /.github/                @rapidsai/ci-codeowners
 .shellcheckrc            @rapidsai/ci-codeowners
 /ci/                     @rapidsai/ci-codeowners

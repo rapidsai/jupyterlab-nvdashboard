@@ -1,4 +1,8 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
+#!/bin/bash
 # Copyright (c) 2023-2025, NVIDIA CORPORATION.
 
 # Exit script if any command fails
@@ -8,7 +12,7 @@ source rapids-date-string
 
 rapids-print-env
 
-# Generate version and replace any letter with a hyphen
+# Generate version and replace any letter with a hyphen (hatch-nodejs-version does not like pre-release versions)
 version=$(rapids-generate-version)
 node_version=$(echo "$version" | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
 
@@ -19,9 +23,6 @@ export RAPIDS_PACKAGE_VERSION
 rapids-logger "Updating version in package.json to $node_version"
 jq -e --arg tag "$node_version" '.version=$tag' package.json > package.json.tmp
 mv package.json.tmp package.json
-
-# Generate jupyterlab_nvdashboard/_version.py since hatch version hook isn't working with conda-build
-echo "__version__ = '$version'" > jupyterlab_nvdashboard/_version.py
 
 # populates `RATTLER_CHANNELS` array and `RATTLER_ARGS` array
 source rapids-rattler-channel-string
