@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
 import React, { useState } from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { BarChart, Bar, Cell, YAxis, XAxis, Tooltip } from 'recharts';

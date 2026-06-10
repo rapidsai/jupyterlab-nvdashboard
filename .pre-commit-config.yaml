@@ -1,31 +1,92 @@
-# Copyright (c) 2023, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
 
 repos:
-  - repo: https://github.com/psf/black
-    rev: 25.12.0
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
     hooks:
-      - id: black
-        files: jupyterlab_nvdashboard/.*
-        # Explicitly specify the pyproject.toml at the repo root, not per-project.
-        args: ['--config', 'pyproject.toml']
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.3.0
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.16
     hooks:
-      - id: flake8
-        args: ['--config=.flake8']
-        files: jupyterlab_nvdashboard/.*$
+      - id: ruff-check
+        args: ["--fix"]
+      - id: ruff-format
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
     hooks:
       - id: shellcheck
+  - repo: https://github.com/rapidsai/pre-commit-hooks
+    rev: v1.5.0
+    hooks:
+      - id: verify-copyright
+        name: verify-copyright
+        args: [--fix, --spdx, "--spdx-license-identifier=BSD-3-Clause"]
+        files: |
+          (?x)
+            [.](css|js|py|sh|toml|ts|tsx|yaml|yml)$
+        exclude: |
+          (?x)^(
+            ^conda/environments/
+          )
   - repo: https://github.com/rapidsai/dependency-file-generator
-    rev: v1.20.2
+    rev: v1.20.3
     hooks:
       - id: rapids-dependency-file-generator
         args: ['--clean']
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.24.1
+    rev: v1.25.2
     hooks:
       - id: zizmor
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        types_or: [javascript, jsx, ts, tsx, json, css]
+        files: ^(src|style)/.*$
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v10.4.1
+    hooks:
+      - id: eslint
+        files: ^src/.*\.(ts|tsx)$
+        types: [file]
+        additional_dependencies:
+          - eslint@8.36.0
+          - eslint-config-prettier@8.8.0
+          - eslint-plugin-prettier@5.0.0
+          - prettier@3.0.0
+          - '@typescript-eslint/eslint-plugin@6.1.0'
+          - '@typescript-eslint/parser@6.1.0'
+          - typescript@5.0.2
+  # NOTE: As long as these hooks all use the same 'additional_dependencies' and 'language'
+  #       they'll be able to share the same conda environment. Keep them in sync.
+  - repo: local
+    hooks:
+      - id: check-yarn-version
+        name: check-yarn-version
+        language: conda
+        entry: ./ci/check-yarn-version.sh
+        pass_filenames: false
+        additional_dependencies:
+          - jupyterlab>=4.0.0
+          - nodejs=18
+      - id: yarn-lockfile-dedupe
+        name: yarn-lockfile-dedupe
+        language: conda
+        entry: bash -c 'jlpm install && jlpm run "dedupe:check" || { jlpm run dedupe && exit 1; }'
+        pass_filenames: false
+        additional_dependencies:
+          - jupyterlab>=4.0.0
+          - nodejs=18
+      - id: check-frontend
+        name: check-frontend
+        language: conda
+        entry: bash -c 'jlpm install && jlpm run eslint:check'
+        pass_filenames: false
+        additional_dependencies:
+          - jupyterlab>=4.0.0
+          - nodejs=18
+
 default_language_version:
   python: python3

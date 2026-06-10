@@ -40,13 +40,44 @@ By default, the `jlpm run build` command generates the source maps for this exte
 jupyter lab build --minimize=False
 ```
 
-### Uninstall
+## Linting
 
-```bash
-pip uninstall jupyterlab-nvdashboard
+Run static analysis / linting via `pre-commit`
+
+```shell
+pre-commit run --all-files
 ```
 
-Releases for both packages are handled by [gpuCI](https://gpuci.gpuopenanalytics.com/job/rapidsai/job/gpuci/job/jupyterlab-nvdashboard/). Nightly builds are triggered when a push to a versioned branch occurs (i.e. `branch-0.10`). Stable builds are triggered when a push to the `main` branch occurs.
+## Automated Dependency Updates
+
+Bots like `dependabot` may be used to update dependencies automatically.
+
+These may modify `package.json` and `yarn.lock` but leave them in a state that's failing some other CI checks.
+
+To resolve that:
+
+1. pull the branch created by the bot
+2. run `pre-commit run --all-files` locally
+3. commit and push the changes
+
+## Releasing
+
+Releases are published automatically to the `rapidsai` conda channel and to `pypi.org` by CI workflows.
+
+To cut a new release:
+
+1. push a tag matching the pattern `v[0-9]+.[0-9]+.[0-9]+` (e.g. `v0.14.0`) to the commit you want to release
+2. watch for a CI job at https://github.com/rapidsai/jupyterlab-nvdashboard/actions/workflows/build.yaml (triggered by that tag) to complete, confirm that it pushed to all the expected places
+3. open a PR updating the version in `package.json` to the likely next version (e.g. `0.15.0`)
+4. merge that PR
+5. tag the resulting commit on `main` like this:
+
+```shell
+git checkout main
+TAG="$(jq -r '."version"' < ./package.json)a"
+git tag "${TAG}"
+git push upstream "${TAG}"
+```
 
 ## Contributions
 
@@ -56,6 +87,18 @@ To contribute to the front-end of the extension, edit the files in the `src/` di
 
 ```pre
 ├── src
+│ ├── accelerators
+│ │   ├── AcceleratorButton.tsx
+│ │   ├── registry.ts
+│ │   ├── types.ts
+│ │   ├── __tests__
+│ │   │   ├── AcceleratorButton.test.tsx
+│ │   │   ├── registry.test.ts
+│ │   │   └── setup.ts
+│ │   └── plugins
+│ │       ├── index.ts
+│ │       ├── cudfpandas.ts
+│ │       └── cumlaccel.ts
 │ ├── assets
 │ │ ├── constants.ts
 │ │ └── icons.ts
@@ -98,6 +141,19 @@ This file defines the Control component, which contains buttons to open differen
 #### `src/charts Directory`
 
 The src/charts directory contains React components responsible for rendering various GPU-related charts. Each chart component focuses on a specific aspect of GPU statistics, and they are integrated into the JupyterLab environment via the main ControlWidget.
+
+#### `src/accelerators` (GPU Accelerator Button & Plugins)
+
+The accelerator system provides a toolbar dropdown to enable GPU accelerators (e.g. cuDF pandas, cuML accel) in the current notebook. It includes a plugin registry and backend API for availability checks.
+
+ **To add a new accelerator:**
+
+1. Create a plugin in `src/accelerators/plugins/`.
+2. Export it from `plugins/index.ts` and register it in `registry.ts`.
+3. Add an availability checker in `jupyterlab_nvdashboard/accelerator_checker.py` and include it in `check_all_accelerators()`.
+4. Build and verify your changes (see [Testing](#testing) below).
+
+#### `src/charts` Directory
 
 Each chart contains:
 
@@ -192,13 +248,35 @@ class GPUResourceHandler(APIHandler):
 
 ```
 
-3. Testing:
+3. Build and verify your changes (see [Testing](#testing) below), and confirm the new endpoint is accessible (e.g. http://localhost:8888/nvdashboard/gpu_resource).
 
-- Build and test your changes. Follow the JupyterLab documentation for building and testing extensions.
+## Testing
+
+The project uses automated tests for both the backend and the frontend. Run them from the repository root.
+
+### Backend
+
+Backend tests use **pytest**. They live in `jupyterlab_nvdashboard/tests/` and cover server-side logic such as HTTP handlers and package/availability checks. Shared fixtures (e.g. for handlers) are in `conftest.py`. Run all backend tests with:
+
+```bash
+python -m pytest jupyterlab_nvdashboard/tests/ -v
+```
+
+You can restrict by path or pattern (e.g. `test_accelerator_*.py`) or use standard pytest options (`-x`, `-k EXPR`, etc.).
 
 - Launch JupyterLab and check if the new endpoint is accessible (e.g., http://localhost:8888/nvdashboard/gpu_resource).
 
-**Conclusion**
+### Frontend
+Frontend tests use **Jest** with React Testing Library and run in jsdom. They live under `src/` in `__tests__` directories (e.g. `src/accelerators/__tests__/`). Run all frontend tests with:
+
+```bash
+jlpm test
+```
+
+To run only a subset, pass a path (e.g. `jlpm test src/accelerators/__tests__`). Use `jlpm test --watch` to re-run on file changes.
+
+
+## Conclusion
 
 This guide has provided a brief overview of how to contribute to the JupyterLab v4 extension jupyterlab-nvdashboard. For more information on developing JupyterLab extensions, please see the following resources:
 

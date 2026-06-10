@@ -1,5 +1,6 @@
 #!/bin/bash
-# Copyright (c) 2023, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
 
 # Exit script if any command fails
 set -euo pipefail
@@ -18,22 +19,21 @@ export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 # Install Node.js required for building the extension front-end
 nvm install 18 && nvm use 18
 
-# Generate version and replace any letter with a hyphen
+# Generate version and replace any letter with a hyphen (hatch-nodejs-version does not like pre-release versions)
 version=$(rapids-generate-version)
 node_version=$(echo "$version" | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
 
-# Log message: Update the version field in package.json
+# Update the version field in package.json
 rapids-logger "Updating version in package.json to $node_version"
 jq -e --arg tag "$node_version" '.version=$tag' package.json > package.json.tmp
 mv package.json.tmp package.json
 
-# Log message: Begin py build
 rapids-logger "Begin py build"
 
 # Install build tools for Python
 python -m pip install build
 
 # Build the Python package
-python -m build -s -w --outdir "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
+python -m build --wheel --outdir "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 
 ci/validate_wheel.sh "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"

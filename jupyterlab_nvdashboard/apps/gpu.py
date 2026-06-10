@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+
 import json
 from jupyterlab_nvdashboard.apps.utils import CustomWebSocketHandler
 import time
@@ -23,7 +26,6 @@ try:
 except (IndexError, system.NotSupportedError):
     nvlink_ver = None
     max_bw = []
-    max_links = 0
 try:
     pci_gen = gpus[0].pci_info.max_link_generation
 except (IndexError, system.NotSupportedError):
@@ -42,11 +44,7 @@ class GPUUsageWebSocketHandler(CustomWebSocketHandler):
 
         total_memory = [device.memory_info.total for device in gpus]
 
-        self.write_message(
-            json.dumps(
-                {"memory_usage": memory_usage, "total_memory": total_memory}
-            )
-        )
+        self.write_message(json.dumps({"memory_usage": memory_usage, "total_memory": total_memory}))
 
 
 class GPUResourceWebSocketHandler(CustomWebSocketHandler):
@@ -61,9 +59,7 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
             "gpu_memory_individual": [],
             "gpu_utilization_individual": [],
         }
-        memory_list = [
-            device.memory_info.total / (1024 * 1024) for device in gpus
-        ]
+        memory_list = [device.memory_info.total / (1024 * 1024) for device in gpus]
         gpu_mem_sum = sum(memory_list)
 
         for device in gpus:
@@ -81,9 +77,7 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
             stats["gpu_memory_individual"].append(mem)
 
         stats["gpu_utilization_total"] /= len(gpus)
-        stats["gpu_memory_total"] = round(
-            (stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2
-        )
+        stats["gpu_memory_total"] = round((stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2)
         self.write_message(json.dumps(stats))
 
 
@@ -105,14 +99,8 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
 
         throughput = [
             device.get_field_values(
-                [
-                    (system.FieldId.DEV_NVLINK_THROUGHPUT_DATA_RX, scope_id)
-                    for scope_id in range(max_links)
-                ]
-                + [
-                    (system.FieldId.DEV_NVLINK_THROUGHPUT_DATA_TX, scope_id)
-                    for scope_id in range(max_links)
-                ],
+                [(system.FieldId.DEV_NVLINK_THROUGHPUT_DATA_RX, scope_id) for scope_id in range(max_links)]
+                + [(system.FieldId.DEV_NVLINK_THROUGHPUT_DATA_TX, scope_id) for scope_id in range(max_links)],
             )
             for device in gpus
         ]
@@ -121,17 +109,12 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
         if self.prev_throughput is not None:
             # Calculate the change since the last request
             throughput_change = [
-                [
-                    throughput[i][j].value - self.prev_throughput[i][j].value
-                    for j in range(len(throughput[i]))
-                ]
+                [throughput[i][j].value - self.prev_throughput[i][j].value for j in range(len(throughput[i]))]
                 for i in range(len(throughput))
             ]
         else:
             # If no previous throughput is available, set change to zero
-            throughput_change = [
-                [0] * len(throughput[i]) for i in range(len(throughput))
-            ]
+            throughput_change = [[0] * len(throughput[i]) for i in range(len(throughput))]
 
         # Store the current throughput for the next request
         self.prev_throughput = throughput
@@ -140,14 +123,8 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
         self.write_message(
             json.dumps(
                 {
-                    "nvlink_rx": [
-                        sum(throughput_change[i][:max_links]) * 1024
-                        for i in range(len(throughput_change))
-                    ],
-                    "nvlink_tx": [
-                        sum(throughput_change[i][max_links:]) * 1024
-                        for i in range(len(throughput_change))
-                    ],
+                    "nvlink_rx": [sum(throughput_change[i][:max_links]) * 1024 for i in range(len(throughput_change))],
+                    "nvlink_tx": [sum(throughput_change[i][max_links:]) * 1024 for i in range(len(throughput_change))],
                     "max_rxtx_bw": max_bw,
                 }
             )
