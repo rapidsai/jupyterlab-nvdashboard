@@ -42,8 +42,7 @@ jobs:
       date: ${{ inputs.date }}
       script: ci/build_python.sh
       sha: ${{ inputs.sha }}
-      # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select(.ARCH == "amd64" and (.LINUX_VER | test("centos")|not))) | sort_by(.PY_VER | split(".") | map(tonumber)) | [.[-1]]'
+      pure-conda: true
     permissions:
       actions: read
       contents: read
@@ -74,10 +73,11 @@ jobs:
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       script: ci/build_wheel.sh
-      # Package is pure Python and only ever requires one build.
-      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
       package-name: jupyterlab-nvdashboard
       package-type: python
+      # Package is pure Python and only ever requires one build.
+      matrix_filter: 'map(select((.LINUX_VER | test("centos")|not))) | sort_by((.PY_VER | split(".") | map(tonumber))) | [.[-1] + {ARCH: "amd64"}]'
+      # pure-wheel is technically redundant here (and not sufficient on its own as it will build one wheel per major cuda version)
       pure-wheel: true
       append-cuda-suffix: false
     permissions:
@@ -97,6 +97,7 @@ jobs:
       date: ${{ inputs.date }}
       package-name: jupyterlab-nvdashboard
       publish_to_pypi: true
+      publish-wheel-search-key: jupyterlab-nvdashboard_wheel_python_jupyterlab-nvdashboard
     permissions:
       actions: read
       contents: read

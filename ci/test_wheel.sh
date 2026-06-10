@@ -1,16 +1,13 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause
 
 set -eou pipefail
 
 source rapids-init-pip
 
-# Set the package name
-package_name="jupyterlab-nvdashboard"
-
 rapids-logger "Downloading artifacts from previous jobs"
-WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
+WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python jupyterlab-nvdashboard jupyterlab-nvdashboard --pure --arch any)")
 
 # echo to expand wildcard before adding `[extra]` required for pip
 python -m pip install \

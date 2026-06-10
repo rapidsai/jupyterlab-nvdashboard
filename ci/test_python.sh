@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause
 
 set -euo pipefail
@@ -20,7 +20,7 @@ conda activate test
 set -u
 
 rapids-logger "Downloading artifacts from previous jobs"
-PYTHON_CHANNEL=$(rapids-download-conda-from-github python)
+PYTHON_CHANNEL=$(rapids-download-from-github "$(rapids-artifact-name conda_python jupyterlab-nvdashboard jupyterlab-nvdashboard --pure --arch any)")
 
 rapids-print-env
 
