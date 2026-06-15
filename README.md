@@ -66,12 +66,18 @@ JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later ve
 
 ### Conda
 
+Releases of the `conda` packages are first published to the `rapidsai` channel,
+then generally land on `conda-forge` shortly after.
+
 ```bash
 # nightly version
 conda install -c rapidsai-nightly -c conda-forge jupyterlab-nvdashboard
 
 # stable version
 conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard
+
+# stable version (conda-forge only)
+conda install -c conda-forge jupyterlab-nvdashboard
 ```
 
 ### PyPI
