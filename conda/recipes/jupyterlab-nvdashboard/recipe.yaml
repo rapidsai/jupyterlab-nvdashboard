@@ -42,10 +42,9 @@ requirements:
 
 tests:
   - python:
-      imports:
-        - jupyterlab_nvdashboard
-        - jupyterlab_nvdashboard.__version__
       pip_check: true
+  - script:
+    - python -c "import jupyterlab_nvdashboard; assert jupyterlab_nvdashboard.__version__ == '${{ version }}'"
 
 about:
   homepage: https://github.com/rapidsai/jupyterlab-nvdashboard
