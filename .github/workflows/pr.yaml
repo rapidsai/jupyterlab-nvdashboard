@@ -134,3 +134,21 @@ jobs:
       id-token: write
       packages: read
       pull-requests: read
+  wheel-publish:
+    needs: wheel-build
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@upload-sdists
+    with:
+      build_type: 'branch'
+      branch: ${{ inputs.branch }}
+      sha: ${{ inputs.sha }}
+      date: ${{ inputs.date }}
+      package-name: jupyterlab-nvdashboard
+      publish_to_pypi: false
+      publish-wheel-search-key: jupyterlab-nvdashboard_wheel_python_jupyterlab-nvdashboard
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
