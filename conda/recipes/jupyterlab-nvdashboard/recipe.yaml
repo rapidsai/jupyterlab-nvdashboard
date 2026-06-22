@@ -29,6 +29,7 @@ requirements:
     - hatch-nodejs-version>=0.3.2
     - hatchling>=1.27.0
     - jupyterlab>=4.0.0
+    - jupyter-builder>=1.0
     - nodejs
     - pip
     - python

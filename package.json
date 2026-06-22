@@ -28,8 +28,8 @@
     "scripts": {
         "build": "jlpm build:lib && jlpm build:labextension:dev",
         "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm build:labextension",
-        "build:labextension": "jupyter labextension build .",
-        "build:labextension:dev": "jupyter labextension build --development True .",
+        "build:labextension": "jupyter-builder build .",
+        "build:labextension:dev": "jupyter-builder build --development True .",
         "build:lib": "tsc --sourceMap",
         "build:lib:prod": "tsc",
         "clean": "jlpm clean:lib",
@@ -51,7 +51,7 @@
         "stylelint:check": "stylelint --cache \"style/**/*.css\"",
         "watch": "run-p watch:src watch:labextension",
         "watch:src": "tsc -w --sourceMap",
-        "watch:labextension": "jupyter labextension watch .",
+        "watch:labextension": "jupyter-builder watch .",
         "test": "jest"
     },
     "dependencies": {
@@ -78,7 +78,7 @@
         "recharts": "^2.8.0"
     },
     "devDependencies": {
-        "@jupyterlab/builder": "^4.0.0",
+        "@jupyter/builder": "^1.0.0",
         "@jupyterlab/testutils": "^4.0.0",
         "@rjsf/core": "5.17.0",
         "@rjsf/utils": "5.17.0",
