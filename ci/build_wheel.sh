@@ -17,7 +17,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 # Install Node.js required for building the extension front-end
-nvm install 18 && nvm use 18
+nvm install 22 && nvm use 22
 
 # Generate version and replace any letter with a hyphen (hatch-nodejs-version does not like pre-release versions)
 version=$(rapids-generate-version)
