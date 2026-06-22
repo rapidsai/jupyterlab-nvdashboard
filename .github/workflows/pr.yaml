@@ -140,10 +140,8 @@ jobs:
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@upload-sdists
     with:
-      build_type: 'branch'
-      branch: ${{ inputs.branch }}
-      sha: ${{ inputs.sha }}
-      date: ${{ inputs.date }}
+      build_type: pull-request
+      branch: pull-request/287
       package-name: jupyterlab-nvdashboard
       publish_to_pypi: false
       publish-wheel-search-key: jupyterlab-nvdashboard_wheel_python_jupyterlab-nvdashboard
