@@ -61,6 +61,7 @@ dependencies:
           - hatch-nodejs-version>=0.3.2
           - hatchling>=1.27.0
           - &jupyterlab jupyterlab>=4.0.0
+          - jupyter-builder>=1.0
   checks:
     common:
       - output_types: [conda]
@@ -70,7 +71,7 @@ dependencies:
           # ref: https://github.com/pre-commit/pre-commit/issues/3698
           - identify>=1.4.20
           - pre-commit
-          - nodejs=18
+          - nodejs=22
   py_version:
     common:
       - output_types: conda
@@ -80,7 +81,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - &nodejs nodejs=18
+          - &nodejs nodejs=22
       - output_types: [conda, requirements, pyproject]
         packages:
           - *jupyterlab
