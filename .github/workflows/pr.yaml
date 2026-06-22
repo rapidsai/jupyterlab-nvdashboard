@@ -20,6 +20,7 @@ jobs:
       - sdist-tests
       - wheel-build
       - wheel-tests
+      - wheel-publish
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@main
     permissions:
