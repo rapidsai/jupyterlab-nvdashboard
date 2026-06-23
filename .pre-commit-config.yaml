@@ -70,7 +70,7 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - jupyterlab>=4.0.0
-          - nodejs=18
+          - nodejs=22
       - id: yarn-lockfile-dedupe
         name: yarn-lockfile-dedupe
         language: conda
@@ -78,7 +78,7 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - jupyterlab>=4.0.0
-          - nodejs=18
+          - nodejs=22
       - id: check-frontend
         name: check-frontend
         language: conda
@@ -86,7 +86,7 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - jupyterlab>=4.0.0
-          - nodejs=18
+          - nodejs=22
 
 default_language_version:
   python: python3
