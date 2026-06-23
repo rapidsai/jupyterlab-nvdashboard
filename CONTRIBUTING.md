@@ -81,7 +81,7 @@ git push upstream "${TAG}"
 
 ### conda-forge
 
-The project is also repackaged on conda-forged, see https://github.com/conda-forge/jupyterlab-nvdashboard-feedstock.
+The project is also repackaged on conda-forge, see https://github.com/conda-forge/jupyterlab-nvdashboard-feedstock.
 
 After publishing a release here, expect an automatically-generated PR to appear in the feedstock repo within a few days.
 
