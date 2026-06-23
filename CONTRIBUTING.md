@@ -74,7 +74,7 @@ To cut a new release:
 
 ```shell
 git checkout main
-TAG="$(jq -r '."version"' < ./package.json)a"
+TAG="v$(jq -r '."version"' < ./package.json)a"
 git tag "${TAG}"
 git push upstream "${TAG}"
 ```
