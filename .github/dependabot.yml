@@ -13,5 +13,11 @@ updates:
     cooldown:
       default-days: 15
     groups:
+      # 'patterns' is omitted here because it breaks grouping in some situations,
+      # see https://github.com/dependabot/dependabot-core/issues/13919
       npm-and-yarn:
         applies-to: security-updates
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
