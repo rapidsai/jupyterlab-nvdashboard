@@ -15,5 +15,3 @@ updates:
     groups:
       npm-and-yarn:
         applies-to: security-updates
-        patterns:
-          - "*"
