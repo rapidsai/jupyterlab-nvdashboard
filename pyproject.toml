@@ -17,6 +17,10 @@ readme = "README.md"
 license-files = [
     "LICENSE",
 ]
+
+# NOTE: if 'requires-python' is updated, also update 'python_min' override in the conda-forge recipe:
+#       https://github.com/conda-forge/jupyterlab-nvdashboard-feedstock/blob/main/recipe/conda_build_config.yaml
+#
 requires-python = ">=3.11"
 classifiers = [
     "Framework :: Jupyter",
@@ -26,10 +30,10 @@ classifiers = [
     "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "jupyterlab>=4.0.0",
@@ -54,7 +58,18 @@ fields = ["license", "description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
 artifacts = ["jupyterlab_nvdashboard/labextension"]
-exclude = [".github", "binder"]
+ignore-vcs = true
+include = [
+    "jupyterlab_nvdashboard/**",
+    "!jupyterlab_nvdashboard/tests/**",
+    "/install.json",
+    "/package.json",
+    "/pyproject.toml",
+    "schema/config.json",
+    "style/**",
+    "/README.md",
+    "/LICENSE"
+]
 
 [tool.hatch.build.targets.wheel.shared-data]
 "jupyterlab_nvdashboard/labextension" = "share/jupyter/labextensions/jupyterlab-nvdashboard"
@@ -100,6 +115,7 @@ ignore = ["W002"]
 [tool.pydistcheck]
 select = [
     "distro-too-large-compressed",
+    "too-many-files"
 ]
 
 # PyPI hard limit is 1GiB, but try to keep this as small as possible

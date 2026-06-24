@@ -29,7 +29,8 @@ requirements:
     - hatch-nodejs-version>=0.3.2
     - hatchling>=1.27.0
     - jupyterlab>=4.0.0
-    - nodejs
+    - jupyter-builder>=1.0
+    - nodejs>=22
     - pip
     - python
   run:
@@ -42,10 +43,10 @@ requirements:
 
 tests:
   - python:
-      imports:
-        - jupyterlab_nvdashboard
-        - jupyterlab_nvdashboard.__version__
+      imports: jupyterlab_nvdashboard
       pip_check: true
+  - script:
+    - python -c "import jupyterlab_nvdashboard; assert jupyterlab_nvdashboard.__version__ == '${{ version }}'"
 
 about:
   homepage: https://github.com/rapidsai/jupyterlab-nvdashboard

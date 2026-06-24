@@ -13,15 +13,4 @@ WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python ju
 python -m pip install \
     "$(echo "${WHEELHOUSE}"/jupyterlab_nvdashboard*.whl)[test]"
 
-rapids-logger "Check GPU usage"
-nvidia-smi
-
-EXITCODE=0
-trap "EXITCODE=1" ERR
-set +e
-
-rapids-logger "pytest jupyterlab-nvdashboard"
-JUPYTER_PLATFORM_DIRS=1 python -m pytest
-
-rapids-logger "Test script exiting with value: $EXITCODE"
-exit ${EXITCODE}
+./ci/run_pytests.sh

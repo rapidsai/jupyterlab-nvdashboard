@@ -28,15 +28,4 @@ rapids-mamba-retry install \
   --channel "${PYTHON_CHANNEL}" \
     jupyterlab-nvdashboard
 
-rapids-logger "Check GPU usage"
-nvidia-smi
-
-EXITCODE=0
-trap "EXITCODE=1" ERR
-set +e
-
-rapids-logger "pytest jupyterlab-nvdashboard"
-JUPYTER_PLATFORM_DIRS=1 python -m pytest
-
-rapids-logger "Test script exiting with value: $EXITCODE"
-exit ${EXITCODE}
+./ci/run_pytests.sh
