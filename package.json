@@ -151,7 +151,8 @@
         "@jupyterlab/statedb": "^4.0.0",
         "@rjsf/utils": "5.17.0",
         "@rjsf/core": "5.17.0",
-        "webpack": "5.104.1"
+        "webpack": "5.104.1",
+        "js-yaml": "^4.1.0"
     },
     "jupyterlab": {
         "discovery": {
