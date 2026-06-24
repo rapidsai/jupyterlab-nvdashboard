@@ -20,7 +20,6 @@ jobs:
       - sdist-tests
       - wheel-build
       - wheel-tests
-      - wheel-publish
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@main
     permissions:
@@ -129,22 +128,6 @@ jobs:
       # This selects the latest supported Python
       matrix_filter: max_by([(.PY_VER|split(".")|map(tonumber))]) | [.]
       script: "ci/test_wheel.sh"
-    permissions:
-      actions: read
-      contents: read
-      id-token: write
-      packages: read
-      pull-requests: read
-  wheel-publish:
-    needs: wheel-build
-    secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@upload-sdists
-    with:
-      build_type: pull-request
-      branch: pull-request/287
-      package-name: jupyterlab-nvdashboard
-      publish_to_pypi: false
-      publish-wheel-search-key: jupyterlab-nvdashboard_wheel_python_jupyterlab-nvdashboard
     permissions:
       actions: read
       contents: read
