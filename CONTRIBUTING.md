@@ -4,21 +4,33 @@ This guide provides information on how to contribute to the JupyterLab v4 extens
 
 ## Development install
 
-> You will need NodeJS to build the extension package.
-
-The `jlpm` command is JupyterLab's pinned version of
-[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
-`yarn` or `npm` in lieu of `jlpm` below.
-
 ```bash
 # Clone the repo to your local environment
 git clone https://github.com/rapidsai/jupyterlab-nvdashboard.git
 # Change directory to the jupyterlab_nvdashboard directory
 cd jupyterlab-nvdashboard
+```
+
+You will need NodeJS to build the extension package.
+
+The `jlpm` command is JupyterLab's pinned version of
+[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
+`yarn` or `npm` in lieu of `jlpm` below.
+
+You can get this and other development dependencies doing:
+
+```bash
+conda env create --yes --name nvdashboard-dev --file ./conda/environments/all_arch-any.yaml
+conda activate nvdashboard-dev
+```
+
+Then proceed to install the extension in editable mode
+
+```bash
 # Install package in development mode
 pip install -e .
 # Link your development version of the extension with JupyterLab
-jupyter labextension develop . --overwrite
+jupyter-builder develop . --overwrite
 # Rebuild extension Typescript source after making changes
 jlpm run build
 ```
