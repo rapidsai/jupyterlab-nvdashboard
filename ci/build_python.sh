@@ -30,7 +30,6 @@ source rapids-rattler-channel-string
 rapids-logger "Building jupyterlab-nvdashboard"
 
 rattler-build build --recipe conda/recipes/jupyterlab-nvdashboard \
-                    --test skip \
                     "${RATTLER_ARGS[@]}" \
                     "${RATTLER_CHANNELS[@]}"
 

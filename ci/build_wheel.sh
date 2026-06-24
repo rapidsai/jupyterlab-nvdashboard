@@ -34,8 +34,9 @@ rapids-logger "Begin py build"
 python -m pip install build
 
 # Build the Python package
-python -m build --wheel --outdir "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
+python -m build --sdist --wheel --outdir "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 
+ci/validate_sdist.sh "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 ci/validate_wheel.sh "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 
 RAPIDS_PACKAGE_NAME="$(rapids-artifact-name wheel_python jupyterlab-nvdashboard jupyterlab-nvdashboard --pure --arch any)"
