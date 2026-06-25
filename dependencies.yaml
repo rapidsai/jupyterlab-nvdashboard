@@ -60,7 +60,6 @@ dependencies:
           - hatch-jupyter-builder>=0.5
           - hatch-nodejs-version>=0.3.2
           - hatchling>=1.27.0
-          - &jupyterlab jupyterlab>=4.0.0
           - jupyter-builder>=1.0
   checks:
     common:
@@ -84,7 +83,7 @@ dependencies:
           - &nodejs nodejs=22
       - output_types: [conda, requirements, pyproject]
         packages:
-          - *jupyterlab
+          - &jupyterlab jupyterlab>=4.0.0
           - psutil
           # 'nvidia-ml-py' provides the 'pynvml' module
           - nvidia-ml-py>=12

@@ -78,10 +78,27 @@ Releases are published automatically to the `rapidsai` conda channel and to `pyp
 To cut a new release:
 
 1. push a tag matching the pattern `v[0-9]+.[0-9]+.[0-9]+` (e.g. `v0.14.0`) to the commit you want to release
+
+```shell
+TAG="v$(jq -r '."version"' < ./package.json)"
+git tag -a "${TAG}" -m "Release ${TAG}"
+git push upstream "${TAG}"
+```
+
 2. watch for a CI job at https://github.com/rapidsai/jupyterlab-nvdashboard/actions/workflows/build.yaml (triggered by that tag) to complete, confirm that it pushed to all the expected places
-3. open a PR updating the version in `package.json` to the likely next version (e.g. `0.15.0`)
-4. merge that PR
-5. tag the resulting commit on `main` like this:
+3. create a new release for that tag
+
+```shell
+gh release create \
+  --repo rapidsai/jupyterlab-nvdashboard \
+  "${TAG}" \
+  --title "${TAG}" \
+  --generate-notes
+```
+
+4. open a PR updating the version in `package.json` to the likely next version (e.g. `0.15.0`)
+5. merge that PR
+6. tag the resulting commit on `main` like this:
 
 ```shell
 git checkout main
