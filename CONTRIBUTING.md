@@ -7,7 +7,6 @@ This guide provides information on how to contribute to the JupyterLab v4 extens
 ```bash
 # Clone the repo to your local environment
 git clone https://github.com/rapidsai/jupyterlab-nvdashboard.git
-# Change directory to the jupyterlab_nvdashboard directory
 cd jupyterlab-nvdashboard
 ```
 
