@@ -35,6 +35,15 @@ repos:
     hooks:
       - id: rapids-dependency-file-generator
         args: ['--clean']
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        additional_dependencies: [pyyaml]
+        exclude: |
+          (?x)^(
+            conda/environments/.*
+          )
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     rev: v1.26.1
     hooks:
