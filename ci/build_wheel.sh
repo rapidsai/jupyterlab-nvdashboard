@@ -20,7 +20,10 @@ export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 nvm install 22 && nvm use 22
 
 # Generate version and replace any letter with a hyphen (hatch-nodejs-version does not like pre-release versions)
-version=$(rapids-generate-version)
+version=$(
+    RAPIDS_VERSION_SUFFIX=".post${RAPIDS_DATETIME_STRING}" \
+        rapids-generate-version
+)
 node_version=$(echo "$version" | sed 's/[a-zA-Z]/-\0/' | sed 's/^-//')
 
 # Update the version field in package.json
