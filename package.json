@@ -143,11 +143,13 @@
         "@jupyterlab/rendermime": "^4.0.0",
         "@jupyterlab/observables": "^5.0.0",
         "@jupyterlab/statedb": "^4.0.0",
-        "@rjsf/utils": "5.17.0",
-        "@rjsf/core": "5.17.0",
-        "webpack": "5.104.1",
-        "js-yaml": "^4.1.0",
+        "@rjsf/utils": "^5.17.0",
+        "@rjsf/core": "^5.17.0",
+        "brace-expansion": "^5.0.9",
+        "webpack": "^5.104.1",
+        "js-yaml": "^4.3.0",
         "prop-types": "^15.8.0",
+        "sanitize-html": "^2.17.5",
         "yjs": "^13.5.0"
     },
     "jupyterlab": {
