@@ -16,7 +16,7 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
 - [JupyterLab NVdashboard](#jupyterlab-nvdashboard)
   - [Demo](#demo)
   - [Table of Contents](#table-of-contents)
-  - [New Features](#new-features)
+  - [Features](#features)
     - [Brush for Time Series Charts](#brush-for-time-series-charts)
     - [Synced Tooltips](#synced-tooltips)
     - [Theme Compatibility](#theme-compatibility)
@@ -30,26 +30,25 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
   - [Troubleshoot](#troubleshoot)
   - [Contributing Developers Guide](#contributing-developers-guide)
 
-## New Features
+## Features
 
-JupyterLab-nvdashboard v4 brings a host of new features, improved backend architecture, and enhanced frontend components for an even better user experience.
-Explore the exciting updates below.
+JupyterLab-nvdashboard provides tools for exploring GPU metrics in your notebook, from inspecting chart history to enabling GPU accelerators.
 
 ### Brush for Time Series Charts
 
-Introducing a powerful brushing feature for time series charts. Users can easily inspect past events by selecting a specific time range, providing more granular control over data exploration.
+Use brushing to select a time range on time series charts and inspect past activity in more detail.
 
 ![JupyterLab-nvdashboard Demo1](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screencast2.gif)
 
 ### Synced Tooltips
 
-For pages with multiple charts, JupyterLab-nvdashboard now offers synchronized tooltips for timestamps across all charts. This feature enhances the user's ability to analyze data cohesively and understand relationships between different data points.
+On pages with multiple charts, tooltips align at the same timestamp so you can compare metrics at a given moment.
 
 ![JupyterLab-nvdashboard Demo4](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screenshot3.png)
 
 ### Theme Compatibility
 
-Seamless integration with JupyterLab themes is now a reality. The extension adapts its colors and aesthetics based on whether the user is in a light or dark theme, ensuring a consistent and visually appealing experience.
+The dashboard follows JupyterLab's light and dark themes, keeping its charts readable in either theme.
 
 #### Light Theme
 
