@@ -36,7 +36,7 @@ JupyterLab-nvdashboard provides tools for exploring GPU metrics in your notebook
 
 ### Brush for Time Series Charts
 
-Use brushing to select a time range on time series charts and inspect past activity in more detail.
+Use brushing by clicking and dragging to select a time range on time series charts and inspect past activity in more detail.
 
 ![JupyterLab-nvdashboard Demo1](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screencast2.gif)
 
@@ -62,7 +62,7 @@ The dashboard follows JupyterLab's light and dark themes, keeping its charts rea
 
 A GPU accelerator activator button that lets you enable GPU-backed execution with **zero code changes**. When active, your existing `pandas` code runs on the GPU via [cuDF pandas](https://docs.nvidia.com/cudf/latest/cudf_pandas/), and/or your scikit-learn, umap, or hdbscan code runs on the GPU via [cuML accel](https://docs.nvidia.com/cuml/latest/cuml-accel/). Accelerators are shown only when the corresponding dependencies are installed in the notebook's environment: `cuDF` for `pandas` acceleration and `cuML` for `scikit-learn` acceleration.
 
-In the animation, the first `pandas` run uses the CPU: note its execution time and the lack of activity in the GPU dashboard. After turning on **cuDF pandas**, the next run shows GPU activity in the dashboard and completes faster:
+For example, the first `pandas` run uses the CPU: note its execution time and the lack of activity in the GPU dashboard. After turning on **cuDF pandas**, the next run shows GPU activity in the dashboard and completes faster:
 
 ![Selecting cuDF pandas from the GPU Accel menu](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/gpu_toggle_cudfpd.gif)
 
