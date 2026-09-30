@@ -13,38 +13,42 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
 
 ## Table of Contents
 
-- [New Features](#new-features)
-  - [Brush for Time Series Charts](#brush-for-time-series-charts)
-  - [Synced Tooltips](#synced-tooltips)
-  - [Theme Compatibility](#theme-compatibility)
-  - [GPU Accelerators](#gpu-accelerators)
-- [Version Compatibility](#version-compatibility)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Troubleshoot](#troubleshoot)
-- [Contributing](#contributing-developers-guide)
-- [Future Improvements](#future-improvements)
+- [JupyterLab NVdashboard](#jupyterlab-nvdashboard)
+  - [Demo](#demo)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+    - [Brush for Time Series Charts](#brush-for-time-series-charts)
+    - [Synced Tooltips](#synced-tooltips)
+    - [Theme Compatibility](#theme-compatibility)
+      - [Light Theme](#light-theme)
+      - [Dark Theme](#dark-theme)
+    - [GPU Accelerators](#gpu-accelerators)
+  - [Version Compatibility](#version-compatibility)
+  - [Installation](#installation)
+    - [Conda](#conda)
+    - [PyPI](#pypi)
+  - [Troubleshoot](#troubleshoot)
+  - [Contributing Developers Guide](#contributing-developers-guide)
 
-## New Features
+## Features
 
-JupyterLab-nvdashboard v4 brings a host of new features, improved backend architecture, and enhanced frontend components for an even better user experience.
-Explore the exciting updates below.
+JupyterLab-nvdashboard provides tools for exploring GPU metrics in your notebook, from inspecting chart history to enabling GPU accelerators.
 
 ### Brush for Time Series Charts
 
-Introducing a powerful brushing feature for time series charts. Users can easily inspect past events by selecting a specific time range, providing more granular control over data exploration.
+Use brushing by clicking and dragging to select a time range on time series charts and inspect past activity in more detail.
 
 ![JupyterLab-nvdashboard Demo1](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screencast2.gif)
 
 ### Synced Tooltips
 
-For pages with multiple charts, JupyterLab-nvdashboard now offers synchronized tooltips for timestamps across all charts. This feature enhances the user's ability to analyze data cohesively and understand relationships between different data points.
+On pages with multiple charts, tooltips align at the same timestamp so you can compare metrics at a given moment.
 
 ![JupyterLab-nvdashboard Demo4](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screenshot3.png)
 
 ### Theme Compatibility
 
-Seamless integration with JupyterLab themes is now a reality. The extension adapts its colors and aesthetics based on whether the user is in a light or dark theme, ensuring a consistent and visually appealing experience.
+The dashboard follows JupyterLab's light and dark themes, keeping its charts readable in either theme.
 
 #### Light Theme
 
@@ -56,7 +60,27 @@ Seamless integration with JupyterLab themes is now a reality. The extension adap
 
 ### GPU Accelerators
 
-A GPU accelerator activator button that lets you enable GPU-backed execution with **zero code changes**. When active, your existing **pandas** code runs on the GPU (via cudf-pandas), and/or your **scikit-learn** code runs on the GPU (via cuml-accel). Accelerators are shown only when the corresponding dependencies are installed: **cuDF** for pandas acceleration and **cuML** for scikit-learn acceleration.
+A GPU accelerator activator button that lets you enable GPU-backed execution with **zero code changes**. When active, your existing `pandas` code runs on the GPU via [cuDF pandas](https://docs.nvidia.com/cudf/latest/cudf_pandas/), and/or your scikit-learn, umap, or hdbscan code runs on the GPU via [cuML accel](https://docs.nvidia.com/cuml/latest/cuml-accel/). Accelerators are shown only when the corresponding dependencies are installed in the notebook's environment: `cuDF` for `pandas` acceleration and `cuML` for `scikit-learn` acceleration.
+
+For example, the first `pandas` run uses the CPU: note its execution time and the lack of activity in the GPU dashboard. After turning on **cuDF pandas**, the next run shows GPU activity in the dashboard and completes faster:
+
+![Selecting cuDF pandas from the GPU Accel menu](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/gpu_toggle_cudfpd.gif)
+
+For a closer look at the controls:
+
+1. Open **GPU Accel** in the notebook toolbar.
+
+   ![GPU Accel menu in the notebook toolbar](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/gpu_toggle.png)
+
+2. Select **cuDF pandas** or **cuML Accelerator**. Choose **Select All** to enable every available accelerator.
+
+   ![GPU Accel menu with cuDF pandas highlighted](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/cudf_toggle.png)
+
+3. A check mark shows which accelerator is active, and the number beside **GPU Accel** shows how many are selected. Select a checked accelerator to turn it off, or choose **Clear All** to disable all accelerators. Restart the kernel when prompted so the change takes effect.
+
+   ![GPU Accel menu showing cuDF pandas selected](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/cudf_pandas_selected.png)
+
+To accelerate scikit-learn, UMAP, or HDBSCAN code, turn on **cuML Accelerator** in the **GPU Accel** menu.
 
 ## Version Compatibility
 
