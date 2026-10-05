@@ -39,6 +39,9 @@ jobs:
       # and has code in build scripts to update the file from git tags
       enable_check_version_against_tag: false
       enable_check_version_files_changed: false
+      # Main builds seed this cache. PR merge refs can restore it but should not create
+      # duplicate archives that are inaccessible to other PRs.
+      pre-commit-cache-read-only: true
     permissions:
       actions: read
       contents: read
