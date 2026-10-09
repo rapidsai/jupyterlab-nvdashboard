@@ -20,7 +20,7 @@ license-files = [
 # NOTE: if 'requires-python' is updated, also update 'python_min' override in the conda-forge recipe:
 #       https://github.com/conda-forge/jupyterlab-nvdashboard-feedstock/blob/main/recipe/conda_build_config.yaml
 #
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
@@ -29,7 +29,6 @@ classifiers = [
     "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -123,7 +122,7 @@ max_allowed_size_compressed = '10Mi'
 [tool.ruff]
 line-length = 120
 # this should be set to the oldest version of python the project supports
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 ignore = [
