@@ -6,6 +6,7 @@ from cuda.core import system
 
 
 gpus = list(system.Device.get_all_devices())
+ngpus = len(gpus)
 try:
     nvlink = gpus[0].get_nvlink(0)
     nvlink_ver = nvlink.version

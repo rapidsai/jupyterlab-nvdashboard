@@ -13,23 +13,17 @@ NVDashboard is a JupyterLab extension for displaying GPU usage dashboards. It en
 
 ## Table of Contents
 
-- [JupyterLab NVdashboard](#jupyterlab-nvdashboard)
-  - [Demo](#demo)
-  - [Table of Contents](#table-of-contents)
-  - [New Features](#new-features)
-    - [Brush for Time Series Charts](#brush-for-time-series-charts)
-    - [Synced Tooltips](#synced-tooltips)
-    - [Theme Compatibility](#theme-compatibility)
-      - [Light Theme](#light-theme)
-      - [Dark Theme](#dark-theme)
-  - [Version Compatibility](#version-compatibility)
-  - [Requirements](#requirements)
-  - [Installation](#installation)
-    - [Conda](#conda)
-    - [PyPI](#pypi)
-  - [Troubleshoot](#troubleshoot)
-  - [Contributing Developers Guide](#contributing-developers-guide)
-  - [Future Improvements](#future-improvements)
+- [New Features](#new-features)
+  - [Brush for Time Series Charts](#brush-for-time-series-charts)
+  - [Synced Tooltips](#synced-tooltips)
+  - [Theme Compatibility](#theme-compatibility)
+  - [GPU Accelerators](#gpu-accelerators)
+- [Version Compatibility](#version-compatibility)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Troubleshoot](#troubleshoot)
+- [Contributing](#contributing-developers-guide)
+- [Future Improvements](#future-improvements)
 
 ## New Features
 
@@ -60,6 +54,10 @@ Seamless integration with JupyterLab themes is now a reality. The extension adap
 
 ![JupyterLab-nvdashboard Demo2](https://raw.githubusercontent.com/rapidsai/jupyterlab-nvdashboard/HEAD/docs/_images/screenshot1.png)
 
+### GPU Accelerators
+
+A GPU accelerator activator button that lets you enable GPU-backed execution with **zero code changes**. When active, your existing **pandas** code runs on the GPU (via cudf-pandas), and/or your **scikit-learn** code runs on the GPU (via cuml-accel). Accelerators are shown only when the corresponding dependencies are installed: **cuDF** for pandas acceleration and **cuML** for scikit-learn acceleration.
+
 ## Version Compatibility
 
 JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later versions. To ensure continued support for JupyterLab v3 users, we will maintain the previous version separately (branch-0.9).
@@ -68,7 +66,7 @@ JupyterLab-nvdashboard v4 is designed exclusively for JupyterLab v4 and later ve
 
 - JupyterLab >=4
 - cuda-core >= 1.0.0
-- cuda-bindings 12.9.6 or later, 13.2.0 or later
+- cuda-bindings >= 12.9.6, != 13.0.*, != 13.1.*, != 13.2.*, < 14
 - psutil
 
 ## Installation
@@ -111,7 +109,7 @@ jupyter labextension list
 
 ## Contributing Developers Guide
 
-For more details, check out the [contributing guide](./CONTRIBUTING.md).
+For more details, check out the [contributing guide](./CONTRIBUTING.md). Accelerator-related tests (frontend Jest and backend pytest) are described in [Accelerator Testing](src/accelerators/TESTING.md).
 
 ## Future Improvements
 

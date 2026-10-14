@@ -30,7 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "cuda-bindings>=12.9.6,!=13.0.*,!=13.1.*",
+    "cuda-bindings>=12.9.6,!=13.0.*,!=13.1.*,!=13.2.*,<14",
     "cuda-core>=1.0.0",
     "jupyterlab>=4.0.0",
     "psutil",
