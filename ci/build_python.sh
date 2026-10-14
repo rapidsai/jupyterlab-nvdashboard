@@ -8,6 +8,8 @@
 # Exit script if any command fails
 set -euo pipefail
 
+source "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/install_rattler_build.sh"
+
 source rapids-datetime-string
 
 rapids-print-env
