@@ -3,7 +3,7 @@
 
 import json
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from jupyterlab_nvdashboard.apps.gpu import (
     GPUUtilizationWebSocketHandler,
@@ -65,7 +65,30 @@ def test_nvlink_throughput_handler(mock_handler, handler_args):
     assert "max_rxtx_bw" in data
 
 
+def test_gpu_resource_handler_without_gpus(mock_handler, handler_args, monkeypatch):
+    """With no GPU/driver (ngpus == 0) the handler must not divide by zero."""
+    monkeypatch.setattr("jupyterlab_nvdashboard.apps.gpu.ngpus", 0)
+    monkeypatch.setattr("jupyterlab_nvdashboard.apps.gpu.gpu_handles", [])
+    handler = GPUResourceWebSocketHandler(*handler_args)
+    handler.send_data()
+    data = json.loads(mock_handler.call_args[0][0])
+    assert data["gpu_utilization_total"] == 0
+    assert data["gpu_memory_total"] == 0
+    assert data["gpu_memory_individual"] == []
+
+
+def test_pci_stats_handler_without_pci_gen(mock_handler, handler_args, monkeypatch):
+    monkeypatch.setattr("jupyterlab_nvdashboard.apps.gpu.pci_gen", None)
+    handler = PCIStatsWebSocketHandler(*handler_args)
+    handler.send_data()
+    mock_handler.assert_not_called()
+
+
 def test_pci_stats_handler(mock_handler, handler_args):
+    from jupyterlab_nvdashboard.apps import gpu
+
+    if gpu.pci_gen is None:
+        pytest.skip("PCIe info unavailable (no GPU/driver)")
     handler = PCIStatsWebSocketHandler(*handler_args)
     handler.send_data()
     args, _ = mock_handler.call_args
@@ -73,3 +96,20 @@ def test_pci_stats_handler(mock_handler, handler_args):
     assert "pci_tx" in data
     assert "pci_rx" in data
     assert "max_rxtx_tp" in data
+
+
+@pytest.mark.parametrize("error_name", ["NVMLError_DriverNotLoaded", "NVMLError_LibraryNotFound"])
+def test_gpu_module_imports_when_nvml_init_fails(error_name):
+    """Importing the GPU module must not raise when nvmlInit() fails."""
+    import importlib
+    import pynvml
+    import jupyterlab_nvdashboard.apps.gpu as gpu
+
+    try:
+        with patch.object(pynvml, "nvmlInit", side_effect=getattr(pynvml, error_name)()):
+            reloaded = importlib.reload(gpu)
+            assert reloaded.ngpus == 0
+            assert reloaded.gpu_handles == []
+            assert reloaded.pci_gen is None
+    finally:
+        importlib.reload(gpu)
