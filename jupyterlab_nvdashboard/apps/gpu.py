@@ -83,8 +83,9 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
             stats["gpu_utilization_individual"].append(gpu)
             stats["gpu_memory_individual"].append(mem)
 
-        stats["gpu_utilization_total"] /= ngpus
-        stats["gpu_memory_total"] = round((stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2)
+        if ngpus > 0:
+            stats["gpu_utilization_total"] /= ngpus
+            stats["gpu_memory_total"] = round((stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2)
         self.write_message(json.dumps(stats))
 
 
