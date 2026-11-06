@@ -8,9 +8,13 @@ import time
 
 try:
     pynvml.nvmlInit()
-except pynvml.NVMLError_LibraryNotFound:
+except pynvml.NVMLError:
+    # NVML library missing (LibraryNotFound), driver not loaded, etc.
     ngpus = 0
     gpu_handles = []
+    nvlink_ver = None
+    max_bw = []
+    pci_gen = None
 else:
     ngpus = pynvml.nvmlDeviceGetCount()
     gpu_handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(ngpus)]
@@ -140,6 +144,8 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
 
 class PCIStatsWebSocketHandler(CustomWebSocketHandler):
     def send_data(self):
+        if pci_gen is None:
+            return
         # Use device-0 to get "upper bound"
         pci_width = pynvml.nvmlDeviceGetMaxPcieLinkWidth(gpu_handles[0])
         pci_bw = {

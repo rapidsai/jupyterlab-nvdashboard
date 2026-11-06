@@ -3,7 +3,7 @@
 
 import json
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from jupyterlab_nvdashboard.apps.gpu import (
     GPUUtilizationWebSocketHandler,
@@ -73,3 +73,20 @@ def test_pci_stats_handler(mock_handler, handler_args):
     assert "pci_tx" in data
     assert "pci_rx" in data
     assert "max_rxtx_tp" in data
+
+
+@pytest.mark.parametrize("error_name", ["NVMLError_DriverNotLoaded", "NVMLError_LibraryNotFound"])
+def test_gpu_module_imports_when_nvml_init_fails(error_name):
+    """Importing the GPU module must not raise when nvmlInit() fails."""
+    import importlib
+    import pynvml
+    import jupyterlab_nvdashboard.apps.gpu as gpu
+
+    try:
+        with patch.object(pynvml, "nvmlInit", side_effect=getattr(pynvml, error_name)()):
+            reloaded = importlib.reload(gpu)
+            assert reloaded.ngpus == 0
+            assert reloaded.gpu_handles == []
+            assert reloaded.pci_gen is None
+    finally:
+        importlib.reload(gpu)
