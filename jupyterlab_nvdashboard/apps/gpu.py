@@ -6,11 +6,16 @@ from jupyterlab_nvdashboard.apps.utils import CustomWebSocketHandler
 import time
 
 from cuda.core import system
+from cuda.pathfinder import DynamicLibNotFoundError
 
 
 try:
     gpus = list(system.Device.get_all_devices())
-except (system.LibraryNotFoundError, system.DriverNotLoadedError):
+except (
+    system.LibraryNotFoundError,
+    system.DriverNotLoadedError,
+    DynamicLibNotFoundError,
+):
     # No NVML library / NVIDIA driver on this machine
     gpus = []
 ngpus = len(gpus)
