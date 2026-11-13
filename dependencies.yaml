@@ -94,7 +94,7 @@ dependencies:
           - matrix:
               cuda: "13.4"
             packages:
-              - &latest_cuda cuda-version=13.0
+              - &latest_cuda cuda-version=13.4
           - matrix:
             packages:
               - *latest_cuda
