@@ -15,12 +15,12 @@ RAPIDS_PIP_ARGS=(
   --constraint "${PIP_CONSTRAINT}"
 )
 
+# generate constraints (possibly pinning to oldest support versions of dependencies)
+rapids-generate-pip-constraints py_test "${PIP_CONSTRAINT}"
+
 # unset PIP_CONSTRAINT (set by rapids-init-pip)... it doesn't affect builds as of pip 25.3, and
 # results in an error from 'pip wheel' when set and --build-constraint is also passed
 unset PIP_CONSTRAINT
-
-# generate constraints (possibly pinning to oldest support versions of dependencies)
-rapids-generate-pip-constraints py_test "${PIP_CONSTRAINT}"
 
 # echo to expand wildcard before adding `[extra]` required for pip
 python -m pip install \
