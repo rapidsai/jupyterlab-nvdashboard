@@ -9,6 +9,7 @@ files:
     includes:
       - build_wheels
       - checks
+      - cuda_version
       - py_version
       - run
       - test_python
@@ -71,11 +72,77 @@ dependencies:
           - identify>=1.4.20
           - pre-commit
           - nodejs=22
-  py_version:
-    common:
+  # 'cuda_version' intentionally does not contain fallback entries... we want
+  # a loud error if an unsupported 'cuda' value is passed
+  cuda_version:
+    specific:
       - output_types: conda
-        packages:
-          - python>=3.12
+        matrices:
+          - matrix:
+              cuda: "12.2"
+            packages:
+              - cuda-version=12.2
+          - matrix:
+              cuda: "12.9"
+            packages:
+              - cuda-version=12.9
+          - matrix:
+              cuda: "13.0"
+            packages:
+              - cuda-version=13.0
+          - matrix:
+            packages:
+              - cuda-version=13.4
+      - output_types: [requirements, constraints]
+        matrices:
+          - matrix:
+              use_cuda_wheels: "false"
+            packages:
+          - matrix:
+              cuda: "12.2"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==12.2.*
+          - matrix:
+              cuda: "12.9"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==12.9.*
+          - matrix:
+              cuda: "13.0"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==13.0.*
+          - matrix:
+              cuda: "13.*"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==13.4.*
+          - matrix:
+            packages:
+  py_version:
+    specific:
+      - output_types: [conda]
+        matrices:
+          - matrix:
+              py: "3.12"
+            packages:
+              - python=3.12
+          - matrix:
+              py: "3.13"
+            packages:
+              - python=3.13
+          - matrix:
+              py: "3.14"
+            packages:
+              - python=3.14
+          - matrix:
+              py: "3.15"
+            packages:
+              - python=3.15
+          - matrix:
+            packages:
+              - python>=3.12
   run:
     common:
       - output_types: [conda]
