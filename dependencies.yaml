@@ -85,8 +85,8 @@ dependencies:
         packages:
           - &jupyterlab jupyterlab>=4.0.0
           - psutil
-          # 'nvidia-ml-py' provides the 'pynvml' module
-          - nvidia-ml-py>=12
+          - cuda-bindings>=12.9.6,!=13.0.*,!=13.1.*,!=13.2.*,<14
+          - cuda-core>=1.0.0
           - tornado
   test_frontend:
     common:
