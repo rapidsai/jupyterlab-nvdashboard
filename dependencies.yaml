@@ -5,7 +5,8 @@ files:
   all:
     output: conda
     matrix:
-      arch: ['any']
+      cuda: ["12.9", "13.4"]
+      arch: [x86_64, aarch64]
     includes:
       - build_wheels
       - checks
