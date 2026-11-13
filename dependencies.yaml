@@ -49,6 +49,7 @@ files:
       key: test
     includes:
       - test_python
+      - cuda_version
 channels:
   - rapidsai
   - rapidsai-nightly
@@ -91,8 +92,12 @@ dependencies:
             packages:
               - cuda-version=13.0
           - matrix:
+              cuda: "13.4"
             packages:
-              - cuda-version=13.4
+              - &latest_cuda cuda-version=13.0
+          - matrix:
+            packages:
+              - *latest_cuda
       - output_types: [requirements, constraints]
         matrices:
           - matrix:
@@ -117,9 +122,10 @@ dependencies:
               cuda: "13.*"
               use_cuda_wheels: "true"
             packages:
-              - cuda-toolkit==13.4.*
+              - &latest_ctk cuda-toolkit==13.4.*
           - matrix:
             packages:
+              - *latest_ctk
   py_version:
     specific:
       - output_types: [conda]
