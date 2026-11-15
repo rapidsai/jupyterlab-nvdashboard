@@ -66,9 +66,8 @@ def test_nvlink_throughput_handler(mock_handler, handler_args):
 
 
 def test_gpu_resource_handler_without_gpus(mock_handler, handler_args, monkeypatch):
-    """With no GPU/driver (ngpus == 0) the handler must not divide by zero."""
-    monkeypatch.setattr("jupyterlab_nvdashboard.apps.gpu.ngpus", 0)
-    monkeypatch.setattr("jupyterlab_nvdashboard.apps.gpu.gpu_handles", [])
+    """With no GPU/driver the handler must not divide by zero."""
+    monkeypatch.setattr("jupyterlab_nvdashboard.apps.gpu.gpus", [])
     handler = GPUResourceWebSocketHandler(*handler_args)
     handler.send_data()
     data = json.loads(mock_handler.call_args[0][0])
@@ -98,18 +97,36 @@ def test_pci_stats_handler(mock_handler, handler_args):
     assert "max_rxtx_tp" in data
 
 
-@pytest.mark.parametrize("error_name", ["NVMLError_DriverNotLoaded", "NVMLError_LibraryNotFound"])
-def test_gpu_module_imports_when_nvml_init_fails(error_name):
-    """Importing the GPU module must not raise when nvmlInit() fails."""
+@pytest.mark.parametrize(
+    "error_name",
+    ["DriverNotLoadedError", "LibraryNotFoundError", "DynamicLibNotFoundError"],
+)
+def test_gpu_module_imports_when_device_enumeration_fails(error_name):
+    """Importing the GPU module must not raise when device enumeration fails."""
     import importlib
-    import pynvml
+
+    from cuda.core import system
+    from cuda.pathfinder import DynamicLibNotFoundError
+
     import jupyterlab_nvdashboard.apps.gpu as gpu
 
+    if error_name == "DynamicLibNotFoundError":
+        error = DynamicLibNotFoundError("libnvidia-ml.so.1")
+    else:
+        error = getattr(system, error_name)(0)
+
+    class _FailingDevice:
+        @staticmethod
+        def get_all_devices():
+            raise error
+
     try:
-        with patch.object(pynvml, "nvmlInit", side_effect=getattr(pynvml, error_name)()):
+        with patch.object(system, "Device", _FailingDevice):
             reloaded = importlib.reload(gpu)
             assert reloaded.ngpus == 0
-            assert reloaded.gpu_handles == []
+            assert reloaded.gpus == []
             assert reloaded.pci_gen is None
+            assert reloaded.nvlink_ver is None
+            assert reloaded.max_bw == []
     finally:
         importlib.reload(gpu)
