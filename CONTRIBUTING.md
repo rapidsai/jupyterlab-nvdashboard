@@ -19,7 +19,7 @@ The `jlpm` command is JupyterLab's pinned version of
 You can get this and other development dependencies doing:
 
 ```bash
-conda env create --yes --name nvdashboard-dev --file ./conda/environments/all_arch-any.yaml
+conda env create --yes --name nvdashboard-dev --file ./conda/environments/all_cuda-134_arch-x86_64.yaml
 conda activate nvdashboard-dev
 ```
 
