@@ -94,6 +94,7 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
 
 class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
     prev_throughput = None
+    prev_time = None
 
     def send_data(self):
         if max_links == 0:
@@ -115,27 +116,32 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
             )
             for device in gpus
         ]
+        now = time.monotonic()
 
         # Check if previous throughput is available
-        if self.prev_throughput is not None:
+        if self.prev_throughput is not None and now > self.prev_time:
             # Calculate the change since the last request
             throughput_change = [
                 [throughput[i][j].value - self.prev_throughput[i][j].value for j in range(len(throughput[i]))]
                 for i in range(len(throughput))
             ]
+            # Counters are in KiB, convert the change to bytes per second
+            scale = 1024 / (now - self.prev_time)
         else:
             # If no previous throughput is available, set change to zero
             throughput_change = [[0] * len(throughput[i]) for i in range(len(throughput))]
+            scale = 0
 
         # Store the current throughput for the next request
         self.prev_throughput = throughput
+        self.prev_time = now
 
         # Send the change in throughput as part of the response
         self.write_message(
             json.dumps(
                 {
-                    "nvlink_rx": [sum(throughput_change[i][:max_links]) * 1024 for i in range(len(throughput_change))],
-                    "nvlink_tx": [sum(throughput_change[i][max_links:]) * 1024 for i in range(len(throughput_change))],
+                    "nvlink_rx": [sum(throughput_change[i][:max_links]) * scale for i in range(len(throughput_change))],
+                    "nvlink_tx": [sum(throughput_change[i][max_links:]) * scale for i in range(len(throughput_change))],
                     "max_rxtx_bw": max_bw,
                 }
             )
