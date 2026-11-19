@@ -16,6 +16,7 @@ describe('useWebSocket', () => {
   let ws: any;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     ws = { send: jest.fn(), close: jest.fn(), readyState: 1 };
     (connectToWebSocket as jest.Mock).mockReturnValue(ws);
   });
@@ -35,6 +36,21 @@ describe('useWebSocket', () => {
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledWith({ value: 1 }, false);
     // The connection is not re-created on re-render.
+    expect(connectToWebSocket).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes the latest isPaused to processData after a re-render', () => {
+    const cb = jest.fn();
+
+    const { rerender } = renderHook(
+      ({ paused }) => useWebSocket<any>('endpoint', paused, 1000, cb, true),
+      { initialProps: { paused: false } }
+    );
+
+    rerender({ paused: true });
+    ws.onmessage({ data: JSON.stringify({ value: 1 }) });
+
+    expect(cb).toHaveBeenCalledWith({ value: 1 }, true);
     expect(connectToWebSocket).toHaveBeenCalledTimes(1);
   });
 });
