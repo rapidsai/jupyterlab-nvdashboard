@@ -69,6 +69,13 @@ export const useWebSocket = <T>(
   isSettingsLoaded: boolean
 ) => {
   const wsRef = useRef<WebSocket | null>(null);
+  // Keep the latest callback: the socket is only created once, so a callback
+  // captured at that time would see stale state (e.g. empty history). The same
+  // applies to isPaused.
+  const processDataRef = useRef(processData);
+  processDataRef.current = processData;
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
 
   useEffect(() => {
     if (!isSettingsLoaded) {
@@ -85,7 +92,7 @@ export const useWebSocket = <T>(
     ws.onmessage = event => {
       const response = JSON.parse(event.data);
       if (response.status !== 'connected') {
-        processData(response, isPaused);
+        processDataRef.current(response, isPausedRef.current);
       } else {
         ws.send(JSON.stringify({ updateFrequency, isPaused }));
       }
