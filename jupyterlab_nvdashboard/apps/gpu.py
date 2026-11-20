@@ -87,8 +87,9 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
             stats["gpu_utilization_individual"].append(gpu)
             stats["gpu_memory_individual"].append(mem)
 
-        stats["gpu_utilization_total"] /= len(gpus)
-        stats["gpu_memory_total"] = round((stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2)
+        if len(gpus) > 0:
+            stats["gpu_utilization_total"] /= len(gpus)
+            stats["gpu_memory_total"] = round((stats["gpu_memory_total"] / gpu_mem_sum) * 100, 2)
         self.write_message(json.dumps(stats))
 
 
@@ -144,6 +145,8 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
 
 class PCIStatsWebSocketHandler(CustomWebSocketHandler):
     def send_data(self):
+        if pci_gen is None:
+            return
         # Use device-0 to get "upper bound"
         pci_width = gpus[0].pci_info.max_link_width
         pci_bw = {

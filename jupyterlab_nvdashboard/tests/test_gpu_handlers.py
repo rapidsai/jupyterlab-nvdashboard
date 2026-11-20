@@ -3,7 +3,7 @@
 
 import json
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from jupyterlab_nvdashboard.apps.gpu import (
     GPUUtilizationWebSocketHandler,
@@ -65,7 +65,29 @@ def test_nvlink_throughput_handler(mock_handler, handler_args):
     assert "max_rxtx_bw" in data
 
 
+def test_gpu_resource_handler_without_gpus(mock_handler, handler_args, monkeypatch):
+    """With no GPU/driver the handler must not divide by zero."""
+    monkeypatch.setattr("jupyterlab_nvdashboard.apps.gpu.gpus", [])
+    handler = GPUResourceWebSocketHandler(*handler_args)
+    handler.send_data()
+    data = json.loads(mock_handler.call_args[0][0])
+    assert data["gpu_utilization_total"] == 0
+    assert data["gpu_memory_total"] == 0
+    assert data["gpu_memory_individual"] == []
+
+
+def test_pci_stats_handler_without_pci_gen(mock_handler, handler_args, monkeypatch):
+    monkeypatch.setattr("jupyterlab_nvdashboard.apps.gpu.pci_gen", None)
+    handler = PCIStatsWebSocketHandler(*handler_args)
+    handler.send_data()
+    mock_handler.assert_not_called()
+
+
 def test_pci_stats_handler(mock_handler, handler_args):
+    from jupyterlab_nvdashboard.apps import gpu
+
+    if gpu.pci_gen is None:
+        pytest.skip("PCIe info unavailable (no GPU/driver)")
     handler = PCIStatsWebSocketHandler(*handler_args)
     handler.send_data()
     args, _ = mock_handler.call_args
@@ -73,3 +95,38 @@ def test_pci_stats_handler(mock_handler, handler_args):
     assert "pci_tx" in data
     assert "pci_rx" in data
     assert "max_rxtx_tp" in data
+
+
+@pytest.mark.parametrize(
+    "error_name",
+    ["DriverNotLoadedError", "LibraryNotFoundError", "DynamicLibNotFoundError"],
+)
+def test_gpu_module_imports_when_device_enumeration_fails(error_name):
+    """Importing the GPU module must not raise when device enumeration fails."""
+    import importlib
+
+    from cuda.core import system
+    from cuda.pathfinder import DynamicLibNotFoundError
+
+    import jupyterlab_nvdashboard.apps.gpu as gpu
+
+    if error_name == "DynamicLibNotFoundError":
+        error = DynamicLibNotFoundError("libnvidia-ml.so.1")
+    else:
+        error = getattr(system, error_name)(0)
+
+    class _FailingDevice:
+        @staticmethod
+        def get_all_devices():
+            raise error
+
+    try:
+        with patch.object(system, "Device", _FailingDevice):
+            reloaded = importlib.reload(gpu)
+            assert reloaded.ngpus == 0
+            assert reloaded.gpus == []
+            assert reloaded.pci_gen is None
+            assert reloaded.nvlink_ver is None
+            assert reloaded.max_bw == []
+    finally:
+        importlib.reload(gpu)
