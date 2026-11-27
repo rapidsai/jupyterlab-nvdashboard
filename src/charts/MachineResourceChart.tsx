@@ -46,16 +46,23 @@ const MachineResourceChart: React.FC<IChartProps> = ({ settingRegistry }) => {
   // Process incoming data from the WebSocket and manage the CPU data state.
   const processData = (response: ICPUResourceProps, isPaused: any) => {
     if (cpuData.length > 0) {
+      const previous = cpuData[cpuData.length - 1];
+      // The counters are cumulative and `time` is in milliseconds.
+      const seconds = (response.time - previous.time) / 1000;
+      const rate = (current: number, last: number) =>
+        seconds > 0 ? (current - last) / seconds : 0;
       response = {
         ...response,
-        disk_read_current:
-          response.disk_read - cpuData[cpuData.length - 1].disk_read,
-        disk_write_current:
-          response.disk_write - cpuData[cpuData.length - 1].disk_write,
-        network_read_current:
-          response.network_read - cpuData[cpuData.length - 1].network_read,
-        network_write_current:
-          response.network_write - cpuData[cpuData.length - 1].network_write
+        disk_read_current: rate(response.disk_read, previous.disk_read),
+        disk_write_current: rate(response.disk_write, previous.disk_write),
+        network_read_current: rate(
+          response.network_read,
+          previous.network_read
+        ),
+        network_write_current: rate(
+          response.network_write,
+          previous.network_write
+        )
       };
     }
     if (!isPaused) {

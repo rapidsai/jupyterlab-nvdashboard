@@ -65,6 +65,31 @@ def test_nvlink_throughput_handler(mock_handler, handler_args):
     assert "max_rxtx_bw" in data
 
 
+def test_nvlink_throughput_handler_reports_bytes_per_second(mock_handler, handler_args, monkeypatch):
+    module = "jupyterlab_nvdashboard.apps.gpu"
+    device = MagicMock()
+    device.get_field_values.side_effect = [
+        [MagicMock(value=0), MagicMock(value=0)],
+        [MagicMock(value=100), MagicMock(value=200)],
+    ]
+    monkeypatch.setattr(f"{module}.system", MagicMock())
+    monkeypatch.setattr(f"{module}.gpus", [device])
+    monkeypatch.setattr(f"{module}.max_links", 1)
+    monkeypatch.setattr(f"{module}.max_bw", 1000000, raising=False)
+    # Two samples taken 100 ms apart
+    monkeypatch.setattr(f"{module}.time", MagicMock(monotonic=MagicMock(side_effect=[10.0, 10.1])))
+
+    handler = NVLinkThroughputWebSocketHandler(*handler_args)
+    handler.send_data()
+    handler.send_data()
+
+    args, _ = mock_handler.call_args
+    data = json.loads(args[0])
+    # NVML counters are in KiB
+    assert data["nvlink_rx"] == [pytest.approx(100 * 1024 / 0.1)]
+    assert data["nvlink_tx"] == [pytest.approx(200 * 1024 / 0.1)]
+
+
 def test_pci_stats_handler(mock_handler, handler_args):
     handler = PCIStatsWebSocketHandler(*handler_args)
     handler.send_data()
