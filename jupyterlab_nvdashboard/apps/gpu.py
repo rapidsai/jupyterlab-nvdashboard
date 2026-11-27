@@ -94,6 +94,7 @@ class GPUResourceWebSocketHandler(CustomWebSocketHandler):
 
 class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
     prev_throughput = None
+    prev_time = None
 
     def send_data(self):
         if max_links == 0:
@@ -115,12 +116,17 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
             )
             for device in gpus
         ]
+        now = time.monotonic()
 
         # Check if previous throughput is available
         if self.prev_throughput is not None:
-            # Calculate the change since the last request
+            # Calculate the change per second since the last request
+            elapsed = now - self.prev_time
             throughput_change = [
-                [throughput[i][j].value - self.prev_throughput[i][j].value for j in range(len(throughput[i]))]
+                [
+                    (throughput[i][j].value - self.prev_throughput[i][j].value) / elapsed
+                    for j in range(len(throughput[i]))
+                ]
                 for i in range(len(throughput))
             ]
         else:
@@ -129,8 +135,9 @@ class NVLinkThroughputWebSocketHandler(CustomWebSocketHandler):
 
         # Store the current throughput for the next request
         self.prev_throughput = throughput
+        self.prev_time = now
 
-        # Send the change in throughput as part of the response
+        # Send the throughput per second as part of the response
         self.write_message(
             json.dumps(
                 {
